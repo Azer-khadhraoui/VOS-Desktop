@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.SigninController"
+            prefWidth="1440"
+            prefHeight="1024">
+
+    <!-- BACKGROUND -->
+    <Pane prefWidth="1440"
+          prefHeight="1024"
+          styleClass="signinBackground"/>
+
+    <!-- FORMULAIRE -->
+    <VBox prefWidth="380"
+          layoutX="245"
+          layoutY="250"
+          spacing="14"
+          alignment="TOP_LEFT"
+          style="-fx-background-color: transparent;">
+
+        <Label text="Bienvenue chez VOS" styleClass="title"/>
+        <Label text="Connectez-vous à votre espace"
+               styleClass="subtitle"/>
+
+        <!-- EMAIL -->
+        <Label text="Adresse e-mail" styleClass="fieldLabel"/>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="inputBox">
+            <Label text="📧"/>
+            <TextField fx:id="tfEmail"
+                       promptText="exemple@gmail.com"
+                       styleClass="inputField"/>
+        </HBox>
+
+        <!-- PASSWORD -->
+        <Label text="Mot de passe" styleClass="fieldLabel"/>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="inputBox">
+            <Label text="🔒"/>
+            <PasswordField fx:id="tfPassword"
+                           promptText="••••••••"
+                           styleClass="inputField"/>
+        </HBox>
+
+        <!-- BOUTON CENTRÉ -->
+        <HBox alignment="CENTER" style="-fx-padding: 6 0 0 0;">
+            <Button text="🔐 Se connecter"
+                    onAction="#signin"
+                    styleClass="btnSignupGlow"/>
+        </HBox>
+
+        <!-- LIEN SIGNUP -->
+        <HBox spacing="6" alignment="CENTER_LEFT" styleClass="hintRow">
+            <Label text="Vous n’avez pas de compte ?" styleClass="hintText"/>
+            <Hyperlink text="Créer un compte"
+                       onAction="#goToSignup"
+                       styleClass="link"/>
+        </HBox>
+
+        <Label fx:id="lblMessage" styleClass="message"/>
+
+    </VBox>
+
+</AnchorPane>

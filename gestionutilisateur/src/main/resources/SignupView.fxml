@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.SignupController"
+            prefWidth="1440"
+            prefHeight="1024">
+
+    <!-- BACKGROUND -->
+    <Pane prefWidth="1440"
+          prefHeight="1024"
+          styleClass="backgroundPane"/>
+
+    <!-- FORMULAIRE -->
+    <VBox spacing="10"
+          prefWidth="360"
+          layoutX="800"
+          layoutY="160"
+          alignment="TOP_LEFT"
+          style="-fx-background-color: transparent;">
+
+        <!-- TITRE -->
+        <Label text="Bienvenue à VOS" styleClass="title"/>
+        <Label text="Créez votre compte et commencez l’expérience"
+               styleClass="subtitle"/>
+
+        <!-- NOM -->
+        <Label text="Nom" styleClass="fieldLabel"/>
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="inputBox">
+            <Label text="👤"/>
+            <TextField fx:id="tfNom"
+                       promptText="Votre nom"
+                       styleClass="inputField"/>
+        </HBox>
+
+        <!-- PRENOM -->
+        <Label text="Prénom" styleClass="fieldLabel"/>
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="inputBox">
+            <Label text="👤"/>
+            <TextField fx:id="tfPrenom"
+                       promptText="Votre prénom"
+                       styleClass="inputField"/>
+        </HBox>
+
+        <!-- EMAIL -->
+        <Label text="Adresse e-mail" styleClass="fieldLabel"/>
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="inputBox">
+            <Label text="📧"/>
+            <TextField fx:id="tfEmail"
+                       promptText="exemple@gmail.com"
+                       styleClass="inputField"/>
+        </HBox>
+
+        <!-- PASSWORD -->
+        <Label text="Mot de passe" styleClass="fieldLabel"/>
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="inputBox">
+            <Label text="🔒"/>
+            <PasswordField fx:id="tfPassword"
+                           promptText="••••••••"
+                           styleClass="inputField"/>
+        </HBox>
+
+        <!-- BOUTONS -->
+        <VBox spacing="12"
+              alignment="CENTER"
+              style="-fx-padding: 10 0 0 0;">
+
+            <Button text="📷 Ajouter une photo de profil"
+                    onAction="#uploadImage"
+                    styleClass="btnUpload"/>
+
+            <Button text="✨ S'inscrire"
+                    onAction="#signup"
+                    styleClass="btnSignupGlow"/>
+        </VBox>
+
+        <!-- LIEN RETOUR SIGNIN -->
+        <HBox spacing="6" alignment="CENTER_LEFT" styleClass="hintRow">
+            <Label text="Vous avez déjà un compte ?" styleClass="hintText"/>
+            <Hyperlink text="Se connecter"
+                       onAction="#goToSignin"
+                       styleClass="link"/>
+        </HBox>
+
+        <Label fx:id="lblMessage" styleClass="message"/>
+
+
+    </VBox>
+
+</AnchorPane>
