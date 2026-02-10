@@ -1,13 +1,17 @@
 package controllers;
 
 import entities.Utilisateur;
+import javafx.animation.Interpolator;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+import javafx.util.Duration;
 import services.ServiceUtilisateur;
+import javafx.scene.Scene;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -16,85 +20,72 @@ import java.nio.file.StandardCopyOption;
 
 public class SignupController {
 
-    // ===== Champs du formulaire =====
     @FXML private TextField tfNom;
     @FXML private TextField tfPrenom;
     @FXML private TextField tfEmail;
     @FXML private PasswordField tfPassword;
-
     @FXML private Label lblMessage;
 
-    // ===== Image sélectionnée =====
     private String imageName = "default.png";
 
-    // ===== Service =====
     ServiceUtilisateur su = new ServiceUtilisateur();
 
     // =====================================================
-    // 📷 Upload Image
+    // UPLOAD IMAGE
     // =====================================================
     @FXML
     public void uploadImage() {
 
         FileChooser fc = new FileChooser();
         fc.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(
-                        "Images", "*.png", "*.jpg", "*.jpeg"
-                )
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
         );
 
         File file = fc.showOpenDialog(null);
 
         if (file != null) {
             try {
-                // Créer dossier local "images"
                 File folder = new File("images");
                 if (!folder.exists()) folder.mkdir();
 
-                // Copier l’image dans le dossier
                 Path dest = Path.of("images", file.getName());
-                Files.copy(file.toPath(), dest,
-                        StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(file.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
 
-                // Sauvegarder le nom
                 imageName = file.getName();
 
                 lblMessage.setStyle("-fx-text-fill: green;");
-                lblMessage.setText("✅ Photo sélectionnée avec succès");
+                lblMessage.setText("✅ Photo sélectionnée !");
 
             } catch (Exception e) {
                 lblMessage.setStyle("-fx-text-fill: red;");
-                lblMessage.setText("❌ Erreur upload image");
+                lblMessage.setText("❌ Erreur upload image !");
                 e.printStackTrace();
             }
         }
     }
 
     // =====================================================
-    // ✨ Signup (Inscription)
+    // SIGNUP
     // =====================================================
     @FXML
     public void signup() {
 
-        // Vérification champs obligatoires
         if (tfNom.getText().isEmpty() ||
                 tfPrenom.getText().isEmpty() ||
                 tfEmail.getText().isEmpty() ||
                 tfPassword.getText().isEmpty()) {
 
             lblMessage.setStyle("-fx-text-fill: red;");
-            lblMessage.setText("❌ Veuillez remplir tous les champs !");
+            lblMessage.setText("❌ Remplissez tous les champs !");
             return;
         }
 
-        // Vérifier email déjà utilisé
         if (su.emailExiste(tfEmail.getText())) {
             lblMessage.setStyle("-fx-text-fill: red;");
             lblMessage.setText("❌ Email déjà utilisé !");
             return;
         }
 
-        // Créer utilisateur
         Utilisateur u = new Utilisateur(
                 0,
                 imageName,
@@ -105,43 +96,63 @@ public class SignupController {
                 tfPrenom.getText()
         );
 
-        // Ajouter dans la BD
         su.ajouter(u);
 
         lblMessage.setStyle("-fx-text-fill: green;");
         lblMessage.setText("✨ Inscription réussie !");
-
-        // Optionnel : vider les champs
-        tfNom.clear();
-        tfPrenom.clear();
-        tfEmail.clear();
-        tfPassword.clear();
     }
 
     // =====================================================
-    // 🔙 Retour vers Signin
+    // TRANSITION SIGNUP → SIGNIN
     // =====================================================
     @FXML
     public void goToSignin() {
+        animateTransition("/SigninView.fxml", -1440);
+    }
+
+    // =====================================================
+    // MÉTHODE TRANSITION (EASE IN OUT 600ms)
+    // =====================================================
+    private void animateTransition(String fxmlPath, double startX) {
 
         try {
-            Stage stage = (Stage) tfEmail.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent newRoot = loader.load();
 
-            Scene scene = new Scene(
-                    FXMLLoader.load(
-                            getClass().getResource("/SigninView.fxml")
-                    ),
-                    1440, 1024
-            );
+            Scene scene = tfEmail.getScene();
+            Parent oldRoot = scene.getRoot();
 
-            scene.getStylesheets().add(
-                    getClass().getResource("/styleUser.css").toExternalForm()
-            );
+            // Désactiver les events pendant la transition
+            oldRoot.setDisable(true);
 
-            stage.setScene(scene);
+            newRoot.setTranslateX(startX);
+
+            StackPane stack = new StackPane(oldRoot, newRoot);
+            scene.setRoot(stack);
+
+            TranslateTransition ttNew =
+                    new TranslateTransition(Duration.millis(600), newRoot);
+            ttNew.setFromX(startX);
+            ttNew.setToX(0);
+            ttNew.setInterpolator(Interpolator.EASE_BOTH);
+
+            TranslateTransition ttOld =
+                    new TranslateTransition(Duration.millis(600), oldRoot);
+            ttOld.setFromX(0);
+            ttOld.setToX(-startX);
+            ttOld.setInterpolator(Interpolator.EASE_BOTH);
+
+            ttNew.play();
+            ttOld.play();
+
+            ttNew.setOnFinished(e -> {
+                newRoot.setTranslateX(0);
+                scene.setRoot(newRoot);
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }
