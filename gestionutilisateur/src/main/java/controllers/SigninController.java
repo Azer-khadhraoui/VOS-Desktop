@@ -1,7 +1,6 @@
 package controllers;
 
-import javafx.animation.Interpolator;
-import javafx.animation.TranslateTransition;
+import javafx.animation.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -71,9 +70,9 @@ public class SigninController {
                             
                             Stage stage = (Stage) tfEmail.getScene().getWindow();
                             Scene newScene = new Scene(root, 1440, 1024);
-                            stage.setScene(newScene);
-                            stage.setResizable(false);
-                            stage.centerOnScreen();
+                            
+                            // Animation de transition
+                            animateSceneTransition(stage, newScene);
                             
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -142,6 +141,51 @@ public class SigninController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // =====================================================
+    // ANIMATION TRANSITION DE CONNEXION
+    // =====================================================
+    private void animateSceneTransition(Stage stage, Scene newScene) {
+        Parent root = newScene.getRoot();
+        
+        // État initial : invisible et réduit
+        root.setOpacity(0);
+        root.setScaleX(0.85);
+        root.setScaleY(0.85);
+        root.setTranslateY(30);
+        
+        // Appliquer la nouvelle scène
+        stage.setScene(newScene);
+        stage.setResizable(false);
+        stage.centerOnScreen();
+        
+        // Animation Fade In
+        FadeTransition fade = new FadeTransition(Duration.millis(600), root);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        fade.setInterpolator(Interpolator.EASE_OUT);
+        
+        // Animation Scale (zoom in)
+        ScaleTransition scaleX = new ScaleTransition(Duration.millis(600), root);
+        scaleX.setFromX(0.85);
+        scaleX.setToX(1.0);
+        scaleX.setInterpolator(Interpolator.EASE_OUT);
+        
+        ScaleTransition scaleY = new ScaleTransition(Duration.millis(600), root);
+        scaleY.setFromY(0.85);
+        scaleY.setToY(1.0);
+        scaleY.setInterpolator(Interpolator.EASE_OUT);
+        
+        // Animation Slide (de bas en haut)
+        TranslateTransition slide = new TranslateTransition(Duration.millis(600), root);
+        slide.setFromY(30);
+        slide.setToY(0);
+        slide.setInterpolator(Interpolator.EASE_OUT);
+        
+        // Lancer toutes les animations en parallèle
+        ParallelTransition parallel = new ParallelTransition(fade, scaleX, scaleY, slide);
+        parallel.play();
     }
 
 }
