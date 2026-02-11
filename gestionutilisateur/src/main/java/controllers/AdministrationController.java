@@ -52,12 +52,19 @@ public class AdministrationController {
     @FXML private Label lblModalMessage;
     @FXML private StackPane profileImageContainer;
     @FXML private Label lblProfileIcon;
-    @FXML private Label lblImageName;
+    
+    // Modal de suppression
+    @FXML private StackPane deleteModalOverlay;
+    @FXML private VBox deleteModalContent;
+    @FXML private Label lblDeleteIcon;
+    @FXML private Label lblDeleteUserInfo;
+    @FXML private Button btnConfirmDelete;
 
     private ServiceUtilisateur serviceUtilisateur = new ServiceUtilisateur();
     private Utilisateur selectedUser = null;
     private boolean isEditMode = false;
     private String currentImageName = "default.png";
+    private Utilisateur userToDelete = null;
 
     @FXML
     public void initialize() {
@@ -66,6 +73,14 @@ public class AdministrationController {
         refreshTable();
         setupSearch();
         loadCurrentUser();
+        
+        // Bind modal overlays to fill parent (1440x1024)
+        modalOverlay.setMinSize(1440, 1024);
+        modalOverlay.setMaxSize(1440, 1024);
+        modalOverlay.setPrefSize(1440, 1024);
+        deleteModalOverlay.setMinSize(1440, 1024);
+        deleteModalOverlay.setMaxSize(1440, 1024);
+        deleteModalOverlay.setPrefSize(1440, 1024);
     }
 
     private void loadCurrentUser() {
@@ -298,22 +313,44 @@ public class AdministrationController {
                 hbox.setAlignment(Pos.CENTER);
 
                 btnEdit.setOnAction(event -> {
-                    Utilisateur user = getTableView().getItems().get(getIndex());
-                    editUser(user);
+                    int index = getIndex();
+                    if (index >= 0 && index < getTableView().getItems().size()) {
+                        Utilisateur user = getTableView().getItems().get(index);
+                        editUser(user);
+                    }
                 });
 
                 btnDelete.setOnAction(event -> {
-                    Utilisateur user = getTableView().getItems().get(getIndex());
-                    deleteUser(user);
+                    int index = getIndex();
+                    if (index >= 0 && index < getTableView().getItems().size()) {
+                        Utilisateur user = getTableView().getItems().get(index);
+                        deleteUser(user);
+                    }
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
+                if (empty || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
                 } else {
+                    Utilisateur user = getTableView().getItems().get(getIndex());
+                    Utilisateur currentUser = UserSession.getInstance().getCurrentUser();
+                    
+                    // Vérifier si c'est l'utilisateur connecté
+                    if (currentUser != null && user.getId_utilisateur() == currentUser.getId_utilisateur()) {
+                        // Désactiver le bouton de suppression pour soi-même
+                        btnDelete.setDisable(true);
+                        btnDelete.setStyle("-fx-font-size: 18px; -fx-opacity: 0.3; -fx-cursor: not-allowed;");
+                        Tooltip tooltip = new Tooltip("⚠️ Vous ne pouvez pas supprimer votre propre compte");
+                        Tooltip.install(btnDelete, tooltip);
+                    } else {
+                        btnDelete.setDisable(false);
+                        btnDelete.setStyle("-fx-font-size: 18px;");
+                        Tooltip.uninstall(btnDelete, null);
+                    }
+                    
                     setGraphic(hbox);
                 }
             }
@@ -362,18 +399,45 @@ public class AdministrationController {
         clearForm();
         resetProfileImage();
         lblModalMessage.setText("");
+        
+        // Afficher le modal
         modalOverlay.setVisible(true);
         modalOverlay.setManaged(true);
+        modalOverlay.toFront();
         
-        // Animation d'ouverture
-        animateModalOpen();
+        // Animation simple d'ouverture
+        modalContent.setOpacity(0);
+        modalContent.setScaleX(0.9);
+        modalContent.setScaleY(0.9);
+        
+        FadeTransition fade = new FadeTransition(Duration.millis(300), modalContent);
+        fade.setFromValue(0);
+        fade.setToValue(1.0);
+        
+        ScaleTransition scale = new ScaleTransition(Duration.millis(300), modalContent);
+        scale.setFromX(0.9);
+        scale.setFromY(0.9);
+        scale.setToX(1.0);
+        scale.setToY(1.0);
+        scale.setInterpolator(Interpolator.EASE_OUT);
+        
+        ParallelTransition parallel = new ParallelTransition(fade, scale);
+        parallel.play();
     }
     
     private void resetProfileImage() {
-        profileImageContainer.getChildren().clear();
-        lblProfileIcon.setText("👤");
-        profileImageContainer.getChildren().add(lblProfileIcon);
-        lblImageName.setText("");
+        try {
+            if (profileImageContainer != null) {
+                profileImageContainer.getChildren().clear();
+                if (lblProfileIcon != null) {
+                    lblProfileIcon.setText("👤");
+                    lblProfileIcon.setStyle("-fx-font-size: 50px;");
+                    profileImageContainer.getChildren().add(lblProfileIcon);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la réinitialisation de l'image: " + e.getMessage());
+        }
     }
     
     private void animateModalOpen() {
@@ -422,41 +486,60 @@ public class AdministrationController {
     }
 
     private void editUser(Utilisateur user) {
+        if (user == null) return;
+        
         isEditMode = true;
         selectedUser = user;
-        currentImageName = user.getImage_profil();
+        currentImageName = user.getImage_profil() != null ? user.getImage_profil() : "default.png";
+        
+        // Update modal title and button text
         modalTitle.setText("✏️ Modifier l'utilisateur");
         btnSave.setText("🔄 Mettre à jour");
         
-        tfNom.setText(user.getNom());
-        tfPrenom.setText(user.getPrenom());
-        tfEmail.setText(user.getEmail());
-        tfPassword.setText(user.getMot_de_passe());
-        cbRole.setValue(user.getRole());
+        // Fill in the form fields
+        tfNom.setText(user.getNom() != null ? user.getNom() : "");
+        tfPrenom.setText(user.getPrenom() != null ? user.getPrenom() : "");
+        tfEmail.setText(user.getEmail() != null ? user.getEmail() : "");
+        tfPassword.setText(user.getMot_de_passe() != null ? user.getMot_de_passe() : "");
+        cbRole.setValue(user.getRole() != null ? user.getRole() : "CLIENT");
         
-        // Charger l'image de profil
-        loadProfileImage(user.getImage_profil());
+        // Load profile image
+        loadProfileImage(currentImageName);
         
+        // Clear message
         lblModalMessage.setText("");
+        
+        // Reset modal content properties
+        modalContent.setScaleX(1.0);
+        modalContent.setScaleY(1.0);
+        modalContent.setOpacity(1.0);
+        
+        // Show modal with animation
         modalOverlay.setVisible(true);
         modalOverlay.setManaged(true);
+        modalOverlay.toFront();
         
-        // Animation d'ouverture identique à l'ajout
-        animateModalOpen();
+        FadeTransition fade = new FadeTransition(Duration.millis(300), modalOverlay);
+        fade.setFromValue(0.0);
+        fade.setToValue(1.0);
         
-        // Puis animation mode édition après l'ouverture
-        new Thread(() -> {
-            try {
-                Thread.sleep(500);
-                javafx.application.Platform.runLater(this::animateModalEdit);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        ScaleTransition scale = new ScaleTransition(Duration.millis(300), modalContent);
+        scale.setFromX(0.85);
+        scale.setFromY(0.85);
+        scale.setToX(1.0);
+        scale.setToY(1.0);
+        
+        ParallelTransition transition = new ParallelTransition(fade, scale);
+        transition.play();
     }
     
     private void loadProfileImage(String imageName) {
         try {
+            if (imageName == null || imageName.isEmpty() || imageName.equals("default.png")) {
+                resetProfileImage();
+                return;
+            }
+            
             File imgFile = new File("images/" + imageName);
             if (imgFile.exists()) {
                 ImageView imageView = new ImageView();
@@ -472,22 +555,17 @@ public class AdministrationController {
                 
                 profileImageContainer.getChildren().clear();
                 profileImageContainer.getChildren().add(imageView);
-                lblImageName.setText(imageName);
             } else {
                 resetProfileImage();
             }
         } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'image: " + e.getMessage());
             resetProfileImage();
         }
     }
     
     private void animateModalEdit() {
-        // Animation subtile de pulsation pour indiquer le mode édition
-        modalContent.getStyleClass().clear();
-        modalContent.getStyleClass().add("modal-content");
-        modalContent.getStyleClass().add("modal-content-editing");
-        
-        // Petite pulsation
+        // Petite pulsation pour indiquer le mode édition
         ScaleTransition pulse = new ScaleTransition(Duration.millis(300), modalContent);
         pulse.setFromX(1.0);
         pulse.setFromY(1.0);
@@ -500,23 +578,116 @@ public class AdministrationController {
     }
 
     private void deleteUser(Utilisateur user) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Supprimer l'utilisateur");
-        alert.setContentText("Voulez-vous vraiment supprimer " + user.getNom() + " " + user.getPrenom() + " ?");
-
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                serviceUtilisateur.supprimer(user.getId_utilisateur());
-                refreshTable();
-                
-                Alert success = new Alert(Alert.AlertType.INFORMATION);
-                success.setTitle("Succès");
-                success.setHeaderText(null);
-                success.setContentText("✅ Utilisateur supprimé avec succès !");
-                success.showAndWait();
-            }
+        // Vérification de sécurité: empêcher la suppression de soi-même
+        Utilisateur currentUser = UserSession.getInstance().getCurrentUser();
+        if (currentUser != null && user.getId_utilisateur() == currentUser.getId_utilisateur()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("⚠️ Action interdite");
+            alert.setHeaderText("Impossible de supprimer votre propre compte");
+            alert.setContentText(
+                "🚫 Vous ne pouvez pas supprimer votre propre compte pour des raisons de sécurité.\n\n" +
+                "👥 Demandez à un autre administrateur de le faire si nécessaire."
+            );
+            alert.showAndWait();
+            return;
+        }
+        
+        userToDelete = user;
+        
+        // Afficher les informations de l'utilisateur
+        lblDeleteUserInfo.setText(
+            "👤 " + user.getNom() + " " + user.getPrenom() + "\n" +
+            "📧 " + user.getEmail() + "\n" +
+            "🎭 " + user.getRole()
+        );
+        
+        // Afficher le modal avec animation
+        deleteModalOverlay.setVisible(true);
+        deleteModalOverlay.setManaged(true);
+        deleteModalOverlay.toFront();
+        
+        // Animation d'ouverture
+        deleteModalContent.setOpacity(0);
+        deleteModalContent.setScaleX(0.7);
+        deleteModalContent.setScaleY(0.7);
+        
+        FadeTransition fade = new FadeTransition(Duration.millis(300), deleteModalContent);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        
+        ScaleTransition scaleX = new ScaleTransition(Duration.millis(300), deleteModalContent);
+        scaleX.setFromX(0.7);
+        scaleX.setToX(1.0);
+        
+        ScaleTransition scaleY = new ScaleTransition(Duration.millis(300), deleteModalContent);
+        scaleY.setFromY(0.7);
+        scaleY.setToY(1.0);
+        
+        ParallelTransition parallel = new ParallelTransition(fade, scaleX, scaleY);
+        parallel.setInterpolator(Interpolator.EASE_OUT);
+        parallel.play();
+        
+        // Animation de l'icône
+        RotateTransition rotate = new RotateTransition(Duration.millis(400), lblDeleteIcon);
+        rotate.setByAngle(15);
+        rotate.setCycleCount(6);
+        rotate.setAutoReverse(true);
+        rotate.play();
+    }
+    
+    @FXML
+    private void closeDeleteModal() {
+        // Animation de fermeture
+        FadeTransition fade = new FadeTransition(Duration.millis(200), deleteModalContent);
+        fade.setToValue(0);
+        
+        ScaleTransition scale = new ScaleTransition(Duration.millis(200), deleteModalContent);
+        scale.setToX(0.7);
+        scale.setToY(0.7);
+        
+        ParallelTransition parallel = new ParallelTransition(fade, scale);
+        parallel.setOnFinished(e -> {
+            deleteModalOverlay.setVisible(false);
+            deleteModalOverlay.setManaged(false);
+            userToDelete = null;
         });
+        parallel.play();
+    }
+    
+    @FXML
+    private void confirmDelete() {
+        if (userToDelete != null) {
+            String nom = userToDelete.getNom();
+            String prenom = userToDelete.getPrenom();
+            
+            // Supprimer l'utilisateur
+            serviceUtilisateur.supprimer(userToDelete.getId_utilisateur());
+            
+            // Fermer le modal
+            closeDeleteModal();
+            
+            // Rafraîchir le tableau
+            refreshTable();
+            
+            // Animation de succès
+            new Thread(() -> {
+                try {
+                    Thread.sleep(300);
+                    javafx.application.Platform.runLater(() -> {
+                        Alert success = new Alert(Alert.AlertType.INFORMATION);
+                        success.setTitle("✅ Suppression réussie");
+                        success.setHeaderText(null);
+                        success.setContentText(
+                            "🎉 L'utilisateur " + nom + " " + prenom + " a été supprimé !\n\n" +
+                            "Les données ont été retirées de la base de données."
+                        );
+                        success.showAndWait();
+                    });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
     }
 
     @FXML
@@ -678,11 +849,6 @@ public class AdministrationController {
     }
     
     private void animateSuccess() {
-        // Changer le style du modal temporairement
-        modalContent.getStyleClass().clear();
-        modalContent.getStyleClass().add("modal-content");
-        modalContent.getStyleClass().add("modal-content-success");
-        
         // Animation de rebond
         ScaleTransition scale = new ScaleTransition(Duration.millis(300), modalContent);
         scale.setFromX(1.0);
@@ -692,21 +858,6 @@ public class AdministrationController {
         scale.setCycleCount(2);
         scale.setAutoReverse(true);
         scale.play();
-        
-        // Réinitialiser le style après l'animation
-        scale.setOnFinished(e -> {
-            new Thread(() -> {
-                try {
-                    Thread.sleep(1000);
-                    javafx.application.Platform.runLater(() -> {
-                        modalContent.getStyleClass().clear();
-                        modalContent.getStyleClass().add("modal-content");
-                    });
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }).start();
-        });
     }
 
     @FXML
@@ -724,9 +875,7 @@ public class AdministrationController {
             modalOverlay.setVisible(false);
             modalOverlay.setManaged(false);
             
-            // Réinitialiser les styles
-            modalContent.getStyleClass().clear();
-            modalContent.getStyleClass().add("modal-content");
+            // Réinitialiser les propriétés
             modalContent.setScaleX(1.0);
             modalContent.setScaleY(1.0);
             modalContent.setOpacity(1.0);

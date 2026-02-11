@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -65,13 +67,30 @@
         </HBox>
 
         <!-- BOUTONS -->
-        <VBox spacing="12"
+        <VBox spacing="15"
               alignment="CENTER"
               style="-fx-padding: 10 0 0 0;">
 
-            <Button text="📷 Ajouter une photo de profil"
-                    onAction="#uploadImage"
-                    styleClass="btnUpload"/>
+            <!-- UPLOAD PHOTO AVEC APERÇU -->
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="📷 Ajouter une photo de profil"
+                        onAction="#uploadImage"
+                        styleClass="btnUpload"
+                        prefWidth="200"/>
+
+                <!-- PHOTO DE PROFIL -->
+                <StackPane fx:id="profileImageContainer" alignment="CENTER" 
+                           visible="false" managed="false">
+                    <StackPane style="-fx-background-color: white; -fx-background-radius: 65px; 
+                                      -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 12, 0, 0, 3);">
+                        <ImageView fx:id="imgProfile" fitWidth="110" fitHeight="110" preserveRatio="true">
+                            <clip>
+                                <Circle centerX="55" centerY="55" radius="55"/>
+                            </clip>
+                        </ImageView>
+                    </StackPane>
+                </StackPane>
+            </HBox>
 
             <Button text="✨ S'inscrire"
                     onAction="#signup"

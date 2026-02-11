@@ -4,10 +4,14 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@modernuser.css" 
-            xmlns="http://javafx.com/javafx/17" 
-            xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="controllers.AdministrationController">
+<StackPane prefHeight="1024.0" prefWidth="1440.0"
+           minHeight="1024.0" minWidth="1440.0"
+           maxHeight="1024.0" maxWidth="1440.0" 
+           xmlns="http://javafx.com/javafx/17" 
+           xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="controllers.AdministrationController">
+
+<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@modernuser.css">
 
     <!-- LEFT SIDEBAR -->
     <left>
@@ -102,75 +106,134 @@
             </VBox>
         </VBox>
     </center>
+</BorderPane>
 
-    <!-- MODAL OVERLAY (Hidden by default) -->
-    <top>
-        <StackPane fx:id="modalOverlay" visible="false" managed="false" 
-                   style="-fx-background-color: rgba(0, 0, 0, 0.5);" 
-                   prefHeight="800.0" prefWidth="1400.0">
-            
-            <VBox styleClass="modal-content" maxWidth="550.0" spacing="20.0" fx:id="modalContent">
-                <padding>
-                    <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
-                </padding>
+<!-- MODAL OVERLAY (Hidden by default) -->
+<StackPane fx:id="modalOverlay" visible="false" managed="false"
+           alignment="CENTER"
+           style="-fx-background-color: rgba(17, 24, 39, 0.7);">
+    
+    <VBox fx:id="modalContent" alignment="CENTER" maxWidth="520.0" minWidth="520.0" spacing="0.0"
+          style="-fx-background-color: white; -fx-background-radius: 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 50, 0, 0, 15);">
+        
+        <!-- Header avec dégradé -->
+        <HBox alignment="CENTER" spacing="15.0" 
+              style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #667eea, #764ba2); -fx-background-radius: 24 24 0 0; -fx-padding: 25 30;">
+            <Label fx:id="modalTitle" text="➕ Ajouter un utilisateur" 
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;" HBox.hgrow="ALWAYS"/>
+            <Button text="✕" onAction="#closeModal" 
+                    style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 50; -fx-font-size: 16px; -fx-cursor: hand; -fx-text-fill: white; -fx-min-width: 35; -fx-min-height: 35;"/>
+        </HBox>
+        
+        <VBox spacing="22.0" style="-fx-padding: 30 35;">
 
-                <!-- Modal Header -->
-                <HBox alignment="CENTER_LEFT" spacing="15.0">
-                    <Label fx:id="modalTitle" text="➕ Ajouter un utilisateur" styleClass="modal-title" HBox.hgrow="ALWAYS"/>
-                    <Button text="✕" onAction="#closeModal" 
-                            style="-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-text-fill: #6B7280;"/>
-                </HBox>
-
-                <Separator/>
-
-                <!-- Photo de profil -->
-                <VBox spacing="10.0" alignment="CENTER">
-                    <StackPane styleClass="profile-photo-container">
-                        <StackPane fx:id="profileImageContainer" styleClass="profile-image-circle">
-                            <Label fx:id="lblProfileIcon" text="👤" style="-fx-font-size: 48px;"/>
-                        </StackPane>
+            <!-- Photo de profil avec cercle stylé -->
+            <VBox spacing="12.0" alignment="CENTER">
+                <StackPane style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #667eea, #764ba2); -fx-background-radius: 70; -fx-padding: 4;">
+                    <StackPane fx:id="profileImageContainer" 
+                               style="-fx-background-color: white; -fx-background-radius: 66; -fx-min-width: 110; -fx-min-height: 110; -fx-max-width: 110; -fx-max-height: 110;">
+                        <Label fx:id="lblProfileIcon" text="👤" style="-fx-font-size: 50px;"/>
                     </StackPane>
-                    <Button text="📷 Changer la photo" onAction="#uploadImage" styleClass="btn-upload-photo"/>
-                    <Label fx:id="lblImageName" style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF;"/>
+                </StackPane>
+                <Button text="📷 Changer la photo" onAction="#uploadImage" 
+                        style="-fx-background-color: #F3F4F6; -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: 600; -fx-padding: 10 20; -fx-background-radius: 20; -fx-cursor: hand;"/>
+            </VBox>
+
+            <!-- Form Fields avec icônes -->
+            <VBox spacing="16.0">
+                <!-- Nom -->
+                <VBox spacing="6.0">
+                    <Label text="👤 Nom" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;"/>
+                    <TextField fx:id="tfNom" promptText="Entrez le nom" 
+                               style="-fx-background-color: #F9FAFB; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-padding: 14 16; -fx-font-size: 14px;"/>
                 </VBox>
 
-                <!-- Form Fields -->
-                <VBox spacing="18.0">
-                    <VBox spacing="6.0">
-                        <Label text="Nom" styleClass="form-label"/>
-                        <TextField fx:id="tfNom" promptText="Entrez le nom" styleClass="form-field"/>
-                    </VBox>
-
-                    <VBox spacing="6.0">
-                        <Label text="Prénom" styleClass="form-label"/>
-                        <TextField fx:id="tfPrenom" promptText="Entrez le prénom" styleClass="form-field"/>
-                    </VBox>
-
-                    <VBox spacing="6.0">
-                        <Label text="Email" styleClass="form-label"/>
-                        <TextField fx:id="tfEmail" promptText="exemple@gmail.com" styleClass="form-field"/>
-                    </VBox>
-
-                    <VBox spacing="6.0">
-                        <Label text="Mot de passe" styleClass="form-label"/>
-                        <PasswordField fx:id="tfPassword" promptText="••••••••" styleClass="form-field"/>
-                    </VBox>
-
-                    <VBox spacing="6.0">
-                        <Label text="Rôle" styleClass="form-label"/>
-                        <ComboBox fx:id="cbRole" promptText="Sélectionnez un rôle" styleClass="form-field" prefWidth="440.0"/>
-                    </VBox>
+                <!-- Prénom -->
+                <VBox spacing="6.0">
+                    <Label text="✨ Prénom" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;"/>
+                    <TextField fx:id="tfPrenom" promptText="Entrez le prénom" 
+                               style="-fx-background-color: #F9FAFB; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-padding: 14 16; -fx-font-size: 14px;"/>
                 </VBox>
 
-                <!-- Action Buttons -->
-                <HBox spacing="15.0" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
-                    <Button text="Annuler" onAction="#closeModal" styleClass="btn-cancel"/>
-                    <Button fx:id="btnSave" text="💾 Enregistrer" onAction="#saveUser" styleClass="btn-save"/>
+                <!-- Email -->
+                <VBox spacing="6.0">
+                    <Label text="📧 Email" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;"/>
+                    <TextField fx:id="tfEmail" promptText="exemple@gmail.com" 
+                               style="-fx-background-color: #F9FAFB; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-padding: 14 16; -fx-font-size: 14px;"/>
+                </VBox>
+
+                <!-- Mot de passe -->
+                <VBox spacing="6.0">
+                    <Label text="🔒 Mot de passe" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;"/>
+                    <PasswordField fx:id="tfPassword" promptText="••••••••" 
+                                   style="-fx-background-color: #F9FAFB; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-padding: 14 16; -fx-font-size: 14px;"/>
+                </VBox>
+
+                <!-- Rôle -->
+                <VBox spacing="6.0">
+                    <Label text="🎭 Rôle" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;"/>
+                    <ComboBox fx:id="cbRole" promptText="Sélectionnez un rôle" prefWidth="450.0"
+                              style="-fx-background-color: #F9FAFB; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-padding: 10 12; -fx-font-size: 14px;"/>
+                </VBox>
+            </VBox>
+
+            <!-- Action Buttons -->
+            <HBox spacing="15.0" alignment="CENTER" style="-fx-padding: 15 0 5 0;">
+                <Button text="✕ Annuler" onAction="#closeModal" 
+                        style="-fx-background-color: white; -fx-text-fill: #6B7280; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 14 35; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-cursor: hand;"/>
+                <Button fx:id="btnSave" text="💾 Enregistrer" onAction="#saveUser" 
+                        style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #667eea, #764ba2); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 14 35; -fx-background-radius: 12; -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- Message Label -->
+            <Label fx:id="lblModalMessage" style="-fx-font-size: 13px; -fx-text-alignment: center; -fx-text-fill: #EF4444;" alignment="CENTER"/>
+        </VBox>
+    </VBox>
+</StackPane>
+        
+<!-- MODAL CONFIRMATION SUPPRESSION -->
+<StackPane fx:id="deleteModalOverlay" 
+           visible="false" 
+           managed="false"
+           alignment="CENTER"
+           style="-fx-background-color: rgba(0, 0, 0, 0.6);">
+            <VBox fx:id="deleteModalContent" 
+                  spacing="20.0" 
+                  alignment="CENTER"
+                  StackPane.alignment="CENTER"
+                  style="-fx-background-color: white; -fx-background-radius: 20px; -fx-padding: 40px; -fx-max-width: 480px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 30, 0, 0, 10);">
+                
+                <!-- Icône d'avertissement animée -->
+                <StackPane style="-fx-background-color: #FEE2E2; -fx-background-radius: 60px; -fx-pref-width: 120px; -fx-pref-height: 120px;">
+                    <Label fx:id="lblDeleteIcon" text="⚠️" style="-fx-font-size: 60px;"/>
+                </StackPane>
+                
+                <!-- Titre -->
+                <Label text="Confirmation de suppression" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                
+                <!-- Détails utilisateur -->
+                <VBox spacing="8" alignment="CENTER" style="-fx-background-color: #F9FAFB; -fx-background-radius: 12px; -fx-padding: 20px;">
+                    <Label text="Voulez-vous vraiment supprimer cet utilisateur ?" style="-fx-font-size: 14px; -fx-text-fill: #6B7280;"/>
+                    <Label fx:id="lblDeleteUserInfo" style="-fx-font-size: 15px; -fx-font-weight: 600; -fx-text-fill: #374151; -fx-padding: 10 0 0 0;"/>
+                </VBox>
+                
+                <!-- Message d'avertissement -->
+                <HBox spacing="10" alignment="CENTER" style="-fx-background-color: #FEF2F2; -fx-background-radius: 10px; -fx-padding: 15px;">
+                    <Label text="⚠️" style="-fx-font-size: 20px;"/>
+                    <Label text="Cette action est irréversible !" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #DC2626;"/>
                 </HBox>
-
-                <!-- Message Label -->
-                <Label fx:id="lblModalMessage" style="-fx-font-size: 13px; -fx-text-alignment: center;" alignment="CENTER"/>
+                
+                <!-- Boutons d'action -->
+                <HBox spacing="15" alignment="CENTER">
+                    <Button text="❌ Annuler" 
+                            onAction="#closeDeleteModal" 
+                            style="-fx-background-color: #F3F4F6; -fx-text-fill: #374151; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12px 30px; -fx-background-radius: 10px; -fx-cursor: hand;"/>
+                    <Button fx:id="btnConfirmDelete" 
+                            text="🗑️ Supprimer définitivement" 
+                            onAction="#confirmDelete" 
+                            style="-fx-background-color: #DC2626; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12px 30px; -fx-background-radius: 10px; -fx-cursor: hand;"/>
+                </HBox>
             </VBox>
         </StackPane>
-    </top>
-</BorderPane>
+
+</StackPane>

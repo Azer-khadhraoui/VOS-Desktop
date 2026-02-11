@@ -8,6 +8,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -15,6 +17,7 @@ import javafx.util.Duration;
 import services.ServiceUtilisateur;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -26,6 +29,8 @@ public class SignupController {
     @FXML private TextField tfEmail;
     @FXML private PasswordField tfPassword;
     @FXML private Label lblMessage;
+    @FXML private StackPane profileImageContainer;
+    @FXML private ImageView imgProfile;
 
     private String imageName = "default.png";
 
@@ -49,10 +54,28 @@ public class SignupController {
                 File folder = new File("images");
                 if (!folder.exists()) folder.mkdir();
 
-                Path dest = Path.of("images", file.getName());
+                // Générer un nom unique pour éviter les conflits
+                String originalName = file.getName();
+                String extension = "";
+                int i = originalName.lastIndexOf('.');
+                if (i > 0) {
+                    extension = originalName.substring(i);
+                    originalName = originalName.substring(0, i);
+                }
+                
+                String cleanName = originalName.replaceAll("[^a-zA-Z0-9-_]", "_");
+                String uniqueName = cleanName + "_" + System.currentTimeMillis() + extension;
+
+                Path dest = Path.of("images", uniqueName);
                 Files.copy(file.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
 
-                imageName = file.getName();
+                imageName = uniqueName;
+
+                // Afficher l'image sélectionnée
+                Image image = new Image(new FileInputStream(dest.toFile()));
+                imgProfile.setImage(image);
+                profileImageContainer.setVisible(true);
+                profileImageContainer.setManaged(true);
 
                 lblMessage.setStyle("-fx-text-fill: green;");
                 lblMessage.setText("✅ Photo sélectionnée !");
