@@ -1,6 +1,7 @@
 /* ================= BACKGROUND ================= */
 
 .backgroundPane {
+    -fx-background-color: #F3F4F6;
     -fx-background-image: url("/img/signupBG.png");
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center;
@@ -101,6 +102,7 @@
 
 /* ================= SIGNIN BACKGROUND ================= */
 .signinBackground {
+    -fx-background-color: #F3F4F6;
     -fx-background-image: url("/img/signinBG.png");
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center;

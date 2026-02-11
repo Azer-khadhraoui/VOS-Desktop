@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane prefHeight="800.0" prefWidth="1400.0" stylesheets="@modernuser.css" 
+            xmlns="http://javafx.com/javafx/17" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controllers.OffresController">
+
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="80.0">
+            <!-- Logo -->
+            <VBox alignment="CENTER" styleClass="logo-container">
+                <Label text="VOS" styleClass="logo-text"/>
+            </VBox>
+
+            <!-- Navigation Icons -->
+            <VBox alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="30.0"/>
+                </padding>
+
+                <Button styleClass="nav-icon" text="🏠"/>
+                <Button styleClass="nav-icon" text="📋"/>
+                <Button styleClass="nav-icon" text="💼"/>
+                <Button styleClass="nav-icon" text="⭐"/>
+                <Button styleClass="nav-icon" text="⚙️"/>
+                <Button styleClass="nav-icon" text="➡️" onAction="#logout"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <VBox>
+            <!-- TOP HEADER BAR -->
+            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0"/>
+                </padding>
+
+                <!-- Search Bar -->
+                <TextField fx:id="searchField" promptText="🔍 Rechercher une offre..." styleClass="search-bar" prefWidth="400.0"/>
+
+                <!-- Spacer -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Dark/Light Toggle -->
+                <HBox spacing="10.0" alignment="CENTER">
+                    <Label text="🌙" styleClass="toggle-icon"/>
+                    <ToggleButton styleClass="theme-toggle"/>
+                    <Label text="☀️" styleClass="toggle-icon"/>
+                </HBox>
+
+                <!-- User Profile -->
+                <HBox spacing="15.0" alignment="CENTER">
+                    <StackPane fx:id="userAvatarContainer" styleClass="user-avatar-container">
+                        <Label fx:id="lblUserAvatar" text="👤" styleClass="user-avatar"/>
+                    </StackPane>
+                    <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <Label fx:id="lblUserName" text="Client" styleClass="user-name"/>
+                        <Label fx:id="lblUserRole" text="CLIENT" styleClass="user-role"/>
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <!-- MAIN CONTENT AREA -->
+            <VBox spacing="25.0" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                </padding>
+
+                <!-- Page Header -->
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                        <HBox spacing="15.0" alignment="CENTER_LEFT">
+                            <Label text="💼" style="-fx-font-size: 32px;"/>
+                            <VBox spacing="2.0">
+                                <Label text="Offres d'emploi disponibles" styleClass="page-title"/>
+                                <Label text="Consultez et postulez aux offres qui vous correspondent" styleClass="page-subtitle"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <!-- Filters -->
+                <HBox spacing="15.0" alignment="CENTER_LEFT">
+                    <Label text="Filtrer par:" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #6B7280;"/>
+                    <ComboBox fx:id="cbDomaine" promptText="Domaine" styleClass="form-field" prefWidth="180.0"/>
+                    <ComboBox fx:id="cbType" promptText="Type de contrat" styleClass="form-field" prefWidth="180.0"/>
+                    <Button text="🔄 Réinitialiser" onAction="#resetFilters" styleClass="btn-upload-photo"/>
+                </HBox>
+
+                <!-- Offres Grid -->
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                    <VBox fx:id="offresContainer" spacing="20.0" style="-fx-background-color: transparent;">
+                        <!-- Les cartes d'offres seront ajoutées dynamiquement ici -->
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

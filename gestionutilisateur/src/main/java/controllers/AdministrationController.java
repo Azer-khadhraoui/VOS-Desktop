@@ -4,7 +4,10 @@ import entities.Utilisateur;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -12,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.animation.*;
 import javafx.util.Duration;
 import services.ServiceUtilisateur;
@@ -373,20 +377,48 @@ public class AdministrationController {
     }
     
     private void animateModalOpen() {
+        // Position initiale : inverse de la fermeture
         modalContent.setScaleX(0.8);
         modalContent.setScaleY(0.8);
         modalContent.setOpacity(0);
         
-        ScaleTransition scale = new ScaleTransition(Duration.millis(300), modalContent);
+        // Animation de scale (zoom in)
+        ScaleTransition scale = new ScaleTransition(Duration.millis(400), modalContent);
+        scale.setFromX(0.8);
+        scale.setFromY(0.8);
         scale.setToX(1.0);
         scale.setToY(1.0);
-        scale.setInterpolator(Interpolator.EASE_OUT);
+        scale.setInterpolator(Interpolator.SPLINE(0.25, 0.1, 0.25, 1.0)); // Ease out back
         
-        FadeTransition fade = new FadeTransition(Duration.millis(300), modalContent);
+        // Animation de fade in
+        FadeTransition fade = new FadeTransition(Duration.millis(400), modalContent);
+        fade.setFromValue(0);
         fade.setToValue(1.0);
+        fade.setInterpolator(Interpolator.EASE_OUT);
         
+        // Animation du background overlay
+        FadeTransition overlayFade = new FadeTransition(Duration.millis(300), modalOverlay);
+        overlayFade.setFromValue(0);
+        overlayFade.setToValue(1.0);
+        
+        // Jouer toutes les animations ensemble
         ParallelTransition parallel = new ParallelTransition(scale, fade);
+        
+        overlayFade.play();
         parallel.play();
+        
+        // Petit effet de rebond à la fin
+        parallel.setOnFinished(e -> {
+            ScaleTransition bounce = new ScaleTransition(Duration.millis(150), modalContent);
+            bounce.setFromX(1.0);
+            bounce.setFromY(1.0);
+            bounce.setToX(1.05);
+            bounce.setToY(1.05);
+            bounce.setCycleCount(2);
+            bounce.setAutoReverse(true);
+            bounce.setInterpolator(Interpolator.EASE_BOTH);
+            bounce.play();
+        });
     }
 
     private void editUser(Utilisateur user) {
@@ -409,8 +441,18 @@ public class AdministrationController {
         modalOverlay.setVisible(true);
         modalOverlay.setManaged(true);
         
-        // Animation mode édition
-        animateModalEdit();
+        // Animation d'ouverture identique à l'ajout
+        animateModalOpen();
+        
+        // Puis animation mode édition après l'ouverture
+        new Thread(() -> {
+            try {
+                Thread.sleep(500);
+                javafx.application.Platform.runLater(this::animateModalEdit);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
     
     private void loadProfileImage(String imageName) {
@@ -440,21 +482,21 @@ public class AdministrationController {
     }
     
     private void animateModalEdit() {
-        // Animation orange pour le mode édition
+        // Animation subtile de pulsation pour indiquer le mode édition
         modalContent.getStyleClass().clear();
         modalContent.getStyleClass().add("modal-content");
         modalContent.getStyleClass().add("modal-content-editing");
         
-        RotateTransition rotate = new RotateTransition(Duration.millis(400), modalContent);
-        rotate.setFromAngle(-2);
-        rotate.setToAngle(2);
-        rotate.setCycleCount(2);
-        rotate.setAutoReverse(true);
-        rotate.play();
-        
-        rotate.setOnFinished(e -> {
-            modalContent.setRotate(0);
-        });
+        // Petite pulsation
+        ScaleTransition pulse = new ScaleTransition(Duration.millis(300), modalContent);
+        pulse.setFromX(1.0);
+        pulse.setFromY(1.0);
+        pulse.setToX(1.02);
+        pulse.setToY(1.02);
+        pulse.setCycleCount(2);
+        pulse.setAutoReverse(true);
+        pulse.setInterpolator(Interpolator.EASE_BOTH);
+        pulse.play();
     }
 
     private void deleteUser(Utilisateur user) {
@@ -492,10 +534,23 @@ public class AdministrationController {
                 File folder = new File("images");
                 if (!folder.exists()) folder.mkdir();
 
-                Path dest = Path.of("images", file.getName());
+                // Générer un nom de fichier unique pour éviter les conflits
+                String originalName = file.getName();
+                String extension = "";
+                int i = originalName.lastIndexOf('.');
+                if (i > 0) {
+                    extension = originalName.substring(i);
+                    originalName = originalName.substring(0, i);
+                }
+                
+                // Nettoyer le nom de fichier (enlever les espaces et caractères spéciaux)
+                String cleanName = originalName.replaceAll("[^a-zA-Z0-9-_]", "_");
+                String uniqueName = cleanName + "_" + System.currentTimeMillis() + extension;
+
+                Path dest = Path.of("images", uniqueName);
                 Files.copy(file.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
 
-                currentImageName = file.getName();
+                currentImageName = uniqueName;
                 loadProfileImage(currentImageName);
                 
                 // Animation de confirmation
@@ -666,5 +721,28 @@ public class AdministrationController {
         cbRole.setValue("CLIENT");
         currentImageName = "default.png";
         resetProfileImage();
+    }
+
+    @FXML
+    public void logout() {
+        try {
+            UserSession.getInstance().clearSession();
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) tableUsers.getScene().getWindow();
+            Scene newScene = new Scene(root);
+            stage.setScene(newScene);
+            stage.setTitle("Connexion - VOS");
+            stage.centerOnScreen();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Erreur de déconnexion");
+            alert.setContentText("Impossible de se déconnecter: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 }

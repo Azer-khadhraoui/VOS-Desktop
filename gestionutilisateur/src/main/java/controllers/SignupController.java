@@ -6,12 +6,13 @@ import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import services.ServiceUtilisateur;
-import javafx.scene.Scene;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -147,6 +148,7 @@ public class SignupController {
 
             ttNew.setOnFinished(e -> {
                 newRoot.setTranslateX(0);
+                stack.getChildren().remove(newRoot);
                 scene.setRoot(newRoot);
             });
 

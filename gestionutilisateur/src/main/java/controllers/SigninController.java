@@ -1,13 +1,14 @@
 package controllers;
-import javafx.scene.Scene;
 
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import services.ServiceUtilisateur;
 import utilis.UserSession;
@@ -35,19 +36,30 @@ public class SigninController {
             Utilisateur user = su.getUserByEmail(tfEmail.getText());
             UserSession.getInstance().setCurrentUser(user);
             
-            // Redirection vers l'administration après 500ms
+            // Redirection selon le rôle après 500ms
             new Thread(() -> {
                 try {
                     Thread.sleep(500);
                     javafx.application.Platform.runLater(() -> {
                         try {
-                            FXMLLoader loader = new FXMLLoader(
-                                getClass().getResource("/AdministrationView.fxml")
-                            );
+                            String fxmlPath;
+                            
+                            // Vérifier le rôle de l'utilisateur
+                            if ("ADMIN_RH".equals(user.getRole()) || "ADMIN_TECHNIQUE".equals(user.getRole())) {
+                                // Rediriger vers le dashboard d'administration
+                                fxmlPath = "/AdministrationView.fxml";
+                            } else {
+                                // CLIENT : Rediriger vers l'interface des offres
+                                fxmlPath = "/OffresView.fxml";
+                            }
+                            
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
                             Parent root = loader.load();
                             
-                            Scene scene = tfEmail.getScene();
-                            scene.setRoot(root);
+                            Stage stage = (Stage) tfEmail.getScene().getWindow();
+                            Scene newScene = new Scene(root);
+                            stage.setScene(newScene);
+                            stage.centerOnScreen();
                             
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -109,6 +121,7 @@ public class SigninController {
 
             ttNew.setOnFinished(e -> {
                 newRoot.setTranslateX(0);
+                stack.getChildren().remove(newRoot);
                 scene.setRoot(newRoot);
             });
 

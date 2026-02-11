@@ -28,7 +28,7 @@
                 <Button styleClass="nav-icon" text="ℹ️"/>
                 <Button styleClass="nav-icon" text="👤"/>
                 <Button styleClass="nav-icon" text="⚙️"/>
-                <Button styleClass="nav-icon" text="➡️"/>
+                <Button styleClass="nav-icon" text="➡️" onAction="#logout"/>
             </VBox>
         </VBox>
     </left>
