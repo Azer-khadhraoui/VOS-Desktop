@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane prefHeight="800.0" prefWidth="1400.0" stylesheets="@modernuser.css" 
+            xmlns="http://javafx.com/javafx/17" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controllers.AdministrationController">
+
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="80.0">
+            <!-- Logo -->
+            <VBox alignment="CENTER" styleClass="logo-container">
+                <Label text="VOS" styleClass="logo-text"/>
+            </VBox>
+
+            <!-- Navigation Icons -->
+            <VBox alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="30.0"/>
+                </padding>
+
+                <Button styleClass="nav-icon" text="📊"/>
+                <Button styleClass="nav-icon" text="💼"/>
+                <Button styleClass="nav-icon" text="ℹ️"/>
+                <Button styleClass="nav-icon" text="👤"/>
+                <Button styleClass="nav-icon" text="⚙️"/>
+                <Button styleClass="nav-icon" text="➡️"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <VBox>
+            <!-- TOP HEADER BAR -->
+            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0"/>
+                </padding>
+
+                <!-- Search Bar -->
+                <TextField fx:id="searchField" promptText="🔍 Rechercher..." styleClass="search-bar" prefWidth="400.0"/>
+
+                <!-- Spacer -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Dark/Light Toggle -->
+                <HBox spacing="10.0" alignment="CENTER">
+                    <Label text="🌙" styleClass="toggle-icon"/>
+                    <ToggleButton styleClass="theme-toggle"/>
+                    <Label text="☀️" styleClass="toggle-icon"/>
+                </HBox>
+
+                <!-- User Profile -->
+                <HBox spacing="15.0" alignment="CENTER">
+                    <StackPane fx:id="userAvatarContainer" styleClass="user-avatar-container">
+                        <Label fx:id="lblUserAvatar" text="👤" styleClass="user-avatar"/>
+                    </StackPane>
+                    <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <Label fx:id="lblUserName" text="Mohamed Azer Khadhraoui" styleClass="user-name"/>
+                        <Label fx:id="lblUserRole" text="CLIENT" styleClass="user-role"/>
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <!-- MAIN CONTENT AREA -->
+            <VBox spacing="25.0" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                </padding>
+
+                <!-- Page Header -->
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                        <HBox spacing="15.0" alignment="CENTER_LEFT">
+                            <Label text="👥" style="-fx-font-size: 32px;"/>
+                            <VBox spacing="2.0">
+                                <Label text="Administration" styleClass="page-title"/>
+                                <Label text="Gérez vos utilisateurs" styleClass="page-subtitle"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                    <Button text="➕ Ajouter utilisateur" onAction="#showAddUserModal" styleClass="btn-add"/>
+                </HBox>
+
+                <!-- Table -->
+                <TableView fx:id="tableUsers" styleClass="modern-table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" text="#" prefWidth="50.0"/>
+                        <TableColumn fx:id="colNom" text="Nom" prefWidth="220.0"/>
+                        <TableColumn fx:id="colPrenom" text="Prénom" prefWidth="150.0"/>
+                        <TableColumn fx:id="colEmail" text="Email" prefWidth="250.0"/>
+                        <TableColumn fx:id="colPassword" text="Mot de passe" prefWidth="150.0"/>
+                        <TableColumn fx:id="colRole" text="Role" prefWidth="180.0"/>
+                        <TableColumn fx:id="colActions" text="Actions" prefWidth="150.0"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- MODAL OVERLAY (Hidden by default) -->
+    <top>
+        <StackPane fx:id="modalOverlay" visible="false" managed="false" 
+                   style="-fx-background-color: rgba(0, 0, 0, 0.5);" 
+                   prefHeight="800.0" prefWidth="1400.0">
+            
+            <VBox styleClass="modal-content" maxWidth="550.0" spacing="20.0" fx:id="modalContent">
+                <padding>
+                    <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                </padding>
+
+                <!-- Modal Header -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <Label fx:id="modalTitle" text="➕ Ajouter un utilisateur" styleClass="modal-title" HBox.hgrow="ALWAYS"/>
+                    <Button text="✕" onAction="#closeModal" 
+                            style="-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-text-fill: #6B7280;"/>
+                </HBox>
+
+                <Separator/>
+
+                <!-- Photo de profil -->
+                <VBox spacing="10.0" alignment="CENTER">
+                    <StackPane styleClass="profile-photo-container">
+                        <StackPane fx:id="profileImageContainer" styleClass="profile-image-circle">
+                            <Label fx:id="lblProfileIcon" text="👤" style="-fx-font-size: 48px;"/>
+                        </StackPane>
+                    </StackPane>
+                    <Button text="📷 Changer la photo" onAction="#uploadImage" styleClass="btn-upload-photo"/>
+                    <Label fx:id="lblImageName" style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF;"/>
+                </VBox>
+
+                <!-- Form Fields -->
+                <VBox spacing="18.0">
+                    <VBox spacing="6.0">
+                        <Label text="Nom" styleClass="form-label"/>
+                        <TextField fx:id="tfNom" promptText="Entrez le nom" styleClass="form-field"/>
+                    </VBox>
+
+                    <VBox spacing="6.0">
+                        <Label text="Prénom" styleClass="form-label"/>
+                        <TextField fx:id="tfPrenom" promptText="Entrez le prénom" styleClass="form-field"/>
+                    </VBox>
+
+                    <VBox spacing="6.0">
+                        <Label text="Email" styleClass="form-label"/>
+                        <TextField fx:id="tfEmail" promptText="exemple@gmail.com" styleClass="form-field"/>
+                    </VBox>
+
+                    <VBox spacing="6.0">
+                        <Label text="Mot de passe" styleClass="form-label"/>
+                        <PasswordField fx:id="tfPassword" promptText="••••••••" styleClass="form-field"/>
+                    </VBox>
+
+                    <VBox spacing="6.0">
+                        <Label text="Rôle" styleClass="form-label"/>
+                        <ComboBox fx:id="cbRole" promptText="Sélectionnez un rôle" styleClass="form-field" prefWidth="440.0"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Action Buttons -->
+                <HBox spacing="15.0" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+                    <Button text="Annuler" onAction="#closeModal" styleClass="btn-cancel"/>
+                    <Button fx:id="btnSave" text="💾 Enregistrer" onAction="#saveUser" styleClass="btn-save"/>
+                </HBox>
+
+                <!-- Message Label -->
+                <Label fx:id="lblModalMessage" style="-fx-font-size: 13px; -fx-text-alignment: center;" alignment="CENTER"/>
+            </VBox>
+        </StackPane>
+    </top>
+</BorderPane>

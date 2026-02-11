@@ -10,6 +10,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import services.ServiceUtilisateur;
+import utilis.UserSession;
+import entities.Utilisateur;
 
 public class SigninController {
 
@@ -28,6 +30,34 @@ public class SigninController {
         if (su.login(tfEmail.getText(), tfPassword.getText())) {
             lblMessage.setStyle("-fx-text-fill: green;");
             lblMessage.setText("✅ Connexion réussie !");
+            
+            // Récupérer l'utilisateur et le stocker en session
+            Utilisateur user = su.getUserByEmail(tfEmail.getText());
+            UserSession.getInstance().setCurrentUser(user);
+            
+            // Redirection vers l'administration après 500ms
+            new Thread(() -> {
+                try {
+                    Thread.sleep(500);
+                    javafx.application.Platform.runLater(() -> {
+                        try {
+                            FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/AdministrationView.fxml")
+                            );
+                            Parent root = loader.load();
+                            
+                            Scene scene = tfEmail.getScene();
+                            scene.setRoot(root);
+                            
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            
         } else {
             lblMessage.setStyle("-fx-text-fill: red;");
             lblMessage.setText("❌ Email ou mot de passe incorrect !");
