@@ -137,7 +137,7 @@
                 <StackPane style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #667eea, #f093fb); -fx-background-radius: 50; -fx-padding: 3;">
                     <StackPane fx:id="profileImageContainer" 
                                style="-fx-background-color: #1a1a2e; -fx-background-radius: 47; -fx-min-width: 90; -fx-min-height: 90; -fx-max-width: 90; -fx-max-height: 90;">
-                        <Label fx:id="lblProfileIcon" text="👤" style="-fx-font-size: 40px;"/>
+                        <Label fx:id="lblProfileIcon" text="&#x1f464;" style="-fx-font-size: 40px;"/>
                     </StackPane>
                 </StackPane>
                 <VBox spacing="8.0" alignment="CENTER_LEFT">

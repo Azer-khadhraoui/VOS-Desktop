@@ -86,7 +86,7 @@ public class SigninController {
         overlay.setOpacity(0);
         
         // Logo VOS avec slogan
-        ImageView logo = new ImageView(new Image(getClass().getResourceAsStream("/img/VOSslogan.png")));
+        ImageView logo = new ImageView(new Image(getClass().getResourceAsStream("/img/VOSwhiteslogan.png")));
         logo.setFitWidth(300);
         logo.setFitHeight(300);
         logo.setPreserveRatio(true);

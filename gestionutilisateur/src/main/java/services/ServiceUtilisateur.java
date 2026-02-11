@@ -123,16 +123,17 @@ public class ServiceUtilisateur {
     public void modifier(Utilisateur u) {
 
         try {
-            String req = "UPDATE utilisateur SET email=?, mot_de_passe=?, role=?, nom=?, prenom=? WHERE id_utilisateur=?";
+            String req = "UPDATE utilisateur SET image_profil=?, email=?, mot_de_passe=?, role=?, nom=?, prenom=? WHERE id_utilisateur=?";
 
             PreparedStatement pst = cnx.prepareStatement(req);
 
-            pst.setString(1, u.getEmail());
-            pst.setString(2, u.getMot_de_passe());
-            pst.setString(3, u.getRole());
-            pst.setString(4, u.getNom());
-            pst.setString(5, u.getPrenom());
-            pst.setInt(6, u.getId_utilisateur());
+            pst.setString(1, u.getImage_profil());
+            pst.setString(2, u.getEmail());
+            pst.setString(3, u.getMot_de_passe());
+            pst.setString(4, u.getRole());
+            pst.setString(5, u.getNom());
+            pst.setString(6, u.getPrenom());
+            pst.setInt(7, u.getId_utilisateur());
 
             pst.executeUpdate();
 

@@ -121,6 +121,35 @@ public class AdministrationController {
     private void setupComboBox() {
         cbRole.setItems(FXCollections.observableArrayList("CLIENT", "ADMIN_RH", "ADMIN_TECHNIQUE"));
         cbRole.setValue("CLIENT");
+        
+        // Style the ComboBox button cell to show white text on dark background
+        cbRole.setButtonCell(new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setTextFill(javafx.scene.paint.Color.WHITE);
+                }
+            }
+        });
+        
+        // Style dropdown items
+        cbRole.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setTextFill(javafx.scene.paint.Color.WHITE);
+                    setStyle("-fx-background-color: #1a1a2e;");
+                }
+            }
+        });
     }
 
     private void setupTable() {
@@ -428,12 +457,17 @@ public class AdministrationController {
     private void resetProfileImage() {
         try {
             if (profileImageContainer != null) {
-                profileImageContainer.getChildren().clear();
-                if (lblProfileIcon != null) {
-                    lblProfileIcon.setText("👤");
-                    lblProfileIcon.setStyle("-fx-font-size: 40px;");
-                    profileImageContainer.getChildren().add(lblProfileIcon);
-                }
+                profileImageContainer.setStyle(
+                    "-fx-background-color: #1a1a2e;" +
+                    "-fx-background-radius: 47;" +
+                    "-fx-min-width: 90; -fx-min-height: 90; -fx-max-width: 90; -fx-max-height: 90;"
+                );
+            }
+            if (lblProfileIcon != null) {
+                lblProfileIcon.setText("\uD83D\uDC64");
+                lblProfileIcon.setStyle("-fx-font-size: 40px;");
+                lblProfileIcon.setVisible(true);
+                lblProfileIcon.setManaged(true);
             }
         } catch (Exception e) {
             System.err.println("Erreur lors de la réinitialisation de l'image: " + e.getMessage());
@@ -492,6 +526,8 @@ public class AdministrationController {
         selectedUser = user;
         currentImageName = user.getImage_profil() != null ? user.getImage_profil() : "default.png";
         
+        System.out.println("DEBUG: Editing user - Image: " + currentImageName + ", Role: " + user.getRole());
+        
         // Update modal title and button text
         modalTitle.setText("✏️ Modifier l'utilisateur");
         btnSave.setText("🔄 Mettre à jour");
@@ -501,7 +537,13 @@ public class AdministrationController {
         tfPrenom.setText(user.getPrenom() != null ? user.getPrenom() : "");
         tfEmail.setText(user.getEmail() != null ? user.getEmail() : "");
         tfPassword.setText(user.getMot_de_passe() != null ? user.getMot_de_passe() : "");
-        cbRole.setValue(user.getRole() != null ? user.getRole() : "CLIENT");
+        
+        // Set ComboBox role - use only selection model for proper visual update
+        String userRole = user.getRole() != null ? user.getRole() : "CLIENT";
+        System.out.println("DEBUG: Setting ComboBox to: " + userRole);
+        System.out.println("DEBUG: ComboBox items: " + cbRole.getItems());
+        cbRole.getSelectionModel().select(userRole);
+        System.out.println("DEBUG: ComboBox selected value: " + cbRole.getValue());
         
         // Load profile image
         loadProfileImage(currentImageName);
@@ -535,31 +577,35 @@ public class AdministrationController {
     
     private void loadProfileImage(String imageName) {
         try {
+            System.out.println("DEBUG: Loading image: " + imageName);
             if (imageName == null || imageName.isEmpty() || imageName.equals("default.png")) {
                 resetProfileImage();
                 return;
             }
             
             File imgFile = new File("images/" + imageName);
+            System.out.println("DEBUG: Image path: " + imgFile.getAbsolutePath());
+            System.out.println("DEBUG: Image exists: " + imgFile.exists());
+            
             if (imgFile.exists()) {
-                ImageView imageView = new ImageView();
-                imageView.setFitWidth(84);
-                imageView.setFitHeight(84);
-                imageView.setPreserveRatio(false);
-                
-                javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(42, 42, 42);
-                imageView.setClip(clip);
-                
-                Image img = new Image(new FileInputStream(imgFile));
-                imageView.setImage(img);
-                
-                profileImageContainer.getChildren().clear();
-                profileImageContainer.getChildren().add(imageView);
+                // Use CSS background-image - most reliable visual method
+                String imageUrl = imgFile.toURI().toString();
+                lblProfileIcon.setVisible(false);
+                lblProfileIcon.setManaged(false);
+                profileImageContainer.setStyle(
+                    "-fx-background-image: url('" + imageUrl + "');" +
+                    "-fx-background-size: cover;" +
+                    "-fx-background-position: center;" +
+                    "-fx-background-radius: 47;" +
+                    "-fx-min-width: 90; -fx-min-height: 90; -fx-max-width: 90; -fx-max-height: 90;"
+                );
+                System.out.println("DEBUG: Image set via CSS background");
             } else {
                 resetProfileImage();
             }
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement de l'image: " + e.getMessage());
+            e.printStackTrace();
             resetProfileImage();
         }
     }
