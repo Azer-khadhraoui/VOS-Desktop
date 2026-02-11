@@ -431,7 +431,7 @@ public class AdministrationController {
                 profileImageContainer.getChildren().clear();
                 if (lblProfileIcon != null) {
                     lblProfileIcon.setText("👤");
-                    lblProfileIcon.setStyle("-fx-font-size: 50px;");
+                    lblProfileIcon.setStyle("-fx-font-size: 40px;");
                     profileImageContainer.getChildren().add(lblProfileIcon);
                 }
             }
@@ -543,11 +543,11 @@ public class AdministrationController {
             File imgFile = new File("images/" + imageName);
             if (imgFile.exists()) {
                 ImageView imageView = new ImageView();
-                imageView.setFitWidth(110);
-                imageView.setFitHeight(110);
+                imageView.setFitWidth(84);
+                imageView.setFitHeight(84);
                 imageView.setPreserveRatio(false);
                 
-                javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(55, 55, 55);
+                javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(42, 42, 42);
                 imageView.setClip(clip);
                 
                 Image img = new Image(new FileInputStream(imgFile));
