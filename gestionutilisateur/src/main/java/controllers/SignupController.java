@@ -70,14 +70,35 @@ public class SignupController {
     // =====================================================
     @FXML
     public void signup() {
-
-        if (tfNom.getText().isEmpty() ||
-                tfPrenom.getText().isEmpty() ||
-                tfEmail.getText().isEmpty() ||
-                tfPassword.getText().isEmpty()) {
+        // Validation des champs vides
+        if (tfNom.getText().trim().isEmpty() ||
+                tfPrenom.getText().trim().isEmpty() ||
+                tfEmail.getText().trim().isEmpty() ||
+                tfPassword.getText().trim().isEmpty()) {
 
             lblMessage.setStyle("-fx-text-fill: red;");
             lblMessage.setText("❌ Remplissez tous les champs !");
+            return;
+        }
+
+        // Validation nom et prénom (minimum 2 caractères)
+        if (tfNom.getText().trim().length() < 2 || tfPrenom.getText().trim().length() < 2) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Nom et prénom doivent contenir au moins 2 caractères !");
+            return;
+        }
+
+        // Validation format email
+        if (!tfEmail.getText().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Format d'email invalide !");
+            return;
+        }
+
+        // Validation longueur mot de passe (minimum 6 caractères)
+        if (tfPassword.getText().length() < 6) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Le mot de passe doit contenir au moins 6 caractères !");
             return;
         }
 

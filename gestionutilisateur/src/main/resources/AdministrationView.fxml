@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane prefHeight="800.0" prefWidth="1400.0" stylesheets="@modernuser.css" 
+<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@modernuser.css" 
             xmlns="http://javafx.com/javafx/17" 
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="controllers.AdministrationController">

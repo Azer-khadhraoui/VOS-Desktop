@@ -573,14 +573,38 @@ public class AdministrationController {
 
     @FXML
     public void saveUser() {
-        // Validation
-        if (tfNom.getText().isEmpty() || tfPrenom.getText().isEmpty() || 
-            tfEmail.getText().isEmpty() || tfPassword.getText().isEmpty()) {
+        // Validation des champs vides
+        if (tfNom.getText().trim().isEmpty() || tfPrenom.getText().trim().isEmpty() || 
+            tfEmail.getText().trim().isEmpty() || tfPassword.getText().trim().isEmpty()) {
             
             lblModalMessage.setStyle("-fx-text-fill: #DC2626;");
             lblModalMessage.setText("❌ Veuillez remplir tous les champs !");
             
             // Shake animation
+            shakeAnimation(modalContent);
+            return;
+        }
+
+        // Validation longueur nom et prénom
+        if (tfNom.getText().trim().length() < 2 || tfPrenom.getText().trim().length() < 2) {
+            lblModalMessage.setStyle("-fx-text-fill: #DC2626;");
+            lblModalMessage.setText("❌ Nom et prénom doivent contenir au moins 2 caractères !");
+            shakeAnimation(modalContent);
+            return;
+        }
+
+        // Validation format email
+        if (!tfEmail.getText().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            lblModalMessage.setStyle("-fx-text-fill: #DC2626;");
+            lblModalMessage.setText("❌ Format d'email invalide !");
+            shakeAnimation(modalContent);
+            return;
+        }
+
+        // Validation longueur mot de passe
+        if (tfPassword.getText().length() < 6) {
+            lblModalMessage.setStyle("-fx-text-fill: #DC2626;");
+            lblModalMessage.setText("❌ Le mot de passe doit contenir au moins 6 caractères !");
             shakeAnimation(modalContent);
             return;
         }
@@ -732,8 +756,9 @@ public class AdministrationController {
             Parent root = loader.load();
             
             Stage stage = (Stage) tableUsers.getScene().getWindow();
-            Scene newScene = new Scene(root);
+            Scene newScene = new Scene(root, 1440, 1024);
             stage.setScene(newScene);
+            stage.setResizable(false);
             stage.setTitle("Connexion - VOS");
             stage.centerOnScreen();
         } catch (Exception e) {

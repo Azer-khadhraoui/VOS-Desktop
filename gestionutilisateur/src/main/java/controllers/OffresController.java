@@ -407,8 +407,9 @@ public class OffresController {
             Parent root = loader.load();
             
             Stage stage = (Stage) offresContainer.getScene().getWindow();
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root, 1440, 1024);
             stage.setScene(scene);
+            stage.setResizable(false);
             stage.setTitle("Connexion - VOS");
             stage.centerOnScreen();
         } catch (Exception e) {

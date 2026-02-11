@@ -27,6 +27,19 @@ public class SigninController {
     // =====================================================
     @FXML
     public void signin() {
+        // Validation des champs
+        if (tfEmail.getText().trim().isEmpty() || tfPassword.getText().trim().isEmpty()) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Veuillez remplir tous les champs !");
+            return;
+        }
+
+        // Validation format email
+        if (!tfEmail.getText().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Format d'email invalide !");
+            return;
+        }
 
         if (su.login(tfEmail.getText(), tfPassword.getText())) {
             lblMessage.setStyle("-fx-text-fill: green;");
@@ -57,8 +70,9 @@ public class SigninController {
                             Parent root = loader.load();
                             
                             Stage stage = (Stage) tfEmail.getScene().getWindow();
-                            Scene newScene = new Scene(root);
+                            Scene newScene = new Scene(root, 1440, 1024);
                             stage.setScene(newScene);
+                            stage.setResizable(false);
                             stage.centerOnScreen();
                             
                         } catch (Exception e) {
