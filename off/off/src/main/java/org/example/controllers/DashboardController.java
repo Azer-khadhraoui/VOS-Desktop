@@ -18,6 +18,10 @@ import org.example.services.CritereOffreService;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.util.Duration;
 
 
 
@@ -26,6 +30,23 @@ public class DashboardController {
 
     // Top search
     @FXML private TextField searchField;
+    
+    // Sidebar elements
+    @FXML private VBox sidebar;
+    @FXML private Label sidebarSubtitle;
+    @FXML private HBox navStatistiques;
+    @FXML private HBox navOpportunites;
+    @FXML private HBox navApropos;
+    @FXML private HBox navAdministration;
+    @FXML private HBox navParametres;
+    @FXML private HBox navDeconnexion;
+    @FXML private Label labelStatistiques;
+    @FXML private Label labelOpportunites;
+    @FXML private Label labelApropos;
+    @FXML private Label labelAdministration;
+    @FXML private Label labelParametres;
+    @FXML private Label labelDeconnexion;
+    @FXML private VBox supportSection;
 
     // Table
     @FXML private TableView<OffreEmploi> offreTable;
@@ -227,6 +248,117 @@ public class DashboardController {
 
         // Simple search (filters in-memory)
         searchField.textProperty().addListener((obs, oldV, newV) -> applySearch(newV));
+        
+        // Setup sidebar hover effect
+        setupSidebarHoverEffect();
+    }
+    
+    private void setupSidebarHoverEffect() {
+        // Set initial state
+        sidebar.setPrefWidth(90.0);
+        
+        // Variable to track if mouse is inside sidebar
+        final boolean[] isMouseInside = {false};
+        
+        // Expand on mouse enter to sidebar
+        sidebar.setOnMouseEntered(event -> {
+            isMouseInside[0] = true;
+            expandSidebar();
+        });
+        
+        // Collapse only when mouse truly leaves
+        sidebar.setOnMouseExited(event -> {
+            isMouseInside[0] = false;
+            // Delay check to see if mouse re-entered
+            Timeline delayCheck = new Timeline(new KeyFrame(Duration.millis(100), e -> {
+                if (!isMouseInside[0]) {
+                    collapseSidebar();
+                }
+            }));
+            delayCheck.play();
+        });
+        
+        // Keep expanded when hovering/clicking on nav items
+        navStatistiques.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+        navStatistiques.setOnMousePressed(e -> { isMouseInside[0] = true; });
+        navOpportunites.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+        navOpportunites.setOnMousePressed(e -> { isMouseInside[0] = true; });
+        navApropos.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+        navApropos.setOnMousePressed(e -> { isMouseInside[0] = true; });
+        navAdministration.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+        navAdministration.setOnMousePressed(e -> { isMouseInside[0] = true; });
+        navParametres.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+        navParametres.setOnMousePressed(e -> { isMouseInside[0] = true; });
+        navDeconnexion.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+        navDeconnexion.setOnMousePressed(e -> { isMouseInside[0] = true; });
+        
+        // Add hover effects on nav items
+        addNavItemHoverEffect(navStatistiques);
+        addNavItemHoverEffect(navOpportunites);
+        addNavItemHoverEffect(navApropos);
+        addNavItemHoverEffect(navAdministration);
+        addNavItemHoverEffect(navParametres);
+        addNavItemHoverEffect(navDeconnexion);
+    }
+    
+    private void expandSidebar() {
+        Timeline expandTimeline = new Timeline(
+            new KeyFrame(Duration.millis(250),
+                new KeyValue(sidebar.prefWidthProperty(), 240),
+                new KeyValue(sidebarSubtitle.opacityProperty(), 1),
+                new KeyValue(sidebarSubtitle.maxWidthProperty(), 200),
+                new KeyValue(labelStatistiques.opacityProperty(), 1),
+                new KeyValue(labelStatistiques.maxWidthProperty(), 150),
+                new KeyValue(labelOpportunites.opacityProperty(), 1),
+                new KeyValue(labelOpportunites.maxWidthProperty(), 150),
+                new KeyValue(labelApropos.opacityProperty(), 1),
+                new KeyValue(labelApropos.maxWidthProperty(), 150),
+                new KeyValue(labelAdministration.opacityProperty(), 1),
+                new KeyValue(labelAdministration.maxWidthProperty(), 150),
+                new KeyValue(labelParametres.opacityProperty(), 1),
+                new KeyValue(labelParametres.maxWidthProperty(), 150),
+                new KeyValue(labelDeconnexion.opacityProperty(), 1),
+                new KeyValue(labelDeconnexion.maxWidthProperty(), 150),
+                new KeyValue(supportSection.opacityProperty(), 1),
+                new KeyValue(supportSection.maxHeightProperty(), 200)
+            )
+        );
+        expandTimeline.play();
+    }
+    
+    private void collapseSidebar() {
+        Timeline collapseTimeline = new Timeline(
+            new KeyFrame(Duration.millis(250),
+                new KeyValue(sidebar.prefWidthProperty(), 90),
+                new KeyValue(sidebarSubtitle.opacityProperty(), 0),
+                new KeyValue(sidebarSubtitle.maxWidthProperty(), 0),
+                new KeyValue(labelStatistiques.opacityProperty(), 0),
+                new KeyValue(labelStatistiques.maxWidthProperty(), 0),
+                new KeyValue(labelOpportunites.opacityProperty(), 0),
+                new KeyValue(labelOpportunites.maxWidthProperty(), 0),
+                new KeyValue(labelApropos.opacityProperty(), 0),
+                new KeyValue(labelApropos.maxWidthProperty(), 0),
+                new KeyValue(labelAdministration.opacityProperty(), 0),
+                new KeyValue(labelAdministration.maxWidthProperty(), 0),
+                new KeyValue(labelParametres.opacityProperty(), 0),
+                new KeyValue(labelParametres.maxWidthProperty(), 0),
+                new KeyValue(labelDeconnexion.opacityProperty(), 0),
+                new KeyValue(labelDeconnexion.maxWidthProperty(), 0),
+                new KeyValue(supportSection.opacityProperty(), 0),
+                new KeyValue(supportSection.maxHeightProperty(), 0)
+            )
+        );
+        collapseTimeline.play();
+    }
+    
+    private void addNavItemHoverEffect(HBox navItem) {
+        navItem.setOnMouseEntered(e -> {
+            navItem.setStyle(navItem.getStyle() + "-fx-background-color: #f3f4f6;");
+        });
+        
+        navItem.setOnMouseExited(e -> {
+            navItem.setStyle(navItem.getStyle().replace("-fx-background-color: #f3f4f6;", "-fx-background-color: transparent;"));
+        });
     }
     private void supprimerCritere(CritereOffre critere) {
 
