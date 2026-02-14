@@ -7,34 +7,70 @@
 
 <BorderPane prefHeight="800.0" prefWidth="1400.0" stylesheets="@../styles/modernRecrutement.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
 
-    <!-- LEFT SIDEBAR -->
+    <!-- LEFT SIDEBAR - HOVER TO EXPAND -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="80.0">
+        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0" minWidth="60.0" maxWidth="240.0" 
+              onMouseEntered="#onSidebarEntered" onMouseExited="#onSidebarExited">
+            
             <!-- Logo -->
-            <VBox alignment="CENTER" styleClass="logo-container">
+            <VBox alignment="CENTER" styleClass="sidebar-logo">
                 <padding>
-                    <Insets top="20.0" bottom="20.0"/>
+                    <Insets top="15.0" bottom="15.0"/>
                 </padding>
-                <ImageView fitHeight="120.0" fitWidth="120.0" preserveRatio="true">
+                <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                     <image>
-                        <Image url="@../images/VOS.jpg"/>
+                        <Image url="@../images/VOSwhite.png"/>
                     </image>
                 </ImageView>
             </VBox>
 
-            <!-- Navigation Icons -->
-            <VBox alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
+            <!-- Navigation Items Container -->
+            <VBox alignment="TOP_CENTER" spacing="12.0" VBox.vgrow="ALWAYS">
                 <padding>
-                    <Insets top="30.0"/>
+                    <Insets top="10.0" left="6.0" right="6.0"/>
                 </padding>
 
-                <Button fx:id="btnNavEntretiens" styleClass="nav-icon, nav-icon-active" text="📋" onAction="#showPageEntretiens"/>
-                <Button fx:id="btnNavDashboard" styleClass="nav-icon" text="📊" onAction="#showPageDashboard"/>
-                <Button fx:id="btnNavStats" styleClass="nav-icon" text="📈" onAction="#showPageStats"/>
-                <Button styleClass="nav-icon" text="👤"/>
-                <Button styleClass="nav-icon" text="⚙️"/>
-                <Button styleClass="nav-icon" text="➡️"/>
+                <!-- Dashboard -->
+                <HBox fx:id="navDashboard" styleClass="sidebar-nav-item, sidebar-nav-item-active">
+                    <Label styleClass="sidebar-nav-icon" text="📊"/>
+                    <Label fx:id="navDashboardText" styleClass="sidebar-nav-label" text="Dashboard"/>
+                </HBox>
+
+                <!-- Recrutements -->
+                <HBox fx:id="navRecrutements" styleClass="sidebar-nav-item">
+                    <Label styleClass="sidebar-nav-icon" text="📋"/>
+                    <Label fx:id="navRecrutementsText" styleClass="sidebar-nav-label" text="Recrutements"/>
+                </HBox>
+
+                <!-- Statistiques -->
+                <HBox fx:id="navStats" styleClass="sidebar-nav-item">
+                    <Label styleClass="sidebar-nav-icon" text="📈"/>
+                    <Label fx:id="navStatsText" styleClass="sidebar-nav-label" text="Statistiques"/>
+                </HBox>
+
+                <!-- Utilisateurs -->
+                <HBox fx:id="navUsers" styleClass="sidebar-nav-item">
+                    <Label styleClass="sidebar-nav-icon" text="👥"/>
+                    <Label fx:id="navUsersText" styleClass="sidebar-nav-label" text="Utilisateurs"/>
+                </HBox>
+
+                <!-- Paramètres -->
+                <HBox fx:id="navSettings" styleClass="sidebar-nav-item">
+                    <Label styleClass="sidebar-nav-icon" text="⚙️"/>
+                    <Label fx:id="navSettingsText" styleClass="sidebar-nav-label" text="Paramètres"/>
+                </HBox>
             </VBox>
+
+            <!-- Spacer -->
+            <VBox VBox.vgrow="ALWAYS"/>
+
+            <!-- Logout at bottom -->
+            <HBox fx:id="navLogout" styleClass="sidebar-nav-item, sidebar-nav-logout">
+                <Label styleClass="sidebar-nav-icon" text="🚪"/>
+                <Label fx:id="navLogoutText" styleClass="sidebar-nav-label" text="Déconnexion"/>
+            </HBox>
+            
+            <VBox style="-fx-min-height: 8.0;"/>
         </VBox>
     </left>
 

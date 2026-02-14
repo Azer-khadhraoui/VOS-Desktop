@@ -40,6 +40,13 @@
             <version>17.0.2</version>
         </dependency>
 
+        <!-- ✅ FontAwesomeFX Icons -->
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx</artifactId>
+            <version>8.9</version>
+        </dependency>
+
     </dependencies>
 
     <build>

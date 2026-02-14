@@ -15,6 +15,12 @@ import javafx.collections.ObservableList;
 import javafx.beans.property.*;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.util.Duration;
 import services.ServiceContrat;
 import services.ServiceRecrutement;
 
@@ -26,7 +32,45 @@ import java.util.List;
 
 public class MainController implements Initializable {
 
-    // Navigation Buttons
+    // ================================
+    // SIDEBAR ELEMENTS
+    // ================================
+    @FXML
+    private VBox sidebar;
+    
+    @FXML
+    private HBox navDashboard;
+    @FXML
+    private Label navDashboardText;
+    
+    @FXML
+    private HBox navRecrutements;
+    @FXML
+    private Label navRecrutementsText;
+    
+    @FXML
+    private HBox navStats;
+    @FXML
+    private Label navStatsText;
+    
+    @FXML
+    private HBox navUsers;
+    @FXML
+    private Label navUsersText;
+    
+    @FXML
+    private HBox navSettings;
+    @FXML
+    private Label navSettingsText;
+    
+    @FXML
+    private HBox navLogout;
+    @FXML
+    private Label navLogoutText;
+
+    // ================================
+    // NAVIGATION BUTTONS (OLD - DEPRECATED)
+    // ================================
     @FXML
     private Button btnNavEntretiens;
     @FXML
@@ -94,6 +138,10 @@ public class MainController implements Initializable {
     // Modal states
     private ContratRow selectedContratRow = null;
     private RecrutementRow selectedRecrutementRow = null;
+    
+    // Sidebar state
+    private boolean sidebarExpanded = false;
+    private Timeline sidebarAnimation = null;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -101,8 +149,123 @@ public class MainController implements Initializable {
         initializeContratTable();
         initializeRecrutementTable();
 
-        // Set default button as active
-        btnNavEntretiens.setStyle("-fx-background-color: #F3F4F6;");
+        // Initialize sidebar animations
+        initializeSidebar();
+        
+        // Setup navigation click handlers
+        setupNavigation();
+    }
+
+    private void initializeSidebar() {
+        if (sidebar == null) return;
+        
+        // Hide labels initially (opacity = 0)
+        Label[] labels = {navDashboardText, navRecrutementsText, navStatsText, navUsersText, navSettingsText, navLogoutText};
+        for (Label label : labels) {
+            if (label != null) label.setOpacity(0.0);
+        }
+    }
+
+    private void setupNavigation() {
+        // Dashboard
+        if (navDashboard != null) {
+            navDashboard.setOnMouseClicked(e -> showPageDashboard());
+        }
+        
+        // Recrutements
+        if (navRecrutements != null) {
+            navRecrutements.setOnMouseClicked(e -> showPageEntretiens());
+        }
+        
+        // Stats
+        if (navStats != null) {
+            navStats.setOnMouseClicked(e -> showPageStats());
+        }
+    }
+
+    @FXML
+    private void onSidebarEntered() {
+        if (!sidebarExpanded) {
+            expandSidebar();
+        }
+    }
+
+    @FXML
+    private void onSidebarExited() {
+        collapseSidebar();
+    }
+
+    private void expandSidebar() {
+        sidebarExpanded = true;
+        
+        // Stop any running animation
+        if (sidebarAnimation != null) {
+            sidebarAnimation.stop();
+        }
+        
+        // Animate width expansion: 60px -> 240px
+        sidebarAnimation = new Timeline(
+            new KeyFrame(Duration.millis(300),
+                new KeyValue(sidebar.prefWidthProperty(), 240.0, Interpolator.EASE_OUT),
+                new KeyValue(sidebar.minWidthProperty(), 240.0, Interpolator.EASE_OUT)
+            )
+        );
+        sidebarAnimation.play();
+        
+        // Fade in labels with slight delay
+        Label[] labels = {navDashboardText, navRecrutementsText, navStatsText, navUsersText, navSettingsText, navLogoutText};
+        for (Label label : labels) {
+            if (label != null) {
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(250), label);
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.setDelay(Duration.millis(50));
+                fadeIn.play();
+            }
+        }
+    }
+
+    private void collapseSidebar() {
+        sidebarExpanded = false;
+        
+        // Stop any running animation
+        if (sidebarAnimation != null) {
+            sidebarAnimation.stop();
+        }
+        
+        // Fade out labels
+        Label[] labels = {navDashboardText, navRecrutementsText, navStatsText, navUsersText, navSettingsText, navLogoutText};
+        for (Label label : labels) {
+            if (label != null) {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(150), label);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.play();
+            }
+        }
+        
+        // Animate width collapse: 240px -> 60px
+        sidebarAnimation = new Timeline(
+            new KeyFrame(Duration.millis(300),
+                new KeyValue(sidebar.prefWidthProperty(), 60.0, Interpolator.EASE_IN),
+                new KeyValue(sidebar.minWidthProperty(), 60.0, Interpolator.EASE_IN)
+            )
+        );
+        sidebarAnimation.play();
+    }
+
+    private void setNavItemActive(HBox activeItem) {
+        // Remove active class from all items
+        if (navDashboard != null) navDashboard.getStyleClass().remove("sidebar-nav-item-active");
+        if (navRecrutements != null) navRecrutements.getStyleClass().remove("sidebar-nav-item-active");
+        if (navStats != null) navStats.getStyleClass().remove("sidebar-nav-item-active");
+        if (navUsers != null) navUsers.getStyleClass().remove("sidebar-nav-item-active");
+        if (navSettings != null) navSettings.getStyleClass().remove("sidebar-nav-item-active");
+        
+        // Add active class to current item
+        if (activeItem != null && !activeItem.getStyleClass().contains("sidebar-nav-item-active")) {
+            activeItem.getStyleClass().add("sidebar-nav-item-active");
+        }
     }
 
     private void initializeContratTable() {
@@ -455,7 +618,6 @@ public class MainController implements Initializable {
         }
     }
 
-    @FXML
     private void showPageEntretiens() {
         pageContrats.setVisible(true);
         pageContrats.setManaged(true);
@@ -463,10 +625,9 @@ public class MainController implements Initializable {
         pageDashboard.setManaged(false);
         pageStats.setVisible(false);
         pageStats.setManaged(false);
-        updateNavButtonStyle(btnNavEntretiens);
+        setNavItemActive(navRecrutements);
     }
 
-    @FXML
     private void showPageDashboard() {
         pageContrats.setVisible(false);
         pageContrats.setManaged(false);
@@ -474,10 +635,9 @@ public class MainController implements Initializable {
         pageDashboard.setManaged(true);
         pageStats.setVisible(false);
         pageStats.setManaged(false);
-        updateNavButtonStyle(btnNavDashboard);
+        setNavItemActive(navDashboard);
     }
 
-    @FXML
     private void showPageStats() {
         pageContrats.setVisible(false);
         pageContrats.setManaged(false);
@@ -485,7 +645,7 @@ public class MainController implements Initializable {
         pageDashboard.setManaged(false);
         pageStats.setVisible(true);
         pageStats.setManaged(true);
-        updateNavButtonStyle(btnNavStats);
+        setNavItemActive(navStats);
     }
 
     @FXML
@@ -1680,13 +1840,15 @@ public class MainController implements Initializable {
     }
 
     private void updateNavButtonStyle(Button activeButton) {
-        // Reset all buttons
-        btnNavEntretiens.setStyle("");
-        btnNavDashboard.setStyle("");
-        btnNavStats.setStyle("");
+        // Reset all old buttons if they exist
+        if (btnNavEntretiens != null) btnNavEntretiens.setStyle("");
+        if (btnNavDashboard != null) btnNavDashboard.setStyle("");
+        if (btnNavStats != null) btnNavStats.setStyle("");
 
-        // Style active button
-        activeButton.setStyle("-fx-background-color: #F3F4F6;");
+        // Style active button if not null
+        if (activeButton != null) {
+            activeButton.setStyle("-fx-background-color: #F3F4F6;");
+        }
     }
 
     private void showAlert(String title, String message) {

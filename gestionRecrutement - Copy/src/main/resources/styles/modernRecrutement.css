@@ -6,38 +6,98 @@
     -fx-background-color: #F5F6F8;
 }
 
-/* SIDEBAR */
+/* ================================
+   SIDEBAR - HOVER TO EXPAND
+   ================================ */
+
 .sidebar {
-    -fx-background-color: white;
-    -fx-border-color: #E5E7EB;
+    -fx-background-color: #1a1a2e;
+    -fx-border-color: #2d2d44;
     -fx-border-width: 0 1 0 0;
+    -fx-pref-width: 60.0;
+    -fx-min-width: 60.0;
 }
 
-.logo-container {
-    -fx-padding: 25 0;
-    -fx-border-color: transparent transparent #E5E7EB transparent;
+.sidebar-logo {
+    -fx-padding: 12 0;
+    -fx-border-color: transparent transparent #2d2d44 transparent;
     -fx-border-width: 0 0 1 0;
+    -fx-alignment: center;
 }
 
-.logo-text {
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
+.sidebar-logo-icon {
+    -fx-font-size: 28px;
+    -fx-text-fill: #ffffff;
 }
 
-.nav-icon {
+/* Navigation Items */
+.sidebar-nav-item {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 12.0;
+    -fx-padding: 12 8;
     -fx-background-color: transparent;
-    -fx-font-size: 24px;
-    -fx-padding: 15;
+    -fx-background-radius: 8;
     -fx-cursor: hand;
-    -fx-background-radius: 12;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-color: transparent;
 }
 
-.nav-icon:hover {
-    -fx-background-color: #F3F4F6;
+.sidebar-nav-item:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.3);
 }
 
-/* HEADER BAR */
+.sidebar-nav-item:hover .sidebar-nav-label {
+    -fx-text-fill: #FF9900;
+    /* Opacity maintained by Java animations */
+}
+
+.sidebar-nav-item-active {
+    -fx-background-color: rgba(59, 130, 246, 0.25);
+    -fx-border-color: #3b82f6;
+}
+
+.sidebar-nav-icon {
+    -fx-font-size: 20px;
+    -fx-text-fill: #ffffff;
+    -fx-min-width: 40;
+    -fx-alignment: center;
+}
+
+.sidebar-nav-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 500;
+    /* Opacity is controlled by Java FadeTransition animations */
+}
+
+.sidebar-nav-label-visible {
+    -fx-opacity: 1.0;
+}
+
+.sidebar-nav-logout {
+    -fx-margin-top: 20;
+}
+
+.sidebar-nav-logout:hover {
+    -fx-background-color: rgba(220, 38, 38, 0.25);
+}
+
+.sidebar-nav-logout .sidebar-nav-icon {
+    -fx-text-fill: #dc2626;
+}
+
+.sidebar-nav-logout .sidebar-nav-label {
+    -fx-text-fill: #ffffff;
+}
+
+.sidebar-nav-logout:hover .sidebar-nav-label {
+    -fx-text-fill: #FF9900;
+}
+
+
+/* ================================
+   HEADER BAR
+   ================================ */
 .header-bar {
     -fx-background-color: white;
     -fx-border-color: transparent transparent #E5E7EB transparent;
