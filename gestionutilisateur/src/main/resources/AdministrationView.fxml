@@ -17,24 +17,44 @@
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="80.0">
+        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="80.0">
             <!-- Logo -->
             <VBox alignment="CENTER" styleClass="logo-container">
-                <Label text="VOS" styleClass="logo-text"/>
+                <ImageView fitHeight="55" fitWidth="55" preserveRatio="true">
+                    <Image url="@img/VOS.png"/>
+                </ImageView>
             </VBox>
 
             <!-- Navigation Icons -->
-            <VBox alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
+            <VBox fx:id="navContainer" alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                 <padding>
                     <Insets top="30.0"/>
                 </padding>
 
-                <Button styleClass="nav-icon" text="📊"/>
-                <Button styleClass="nav-icon" text="💼"/>
-                <Button styleClass="nav-icon" text="ℹ️"/>
-                <Button styleClass="nav-icon" text="👤"/>
-                <Button styleClass="nav-icon" text="⚙️"/>
-                <Button styleClass="nav-icon" text="➡️" onAction="#logout"/>
+                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="📊" styleClass="nav-item-icon"/>
+                    <Label text="Statistiques" styleClass="nav-item-label"/>
+                </HBox>
+                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="💼" styleClass="nav-item-icon"/>
+                    <Label text="Offres" styleClass="nav-item-label"/>
+                </HBox>
+                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="ℹ️" styleClass="nav-item-icon"/>
+                    <Label text="Informations" styleClass="nav-item-label"/>
+                </HBox>
+                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="👤" styleClass="nav-item-icon"/>
+                    <Label text="Profil" styleClass="nav-item-label"/>
+                </HBox>
+                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="⚙️" styleClass="nav-item-icon"/>
+                    <Label text="Paramètres" styleClass="nav-item-label"/>
+                </HBox>
+                <HBox fx:id="logoutBtn" styleClass="nav-item,nav-item-logout" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="➡️" styleClass="nav-item-icon"/>
+                    <Label text="Déconnexion" styleClass="nav-item-label"/>
+                </HBox>
             </VBox>
         </VBox>
     </left>
@@ -122,7 +142,7 @@
         <VBox alignment="CENTER" spacing="8.0" 
               style="-fx-background-color: transparent; -fx-padding: 30 30 20 30;">
             <ImageView fitHeight="80.0" fitWidth="180.0" preserveRatio="true">
-                <Image url="@img/VOSslogan.png"/>
+                <Image url="@img/VOSwhiteslogan.png"/>
             </ImageView>
             <Label fx:id="modalTitle" text="Nouvel Utilisateur" 
                    style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
