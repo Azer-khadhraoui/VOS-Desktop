@@ -60,6 +60,30 @@ public class DashboardController {
     private CritereOffreService critereService = new CritereOffreService();
     private Integer currentOffreId = null;
 
+    /**
+     * Fetches all distinct user IDs from the offre_emploi table in the database.
+     * This method retrieves unique user IDs that have created job offers.
+     * 
+     * @return A List of Integer containing all distinct user IDs, or an empty list if none found
+     */
+    private List<Integer> getAllUserIds() {
+        List<Integer> userIds = new java.util.ArrayList<>();
+        String sql = "SELECT DISTINCT id_utilisateur FROM offre_emploi ORDER BY id_utilisateur";
+        
+        try (java.sql.PreparedStatement ps = org.example.utils.MyDataBase.getInstance().getConnection().prepareStatement(sql);
+             java.sql.ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                userIds.add(rs.getInt("id_utilisateur"));
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return userIds;
+    }
+
 
     @FXML
     public void initialize() {
@@ -352,7 +376,7 @@ public class DashboardController {
         dialog.setTitle(existing == null ? "Ajouter Offre" : "Modifier Offre");
         dialog.setHeaderText(null);
 
-        ButtonType saveButton = new ButtonType("Mettre à jour", ButtonBar.ButtonData.OK_DONE);
+        ButtonType saveButton = new ButtonType(existing == null ? "Ajouter" : "Mettre à jour", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButton, cancelButton);
 
@@ -375,6 +399,38 @@ public class DashboardController {
         titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                           "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
                           "-fx-border-radius: 8; -fx-font-size: 14px;");
+        // Error label for titre
+        Label titreError = new Label(" ");
+        titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for titre
+        titreField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                titreError.setText("❌ Le titre est obligatoire.");
+                titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() < 5) {
+                titreError.setText("❌ Le titre doit contenir au moins 5 caractères (" + newVal.trim().length() + "/5)");
+                titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() > 100) {
+                titreError.setText("❌ Le titre ne peut pas dépasser 100 caractères (" + newVal.trim().length() + "/100)");
+                titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else {
+                titreError.setText("✅ Valide");
+                titreError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            }
+        });
 
         // Description
         Label descLbl = new Label("📝 DESCRIPTION");
@@ -385,6 +441,38 @@ public class DashboardController {
         descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                 "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+        // Error label for description
+        Label descError = new Label(" ");
+        descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for description
+        descriptionArea.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                descError.setText("❌ La description est obligatoire.");
+                descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                        "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                        "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() < 20) {
+                descError.setText("❌ La description doit contenir au moins 20 caractères (" + newVal.trim().length() + "/20)");
+                descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                        "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                        "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() > 500) {
+                descError.setText("❌ La description ne peut pas dépasser 500 caractères (" + newVal.trim().length() + "/500)");
+                descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                        "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                        "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else {
+                descError.setText("✅ Valide (" + newVal.trim().length() + "/500 caractères)");
+                descError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                        "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                        "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
+            }
+        });
 
         // Type Contrat
         Label typeLbl = new Label("💼 TYPE DE CONTRAT");
@@ -447,61 +535,310 @@ public class DashboardController {
         // User ID
         Label userLbl = new Label("👤 ID UTILISATEUR");
         userLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
-        TextField userIdField = new TextField();
-        userIdField.setPromptText("Ex: 1");
-        userIdField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
-                           "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
-                          "-fx-border-radius: 8; -fx-font-size: 14px;");
+        ComboBox<Integer> userIdCombo = new ComboBox<>();
+        
+        // Load user IDs from database
+        List<Integer> userIds = getAllUserIds();
+        if (!userIds.isEmpty()) {
+            userIdCombo.getItems().addAll(userIds);
+            userIdCombo.setValue(userIds.get(0)); // Set first user as default
+        } else {
+            // If no users found, allow manual entry range
+            userIdCombo.getItems().addAll(1, 2, 3, 4, 5);
+            userIdCombo.setValue(1);
+        }
+        
+        userIdCombo.setPromptText("Sélectionnez un utilisateur");
+        userIdCombo.setEditable(true); // Allow manual entry for new user IDs
+        userIdCombo.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-background-radius: 8; " +
+                           "-fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+        userIdCombo.setPrefWidth(400);
+        userIdCombo.setCellFactory(lv -> {
+            javafx.scene.control.ListCell<Integer> cell = new javafx.scene.control.ListCell<>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? "" : "Utilisateur #" + item);
+                    setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-padding: 8;");
+                }
+            };
+            return cell;
+        });
+        userIdCombo.setButtonCell(new javafx.scene.control.ListCell<>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : "Utilisateur #" + item);
+                setStyle("-fx-text-fill: white;");
+            }
+        });
+        // Error label for user ID
+        Label userError = new Label(" ");
+        userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for user ID
+        Runnable validateUserId = () -> {
+            Integer value = userIdCombo.getValue();
+            String editorText = userIdCombo.getEditor().getText();
+            
+            if (value == null && (editorText == null || editorText.trim().isEmpty())) {
+                userError.setText("❌ L'ID utilisateur est obligatoire.");
+                userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+            } else if (value == null && editorText != null && !editorText.trim().isEmpty()) {
+                try {
+                    int id = Integer.parseInt(editorText.trim());
+                    if (id <= 0) {
+                        userError.setText("❌ L'ID doit être un nombre positif.");
+                        userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                    } else {
+                        userError.setText("✅ Valide");
+                        userError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                    }
+                } catch (NumberFormatException e) {
+                    userError.setText("❌ L'ID doit être un nombre valide.");
+                    userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                }
+            } else {
+                userError.setText("✅ Valide");
+                userError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+            }
+        };
+        
+        userIdCombo.valueProperty().addListener((obs, oldVal, newVal) -> validateUserId.run());
+        userIdCombo.getEditor().textProperty().addListener((obs, oldVal, newVal) -> validateUserId.run());
 
         if (existing != null) {
             titreField.setText(existing.getTitre());
             descriptionArea.setText(existing.getDescription());
             typeCombo.setValue(existing.getTypeContrat());
             statutCombo.setValue(existing.getStatutOffre());
-            userIdField.setText(String.valueOf(existing.getIdUtilisateur()));
+            userIdCombo.setValue(existing.getIdUtilisateur());
         }
 
         container.getChildren().addAll(
             titleLabel,
-            titreLbl, titreField,
-            descLbl, descriptionArea,
+            titreLbl, titreField, titreError,
+            descLbl, descriptionArea, descError,
             typeLbl, typeCombo,
             statutLbl, statutCombo,
-            userLbl, userIdField
+            userLbl, userIdCombo, userError
         );
 
         dialog.getDialogPane().setContent(container);
-        dialog.getDialogPane().setStyle("-fx-background-color: #1a1a2e;");
+        dialog.getDialogPane().setStyle("-fx-background-color: #1a1a2e; -fx-padding: 0;");
         
-        // Style buttons
-        dialog.getDialogPane().lookupButton(saveButton).setStyle(
-            "-fx-background-color: linear-gradient(to right, #8b5cf6, #d946ef); " +
-            "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; " +
-            "-fx-background-radius: 10; -fx-cursor: hand;"
+        // Style buttons to match modern design
+        javafx.scene.Node saveButtonNode = dialog.getDialogPane().lookupButton(saveButton);
+        javafx.scene.Node cancelButtonNode = dialog.getDialogPane().lookupButton(cancelButton);
+        
+        saveButtonNode.setStyle(
+            "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
         );
-        dialog.getDialogPane().lookupButton(cancelButton).setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: #9ca3af; " +
-            "-fx-border-color: #3d3d5c; -fx-border-radius: 10; -fx-background-radius: 10; " +
-            "-fx-padding: 12 30; -fx-font-weight: bold;"
+        
+        cancelButtonNode.setStyle(
+            "-fx-background-color: #2d2d48; " +
+            "-fx-text-fill: #94a3b8; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
         );
+        
+        // Add hover effects
+        saveButtonNode.setOnMouseEntered(e -> saveButtonNode.setStyle(
+            "-fx-background-color: linear-gradient(to right, #9333ea, #db2777); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"
+        ));
+        
+        saveButtonNode.setOnMouseExited(e -> saveButtonNode.setStyle(
+            "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
+        ));
+        
+        cancelButtonNode.setOnMouseEntered(e -> cancelButtonNode.setStyle(
+            "-fx-background-color: #3d3d5c; " +
+            "-fx-text-fill: #a8b3cf; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
+        ));
+        
+        cancelButtonNode.setOnMouseExited(e -> cancelButtonNode.setStyle(
+            "-fx-background-color: #2d2d48; " +
+            "-fx-text-fill: #94a3b8; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
+        ));
+
+        // Add event filter to prevent dialog closing on validation failure
+        saveButtonNode.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            // Hide all error labels first
+            titreError.setVisible(false);
+            titreError.setManaged(false);
+            descError.setVisible(false);
+            descError.setManaged(false);
+            userError.setVisible(false);
+            userError.setManaged(false);
+            
+            // Reset field styles
+            titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                              "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
+                              "-fx-border-radius: 8; -fx-font-size: 14px;");
+            descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                    "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                    "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+            
+            boolean hasError = false;
+            
+            // Validate Titre
+            String titre = titreField.getText();
+            if (titre == null || titre.trim().isEmpty()) {
+                titreError.setText("❌ Le titre est obligatoire.");
+                titreError.setVisible(true);
+                titreError.setManaged(true);
+                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (titre.trim().length() < 5) {
+                titreError.setText("❌ Le titre doit contenir au moins 5 caractères.");
+                titreError.setVisible(true);
+                titreError.setManaged(true);
+                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (titre.trim().length() > 100) {
+                titreError.setText("❌ Le titre ne peut pas dépasser 100 caractères.");
+                titreError.setVisible(true);
+                titreError.setManaged(true);
+                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            }
+            
+            // Validate Description
+            String description = descriptionArea.getText();
+            if (description == null || description.trim().isEmpty()) {
+                descError.setText("❌ La description est obligatoire.");
+                descError.setVisible(true);
+                descError.setManaged(true);
+                descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                        "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                        "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (description.trim().length() < 20) {
+                descError.setText("❌ La description doit contenir au moins 20 caractères.");
+                descError.setVisible(true);
+                descError.setManaged(true);
+                descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                        "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                        "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (description.trim().length() > 500) {
+                descError.setText("❌ La description ne peut pas dépasser 500 caractères.");
+                descError.setVisible(true);
+                descError.setManaged(true);
+                descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                        "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                        "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            }
+            
+            // Validate Type Contrat
+            String typeContrat = typeCombo.getValue();
+            if (typeContrat == null || typeContrat.trim().isEmpty()) {
+                hasError = true;
+            }
+            
+            // Validate User ID
+            Integer userId = userIdCombo.getValue();
+            
+            // Handle manual entry if ComboBox value is null but editor has text
+            if (userId == null) {
+                String editorText = userIdCombo.getEditor().getText();
+                if (editorText != null && !editorText.trim().isEmpty()) {
+                    try {
+                        userId = Integer.parseInt(editorText.trim());
+                        if (userId <= 0) {
+                            userError.setText("❌ L'ID utilisateur doit être un nombre positif.");
+                            userError.setVisible(true);
+                            userError.setManaged(true);
+                            hasError = true;
+                        } else {
+                            userIdCombo.setValue(userId); // Set the parsed value
+                        }
+                    } catch (NumberFormatException e) {
+                        userError.setText("❌ ID utilisateur invalide. Veuillez entrer un nombre.");
+                        userError.setVisible(true);
+                        userError.setManaged(true);
+                        hasError = true;
+                    }
+                } else {
+                    userError.setText("❌ Veuillez sélectionner ou entrer un ID utilisateur.");
+                    userError.setVisible(true);
+                    userError.setManaged(true);
+                    hasError = true;
+                }
+            }
+            
+            if (hasError) {
+                event.consume();
+            }
+        });
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButton) {
                 try {
-                    int userId = Integer.parseInt(userIdField.getText());
-
                     OffreEmploi o = new OffreEmploi();
-                    o.setTitre(titreField.getText());
-                    o.setDescription(descriptionArea.getText());
+                    o.setTitre(titreField.getText().trim());
+                    o.setDescription(descriptionArea.getText().trim());
                     o.setTypeContrat(typeCombo.getValue());
                     o.setStatutOffre(statutCombo.getValue());
                     o.setDatePublication(new java.sql.Date(System.currentTimeMillis()));
+                    
+                    Integer userId = userIdCombo.getValue();
+                    if (userId == null) {
+                        String editorText = userIdCombo.getEditor().getText();
+                        if (editorText != null && !editorText.trim().isEmpty()) {
+                            userId = Integer.parseInt(editorText.trim());
+                        }
+                    }
                     o.setIdUtilisateur(userId);
 
                     return o;
 
                 } catch (Exception e) {
-                    showAlert(Alert.AlertType.ERROR, "Erreur", "ID utilisateur invalide");
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la création de l'offre");
                     return null;
                 }
             }
@@ -573,6 +910,38 @@ public class DashboardController {
         expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                         "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
                         "-fx-border-radius: 8; -fx-font-size: 14px;");
+        // Error label for experience
+        Label expError = new Label(" ");
+        expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for experience
+        expField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                expError.setText("❌ Le niveau d'expérience est obligatoire.");
+                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() < 3) {
+                expError.setText("❌ Minimum 3 caractères (" + newVal.trim().length() + "/3)");
+                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() > 100) {
+                expError.setText("❌ Maximum 100 caractères  (" + newVal.trim().length() + "/100)");
+                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else {
+                expError.setText("✅ Valide");
+                expError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+            }
+        });
 
         // Etude Field
         Label etudeLbl = new Label("🎓 NIVEAU D'ÉTUDE");
@@ -582,6 +951,38 @@ public class DashboardController {
         etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                           "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
                           "-fx-border-radius: 8; -fx-font-size: 14px;");
+        // Error label for etude
+        Label etudeError = new Label(" ");
+        etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for etude
+        etudeField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                etudeError.setText("❌ Le niveau d'étude est obligatoire.");
+                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() < 3) {
+                etudeError.setText("❌ Minimum 3 caractères (" + newVal.trim().length() + "/3)");
+                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() > 100) {
+                etudeError.setText("❌ Maximum 100 caractères (" + newVal.trim().length() + "/100)");
+                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else {
+                etudeError.setText("✅ Valide");
+                etudeError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            }
+        });
 
         // Competences Field
         Label compLbl = new Label("💡 COMPÉTENCES REQUISES");
@@ -592,6 +993,38 @@ public class DashboardController {
         compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                          "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                          "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+        // Error label for competences
+        Label compError = new Label(" ");
+        compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for competences
+        compField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                compError.setText("❌ Les compétences requises sont obligatoires.");
+                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() < 5) {
+                compError.setText("❌ Minimum 5 caractères (" + newVal.trim().length() + "/5)");
+                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() > 300) {
+                compError.setText("❌ Maximum 300 caractères (" + newVal.trim().length() + "/300)");
+                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding:  2 0 0 0; -fx-min-height: 16;");
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else {
+                compError.setText("✅ Valide (" + newVal.trim().length() + "/300 caractères)");
+                compError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
+            }
+        });
         
         // Add bullet point on Enter
         compField.setOnKeyPressed(e -> {
@@ -615,32 +1048,205 @@ public class DashboardController {
 
         container.getChildren().addAll(
             titleLabel,
-            expLbl, expField,
-            etudeLbl, etudeField,
-            compLbl, compField
+            expLbl, expField, expError,
+            etudeLbl, etudeField, etudeError,
+            compLbl, compField, compError
         );
 
         dialog.getDialogPane().setContent(container);
-        dialog.getDialogPane().setStyle("-fx-background-color: #1a202c;");
+        dialog.getDialogPane().setStyle("-fx-background-color: #1a202c; -fx-padding: 0;");
         
-        // Style buttons
-        dialog.getDialogPane().lookupButton(saveButton).setStyle(
-            "-fx-background-color: linear-gradient(to right, #7c3aed, #ec4899); " +
-            "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; " +
-            "-fx-background-radius: 10; -fx-cursor: hand;"
+        // Style buttons to match modern design
+        javafx.scene.Node saveBtn = dialog.getDialogPane().lookupButton(saveButton);
+        javafx.scene.Node cancelBtn = dialog.getDialogPane().lookupButton(cancelButton);
+        
+        saveBtn.setStyle(
+            "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
         );
-        dialog.getDialogPane().lookupButton(cancelButton).setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: #718096; " +
-            "-fx-border-color: #2d3748; -fx-border-radius: 10; -fx-background-radius: 10; " +
-            "-fx-padding: 12 30; -fx-font-weight: bold;"
+        
+        cancelBtn.setStyle(
+            "-fx-background-color: #2d2d48; " +
+            "-fx-text-fill: #94a3b8; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
         );
+        
+        // Add hover effects
+        saveBtn.setOnMouseEntered(e -> saveBtn.setStyle(
+            "-fx-background-color: linear-gradient(to right, #9333ea, #db2777); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"
+        ));
+        
+        saveBtn.setOnMouseExited(e -> saveBtn.setStyle(
+            "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
+        ));
+        
+        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(
+            "-fx-background-color: #3d3d5c; " +
+            "-fx-text-fill: #a8b3cf; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
+        ));
+        
+        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(
+            "-fx-background-color: #2d2d48; " +
+            "-fx-text-fill: #94a3b8; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
+        ));
+
+        // Add event filter to prevent dialog closing on validation failure
+        saveBtn.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            // Hide all error labels first
+            expError.setVisible(false);
+            expError.setManaged(false);
+            etudeError.setVisible(false);
+            etudeError.setManaged(false);
+            compError.setVisible(false);
+            compError.setManaged(false);
+            
+            // Reset field styles
+            expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                            "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
+                            "-fx-border-radius: 8; -fx-font-size: 14px;");
+            etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                              "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
+                              "-fx-border-radius: 8; -fx-font-size: 14px;");
+            compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                             "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                             "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+            
+            boolean hasError = false;
+            
+            // Validate all fields are filled
+            String niveauExp = expField.getText();
+            String niveauEtude = etudeField.getText();
+            String competences = compField.getText();
+            
+            // Validate Niveau Experience - not empty
+            if (niveauExp == null || niveauExp.trim().isEmpty()) {
+                expError.setText("❌ Le niveau d'expérience est obligatoire.");
+                expError.setVisible(true);
+                expError.setManaged(true);
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (niveauExp.trim().length() < 3) {
+                expError.setText("❌ Le niveau d'expérience doit contenir au moins 3 caractères.");
+                expError.setVisible(true);
+                expError.setManaged(true);
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (niveauExp.trim().length() > 100) {
+                expError.setText("❌ Le niveau d'expérience ne peut pas dépasser 100 caractères.");
+                expError.setVisible(true);
+                expError.setManaged(true);
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            }
+            
+            // Validate Niveau Etude - not empty
+            if (niveauEtude == null || niveauEtude.trim().isEmpty()) {
+                etudeError.setText("❌ Le niveau d'étude est obligatoire.");
+                etudeError.setVisible(true);
+                etudeError.setManaged(true);
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (niveauEtude.trim().length() < 3) {
+                etudeError.setText("❌ Le niveau d'étude doit contenir au moins 3 caractères.");
+                etudeError.setVisible(true);
+                etudeError.setManaged(true);
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (niveauEtude.trim().length() > 100) {
+                etudeError.setText("❌ Le niveau d'étude ne peut pas dépasser 100 caractères.");
+                etudeError.setVisible(true);
+                etudeError.setManaged(true);
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            }
+            
+            // Validate Competences - not empty
+            if (competences == null || competences.trim().isEmpty()) {
+                compError.setText("❌ Les compétences requises sont obligatoires.");
+                compError.setVisible(true);
+                compError.setManaged(true);
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (competences.trim().length() < 5) {
+                compError.setText("❌ Les compétences requises doivent contenir au moins 5 caractères.");
+                compError.setVisible(true);
+                compError.setManaged(true);
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (competences.trim().length() > 300) {
+                compError.setText("❌ Les compétences requises ne peuvent pas dépasser 300 caractères.");
+                compError.setVisible(true);
+                compError.setManaged(true);
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            }
+            
+            if (hasError) {
+                event.consume();
+            }
+        });
 
         dialog.setResultConverter(btn -> {
             if (btn == saveButton) {
                 CritereOffre c = new CritereOffre();
-                c.setNiveauExperience(expField.getText());
-                c.setNiveauEtude(etudeField.getText());
-                c.setCompetencesRequises(compField.getText());
+                c.setNiveauExperience(expField.getText().trim());
+                c.setNiveauEtude(etudeField.getText().trim());
+                c.setCompetencesRequises(compField.getText().trim());
                 c.setIdOffre(offreId);
                 return c;
             }
@@ -678,6 +1284,38 @@ public class DashboardController {
         expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                         "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
                         "-fx-border-radius: 8; -fx-font-size: 14px;");
+        // Error label for experience
+        Label expError = new Label(" ");
+        expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for experience
+        expField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                expError.setText("❌ Le niveau d'expérience est obligatoire.");
+                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() < 3) {
+                expError.setText("❌ Minimum 3 caractères (" + newVal.trim().length() + "/3)");
+                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() > 100) {
+                expError.setText("❌ Maximum 100 caractères (" + newVal.trim().length() + "/100)");
+                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else {
+                expError.setText("✅ Valide");
+                expError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+            }
+        });
 
         // Etude Field
         Label etudeLbl = new Label("🎓 NIVEAU D'ÉTUDE");
@@ -686,6 +1324,38 @@ public class DashboardController {
         etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                           "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
                           "-fx-border-radius: 8; -fx-font-size: 14px;");
+        // Error label for etude
+        Label etudeError = new Label(" ");
+        etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for etude
+        etudeField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                etudeError.setText("❌ Le niveau d'étude est obligatoire.");
+                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() < 3) {
+                etudeError.setText("❌ Minimum 3 caractères (" + newVal.trim().length() + "/3)");
+                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else if (newVal.trim().length() > 100) {
+                etudeError.setText("❌ Maximum 100 caractères (" + newVal.trim().length() + "/100)");
+                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            } else {
+                etudeError.setText("✅ Valide");
+                etudeError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+            }
+        });
 
         // Competences Field
         Label compLbl = new Label("💡 COMPÉTENCES REQUISES");
@@ -695,6 +1365,38 @@ public class DashboardController {
         compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                          "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                          "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+        // Error label for competences
+        Label compError = new Label(" ");
+        compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for competences
+        compField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                compError.setText("❌ Les compétences requises sont obligatoires.");
+                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() < 5) {
+                compError.setText("❌ Minimum 5 caractères (" + newVal.trim().length() + "/5)");
+                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() > 300) {
+                compError.setText("❌ Maximum 300 caractères (" + newVal.trim().length() + "/300)");
+                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else {
+                compError.setText("✅ Valide (" + newVal.trim().length() + "/300 caractères)");
+                compError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
+            }
+        });
         
         // Add bullet point on Enter
         compField.setOnKeyPressed(e -> {
@@ -710,33 +1412,205 @@ public class DashboardController {
 
         container.getChildren().addAll(
             titleLabel,
-            expLbl, expField,
-            etudeLbl, etudeField,
-            compLbl, compField
+            expLbl, expField, expError,
+            etudeLbl, etudeField, etudeError,
+            compLbl, compField, compError
         );
 
         dialog.getDialogPane().setContent(container);
-        dialog.getDialogPane().setStyle("-fx-background-color: #1a1a2e;");
+        dialog.getDialogPane().setStyle("-fx-background-color: #1a1a2e; -fx-padding: 0;");
         
-        // Style buttons
-        dialog.getDialogPane().lookupButton(saveButton).setStyle(
-            "-fx-background-color: linear-gradient(to right, #8b5cf6, #d946ef); " +
-            "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30; " +
-            "-fx-background-radius: 10; -fx-cursor: hand;"
+        // Style buttons to match modern design
+        javafx.scene.Node saveBtnNode = dialog.getDialogPane().lookupButton(saveButton);
+        javafx.scene.Node cancelBtnNode = dialog.getDialogPane().lookupButton(cancelButton);
+        
+        saveBtnNode.setStyle(
+            "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
         );
-        dialog.getDialogPane().lookupButton(cancelButton).setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: #9ca3af; " +
-            "-fx-border-color: #3d3d5c; -fx-border-radius: 10; -fx-background-radius: 10; " +
-            "-fx-padding: 12 30; -fx-font-weight: bold;"
+        
+        cancelBtnNode.setStyle(
+            "-fx-background-color: #2d2d48; " +
+            "-fx-text-fill: #94a3b8; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
         );
+        
+        // Add hover effects
+        saveBtnNode.setOnMouseEntered(e -> saveBtnNode.setStyle(
+            "-fx-background-color: linear-gradient(to right, #9333ea, #db2777); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"
+        ));
+        
+        saveBtnNode.setOnMouseExited(e -> saveBtnNode.setStyle(
+            "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
+        ));
+        
+        cancelBtnNode.setOnMouseEntered(e -> cancelBtnNode.setStyle(
+            "-fx-background-color: #3d3d5c; " +
+            "-fx-text-fill: #a8b3cf; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
+        ));
+        
+        cancelBtnNode.setOnMouseExited(e -> cancelBtnNode.setStyle(
+            "-fx-background-color: #2d2d48; " +
+            "-fx-text-fill: #94a3b8; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 14 35; " +
+            "-fx-background-radius: 12; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: transparent;"
+        ));
+
+        // Add event filter to prevent dialog closing on validation failure
+        saveBtnNode.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            // Hide all error labels first
+            expError.setVisible(false);
+            expError.setManaged(false);
+            etudeError.setVisible(false);
+            etudeError.setManaged(false);
+            compError.setVisible(false);
+            compError.setManaged(false);
+            
+            // Reset field styles
+            expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                            "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
+                            "-fx-border-radius: 8; -fx-font-size: 14px;");
+            etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                              "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
+                              "-fx-border-radius: 8; -fx-font-size: 14px;");
+            compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                             "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                             "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+            
+            boolean hasError = false;
+            
+            // Validate all fields are filled
+            String niveauExp = expField.getText();
+            String niveauEtude = etudeField.getText();
+            String competences = compField.getText();
+            
+            // Validate Niveau Experience - not empty
+            if (niveauExp == null || niveauExp.trim().isEmpty()) {
+                expError.setText("❌ Le niveau d'expérience est obligatoire.");
+                expError.setVisible(true);
+                expError.setManaged(true);
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (niveauExp.trim().length() < 3) {
+                expError.setText("❌ Le niveau d'expérience doit contenir au moins 3 caractères.");
+                expError.setVisible(true);
+                expError.setManaged(true);
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (niveauExp.trim().length() > 100) {
+                expError.setText("❌ Le niveau d'expérience ne peut pas dépasser 100 caractères.");
+                expError.setVisible(true);
+                expError.setManaged(true);
+                expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            }
+            
+            // Validate Niveau Etude - not empty
+            if (niveauEtude == null || niveauEtude.trim().isEmpty()) {
+                etudeError.setText("❌ Le niveau d'étude est obligatoire.");
+                etudeError.setVisible(true);
+                etudeError.setManaged(true);
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (niveauEtude.trim().length() < 3) {
+                etudeError.setText("❌ Le niveau d'étude doit contenir au moins 3 caractères.");
+                etudeError.setVisible(true);
+                etudeError.setManaged(true);
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            } else if (niveauEtude.trim().length() > 100) {
+                etudeError.setText("❌ Le niveau d'étude ne peut pas dépasser 100 caractères.");
+                etudeError.setVisible(true);
+                etudeError.setManaged(true);
+                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                                  "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
+                                  "-fx-border-radius: 8; -fx-font-size: 14px;");
+                hasError = true;
+            }
+            
+            // Validate Competences - not empty
+            if (competences == null || competences.trim().isEmpty()) {
+                compError.setText("❌ Les compétences requises sont obligatoires.");
+                compError.setVisible(true);
+                compError.setManaged(true);
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (competences.trim().length() < 5) {
+                compError.setText("❌ Les compétences requises doivent contenir au moins 5 caractères.");
+                compError.setVisible(true);
+                compError.setManaged(true);
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (competences.trim().length() > 300) {
+                compError.setText("❌ Les compétences requises ne peuvent pas dépasser 300 caractères.");
+                compError.setVisible(true);
+                compError.setManaged(true);
+                compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            }
+            
+            if (hasError) {
+                event.consume();
+            }
+        });
 
         dialog.setResultConverter(btn -> {
             if (btn == saveButton) {
-
                 CritereOffre c = new CritereOffre();
-                c.setNiveauExperience(expField.getText());
-                c.setNiveauEtude(etudeField.getText());
-                c.setCompetencesRequises(compField.getText());
+                c.setNiveauExperience(expField.getText().trim());
+                c.setNiveauEtude(etudeField.getText().trim());
+                c.setCompetencesRequises(compField.getText().trim());
                 c.setIdOffre(existing.getIdOffre());
 
                 return c;

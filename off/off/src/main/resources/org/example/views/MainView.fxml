@@ -99,39 +99,35 @@
             <!-- CONTENT AREA WITH MODERN CARDS -->
             <VBox style="-fx-background-color: #f8fafc; -fx-padding: 30;" VBox.vgrow="ALWAYS">
                 
-                <TabPane VBox.vgrow="ALWAYS" styleClass="modern-tabpane" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                <TabPane VBox.vgrow="ALWAYS" styleClass="modern-tabpane" style="-fx-background-color: white; -fx-border-color: transparent;">
                     <tabs>
                         <!-- OFFRES TAB -->
-                        <Tab text="  💼  Gestion des Offres" closable="false" styleClass="modern-tab">
-                            <VBox spacing="25" style="-fx-padding: 30 25 25 25; -fx-background-color: transparent;">
+                        <Tab text="Gestion des Offres" closable="false" styleClass="modern-tab">
+                            <VBox spacing="0" style="-fx-padding: 0; -fx-background-color: #f8fafc;">
 
-                                <!-- Page Header Card -->
-                                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
-                                    <HBox alignment="CENTER_LEFT" spacing="15">
-                                        <StackPane style="-fx-background-color: white; -fx-background-radius: 14; -fx-pref-width: 56; -fx-pref-height: 56;">
-                                            <Label text="💼" style="-fx-font-size: 28px;"/>
-                                        </StackPane>
-                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                            <Label text="Gestion des Offres d'Emploi" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
-                                            <Label text="Créez, modifiez et gérez toutes vos offres d'emploi en un seul endroit" style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                                <!-- Page Header -->
+                                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 30 40; -fx-background-color: #f8fafc;">
+                                    <HBox alignment="CENTER_LEFT" spacing="15" HBox.hgrow="ALWAYS">
+                                        <Label text="👥" style="-fx-font-size: 32px;"/>
+                                        <VBox spacing="2">
+                                            <Label text="Gestion des Offres" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                            <Label text="Gérez vos offres d'emploi" style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
                                         </VBox>
                                     </HBox>
-                                    
-                                    <HBox spacing="12" alignment="CENTER_LEFT">
-                                        <Button text="➕ Nouvelle Offre" onAction="#ajouterOffre"
-                                                style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 24; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 12, 0, 0, 4);"/>
-                                        <Button text="🔄 Actualiser" onAction="#rafraichirOffres"
-                                                style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 24; -fx-background-radius: 10; -fx-cursor: hand;"/>
-                                        <Region HBox.hgrow="ALWAYS"/>
-                                        <ComboBox promptText="Filtrer par statut" prefWidth="160" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 8 12;"/>
-                                        <Button text="📥 Exporter" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-text-fill: #475569; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 24; -fx-background-radius: 10; -fx-border-radius: 10; -fx-cursor: hand;"/>
-                                    </HBox>
-                                </VBox>
+                                    <Button text="+ Nouvelle Offre" onAction="#ajouterOffre"
+                                            style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 28; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                                </HBox>
 
                                 <!-- Table Card -->
-                                <VBox style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);" VBox.vgrow="ALWAYS">
+                                <VBox style="-fx-background-color: white; -fx-padding: 30 40; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 20 0;">
+                                        <Button text="🔄 Actualiser" onAction="#rafraichirOffres"
+                                                style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 13px; -fx-font-weight: 600; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <ComboBox promptText="Filtrer par statut" prefWidth="160" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 12;"/>
+                                    </HBox>
                                     <TableView fx:id="offreTable" styleClass="modern-table" VBox.vgrow="ALWAYS"
-                                              style="-fx-background-color: transparent; -fx-background-radius: 16; -fx-padding: 15;">
+                                              style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 0;">
                                         <columns>
                                             <TableColumn fx:id="colIdOffre" text="#" prefWidth="60"/>
                                             <TableColumn fx:id="colTitre" text="Titre du Poste" prefWidth="240"/>
@@ -148,33 +144,30 @@
                         </Tab>
 
                         <!-- CRITERE TAB -->
-                        <Tab text="  🎯  Gestion des Critères" closable="false" styleClass="modern-tab">
-                            <VBox spacing="25" style="-fx-padding: 30 25 25 25; -fx-background-color: transparent;">
+                        <Tab text="Gestion des Critères" closable="false" styleClass="modern-tab">
+                            <VBox spacing="0" style="-fx-padding: 0; -fx-background-color: #f8fafc;">
 
-                                <!-- Page Header Card -->
-                                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
-                                    <HBox alignment="CENTER_LEFT" spacing="15">
-                                        <StackPane style="-fx-background-color: white; -fx-background-radius: 14; -fx-pref-width: 56; -fx-pref-height: 56;">
-                                            <Label text="🎯" style="-fx-font-size: 28px;"/>
-                                        </StackPane>
-                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                            <Label text="Critères de Sélection" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
-                                            <Label text="Définissez les compétences et qualifications requises pour chaque offre" style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                                <!-- Page Header -->
+                                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 30 40; -fx-background-color: #f8fafc;">
+                                    <HBox alignment="CENTER_LEFT" spacing="15" HBox.hgrow="ALWAYS">
+                                        <Label text="🎯" style="-fx-font-size: 32px;"/>
+                                        <VBox spacing="2">
+                                            <Label text="Gestion des Critères" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                            <Label text="Gérez vos critères de sélection" style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
                                         </VBox>
                                     </HBox>
-                                    
-                                    <HBox spacing="12" alignment="CENTER_LEFT">
-                                        <Button text="➕ Nouveau Critère" onAction="#ajouterCritere"
-                                                style="-fx-background-color: linear-gradient(to right, #f093fb, #f5576c); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 24; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(240,147,251,0.4), 12, 0, 0, 4);"/>
-                                        <Button text="🔄 Actualiser" onAction="#rafraichirCriteres"
-                                                style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 24; -fx-background-radius: 10; -fx-cursor: hand;"/>
-                                    </HBox>
-                                </VBox>
+                                    <Button text="+ Nouveau Critère" onAction="#ajouterCritere"
+                                            style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 28; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                                </HBox>
 
                                 <!-- Table Card -->
-                                <VBox style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);" VBox.vgrow="ALWAYS">
+                                <VBox style="-fx-background-color: white; -fx-padding: 30 40; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 20 0;">
+                                        <Button text="🔄 Actualiser" onAction="#rafraichirCriteres"
+                                                style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 13px; -fx-font-weight: 600; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                                    </HBox>
                                     <TableView fx:id="critereTable" styleClass="modern-table" VBox.vgrow="ALWAYS"
-                                              style="-fx-background-color: transparent; -fx-background-radius: 16; -fx-padding: 15;">
+                                              style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 0;">
                                         <columns>
                                             <TableColumn fx:id="colIdCritere" text="#" prefWidth="60"/>
                                             <TableColumn fx:id="colNiveauExperience" text="Niveau d'Expérience" prefWidth="200"/>

@@ -95,12 +95,12 @@
 
 /* TABS - MODERN DESIGN */
 .modern-tabpane {
-    -fx-background-color: transparent;
+    -fx-background-color: white;
 }
 
 .modern-tabpane .tab-header-area {
     -fx-background-color: white;
-    -fx-padding: 8 20 0 20;
+    -fx-padding: 0 30 0 30;
     -fx-border-color: transparent transparent #e5e7eb transparent;
     -fx-border-width: 0 0 1 0;
 }
@@ -111,10 +111,10 @@
 
 .modern-tab {
     -fx-background-color: transparent;
-    -fx-background-radius: 8 8 0 0;
-    -fx-padding: 14 24 14 24;
+    -fx-background-radius: 0;
+    -fx-padding: 16 20 16 20;
     -fx-font-size: 14px;
-    -fx-font-weight: 600;
+    -fx-font-weight: 500;
     -fx-text-fill: #6b7280;
     -fx-border-color: transparent;
 }
@@ -125,19 +125,19 @@
 }
 
 .modern-tab:selected {
-    -fx-background-color: #eef2ff;
-    -fx-text-fill: #4f46e5;
-    -fx-border-color: transparent transparent #4f46e5 transparent;
+    -fx-background-color: transparent;
+    -fx-text-fill: #2563eb;
+    -fx-border-color: transparent transparent #2563eb transparent;
     -fx-border-width: 0 0 3 0;
+    -fx-font-weight: 600;
 }
 
 .modern-tab .tab-label {
     -fx-font-size: 14px;
-    -fx-font-weight: 600;
 }
 
 .modern-tabpane .tab-content-area {
-    -fx-background-color: transparent;
+    -fx-background-color: #f8fafc;
     -fx-border-color: transparent;
     -fx-padding: 0;
 }
