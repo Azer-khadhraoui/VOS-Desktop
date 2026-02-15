@@ -19,6 +19,7 @@ import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.Interpolator;
 import javafx.util.Duration;
 import services.ServiceContrat;
@@ -39,29 +40,45 @@ public class MainController implements Initializable {
     private VBox sidebar;
     
     @FXML
+    private ImageView sidebarLogo;
+    
+    @FXML
     private HBox navDashboard;
     @FXML
     private Label navDashboardText;
     
     @FXML
-    private HBox navRecrutements;
-    @FXML
-    private Label navRecrutementsText;
+    private TitledPane gestionsPane;
     
     @FXML
-    private HBox navStats;
-    @FXML
-    private Label navStatsText;
+    private TitledPane statsPane;
     
     @FXML
-    private HBox navUsers;
+    private HBox menuOffres;
     @FXML
-    private Label navUsersText;
-    
+    private HBox menuEntretiens;
     @FXML
-    private HBox navSettings;
+    private HBox menuRecrutement;
     @FXML
-    private Label navSettingsText;
+    private HBox menuAdministration;
+    @FXML
+    private HBox menuCandidats;
+    @FXML
+    private HBox menuStatEntretiens;
+    @FXML
+    private HBox menuStatOffres;
+    @FXML
+    private HBox menuStatRecrutements;
+    @FXML
+    private HBox menuUtilisateurs;
+
+    // Section title labels
+    @FXML
+    private Label lblDashboardSection;
+    @FXML
+    private Label lblGestionsSection;
+    @FXML
+    private Label lblStatistiquesSection;
     
     @FXML
     private HBox navLogout;
@@ -81,8 +98,6 @@ public class MainController implements Initializable {
     // Header Elements
     @FXML
     private TextField searchField;
-    @FXML
-    private ToggleButton themeToggle;
 
     // Content Area
     @FXML
@@ -90,11 +105,25 @@ public class MainController implements Initializable {
 
     // Pages
     @FXML
-    private VBox pageContrats;
+    private VBox pageRecrutement;
     @FXML
     private VBox pageDashboard;
     @FXML
-    private VBox pageStats;
+    private VBox pageOffres;
+    @FXML
+    private VBox pageEntretiens;
+    @FXML
+    private VBox pageAdministration;
+    @FXML
+    private VBox pageCandidats;
+    @FXML
+    private VBox pageStatEntretiens;
+    @FXML
+    private VBox pageStatOffres;
+    @FXML
+    private VBox pageStatRecrutements;
+    @FXML
+    private VBox pageUtilisateurs;
 
     // Contrats Table
     @FXML
@@ -159,11 +188,35 @@ public class MainController implements Initializable {
     private void initializeSidebar() {
         if (sidebar == null) return;
         
-        // Hide labels initially (opacity = 0)
-        Label[] labels = {navDashboardText, navRecrutementsText, navStatsText, navUsersText, navSettingsText, navLogoutText};
-        for (Label label : labels) {
-            if (label != null) label.setOpacity(0.0);
+        // Hide section titles initially (collapsed state)
+        Label[] sectionLabels = {lblDashboardSection, lblGestionsSection, lblStatistiquesSection};
+        for (Label label : sectionLabels) {
+            if (label != null) {
+                label.setVisible(false);
+                label.setManaged(false);
+            }
         }
+        
+        // Hide nav item labels initially
+        Label[] labels = {navDashboardText, navLogoutText};
+        for (Label label : labels) {
+            if (label != null) {
+                label.setVisible(false);
+                label.setManaged(false);
+            }
+        }
+        
+        // Hide all submenu labels (sidebar-nav-label)
+        sidebar.lookupAll(".sidebar-nav-label").forEach(node -> {
+            if (node instanceof Label) {
+                node.setVisible(false);
+                node.setManaged(false);
+            }
+        });
+        
+        // Hide TitledPane titles initially (only show icons when collapsed)
+        if (gestionsPane != null) gestionsPane.setText("");
+        if (statsPane != null) statsPane.setText("");
     }
 
     private void setupNavigation() {
@@ -172,14 +225,40 @@ public class MainController implements Initializable {
             navDashboard.setOnMouseClicked(e -> showPageDashboard());
         }
         
-        // Recrutements
-        if (navRecrutements != null) {
-            navRecrutements.setOnMouseClicked(e -> showPageEntretiens());
+        // Logout
+        if (navLogout != null) {
+            navLogout.setOnMouseClicked(e -> handleLogout());
         }
         
-        // Stats
-        if (navStats != null) {
-            navStats.setOnMouseClicked(e -> showPageStats());
+        // Gestions submenu items
+        if (menuRecrutement != null) {
+            menuRecrutement.setOnMouseClicked(e -> showPageRecrutement());
+        }
+        if (menuEntretiens != null) {
+            menuEntretiens.setOnMouseClicked(e -> showPageEntretiens());
+        }
+        if (menuOffres != null) {
+            menuOffres.setOnMouseClicked(e -> showPageOffres());
+        }
+        if (menuAdministration != null) {
+            menuAdministration.setOnMouseClicked(e -> showPageAdministration());
+        }
+        
+        // Statistiques submenu items
+        if (menuCandidats != null) {
+            menuCandidats.setOnMouseClicked(e -> showPageCandidats());
+        }
+        if (menuStatEntretiens != null) {
+            menuStatEntretiens.setOnMouseClicked(e -> showPageStatEntretiens());
+        }
+        if (menuStatOffres != null) {
+            menuStatOffres.setOnMouseClicked(e -> showPageStatOffres());
+        }
+        if (menuStatRecrutements != null) {
+            menuStatRecrutements.setOnMouseClicked(e -> showPageStatRecrutements());
+        }
+        if (menuUtilisateurs != null) {
+            menuUtilisateurs.setOnMouseClicked(e -> showPageUtilisateurs());
         }
     }
 
@@ -187,12 +266,38 @@ public class MainController implements Initializable {
     private void onSidebarEntered() {
         if (!sidebarExpanded) {
             expandSidebar();
+            // Change logo to slogan version
+            if (sidebarLogo != null) {
+                sidebarLogo.setImage(new Image(getClass().getResource("/images/VOSwhiteslogan.png").toExternalForm()));
+                
+                // Scale animation: grow the logo
+                ScaleTransition scaleUp = new ScaleTransition(Duration.millis(300), sidebarLogo);
+                scaleUp.setFromX(1.0);
+                scaleUp.setFromY(1.0);
+                scaleUp.setToX(1.4);
+                scaleUp.setToY(1.4);
+                scaleUp.setInterpolator(Interpolator.EASE_OUT);
+                scaleUp.play();
+            }
         }
     }
 
     @FXML
     private void onSidebarExited() {
         collapseSidebar();
+        // Change logo back to simple version
+        if (sidebarLogo != null) {
+            sidebarLogo.setImage(new Image(getClass().getResource("/images/VOSwhite.png").toExternalForm()));
+            
+            // Scale animation: shrink the logo
+            ScaleTransition scaleDown = new ScaleTransition(Duration.millis(300), sidebarLogo);
+            scaleDown.setFromX(1.4);
+            scaleDown.setFromY(1.4);
+            scaleDown.setToX(1.0);
+            scaleDown.setToY(1.0);
+            scaleDown.setInterpolator(Interpolator.EASE_IN);
+            scaleDown.play();
+        }
     }
 
     private void expandSidebar() {
@@ -212,10 +317,12 @@ public class MainController implements Initializable {
         );
         sidebarAnimation.play();
         
-        // Fade in labels with slight delay
-        Label[] labels = {navDashboardText, navRecrutementsText, navStatsText, navUsersText, navSettingsText, navLogoutText};
-        for (Label label : labels) {
+        // Show section titles
+        Label[] sectionLabels = {lblDashboardSection, lblGestionsSection, lblStatistiquesSection};
+        for (Label label : sectionLabels) {
             if (label != null) {
+                label.setVisible(true);
+                label.setManaged(true);
                 FadeTransition fadeIn = new FadeTransition(Duration.millis(250), label);
                 fadeIn.setFromValue(0.0);
                 fadeIn.setToValue(1.0);
@@ -223,6 +330,39 @@ public class MainController implements Initializable {
                 fadeIn.play();
             }
         }
+        
+        // Fade in nav item labels
+        Label[] labels = {navDashboardText, navLogoutText};
+        for (Label label : labels) {
+            if (label != null) {
+                label.setVisible(true);
+                label.setManaged(true);
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(250), label);
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.setDelay(Duration.millis(50));
+                fadeIn.play();
+            }
+        }
+        
+        // Show all sidebar-nav-label (submenu labels) across all nodes
+        if (sidebar != null) {
+            sidebar.lookupAll(".sidebar-nav-label").forEach(node -> {
+                if (node instanceof Label) {
+                    node.setVisible(true);
+                    node.setManaged(true);
+                    FadeTransition fadeIn = new FadeTransition(Duration.millis(250), (Label) node);
+                    fadeIn.setFromValue(0.0);
+                    fadeIn.setToValue(1.0);
+                    fadeIn.setDelay(Duration.millis(50));
+                    fadeIn.play();
+                }
+            });
+        }
+        
+        // Show TitledPane titles
+        if (gestionsPane != null) gestionsPane.setText("Gestions");
+        if (statsPane != null) statsPane.setText("Statistiques");
     }
 
     private void collapseSidebar() {
@@ -233,16 +373,63 @@ public class MainController implements Initializable {
             sidebarAnimation.stop();
         }
         
-        // Fade out labels
-        Label[] labels = {navDashboardText, navRecrutementsText, navStatsText, navUsersText, navSettingsText, navLogoutText};
+        // Close TitledPane menus
+        if (gestionsPane != null) {
+            gestionsPane.setExpanded(false);
+        }
+        if (statsPane != null) {
+            statsPane.setExpanded(false);
+        }
+        
+        // Hide section titles
+        Label[] sectionLabels = {lblDashboardSection, lblGestionsSection, lblStatistiquesSection};
+        for (Label label : sectionLabels) {
+            if (label != null) {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(150), label);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.setOnFinished(e -> {
+                    label.setVisible(false);
+                    label.setManaged(false);
+                });
+                fadeOut.play();
+            }
+        }
+        
+        // Fade out nav item labels
+        Label[] labels = {navDashboardText, navLogoutText};
         for (Label label : labels) {
             if (label != null) {
                 FadeTransition fadeOut = new FadeTransition(Duration.millis(150), label);
                 fadeOut.setFromValue(1.0);
                 fadeOut.setToValue(0.0);
+                fadeOut.setOnFinished(e -> {
+                    label.setVisible(false);
+                    label.setManaged(false);
+                });
                 fadeOut.play();
             }
         }
+        
+        // Hide all sidebar-nav-label (submenu labels) across all nodes
+        if (sidebar != null) {
+            sidebar.lookupAll(".sidebar-nav-label").forEach(node -> {
+                if (node instanceof Label) {
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(150), (Label) node);
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(e -> {
+                        node.setVisible(false);
+                        node.setManaged(false);
+                    });
+                    fadeOut.play();
+                }
+            });
+        }
+        
+        // Hide TitledPane titles (show only icons)
+        if (gestionsPane != null) gestionsPane.setText("");
+        if (statsPane != null) statsPane.setText("");
         
         // Animate width collapse: 240px -> 60px
         sidebarAnimation = new Timeline(
@@ -257,10 +444,6 @@ public class MainController implements Initializable {
     private void setNavItemActive(HBox activeItem) {
         // Remove active class from all items
         if (navDashboard != null) navDashboard.getStyleClass().remove("sidebar-nav-item-active");
-        if (navRecrutements != null) navRecrutements.getStyleClass().remove("sidebar-nav-item-active");
-        if (navStats != null) navStats.getStyleClass().remove("sidebar-nav-item-active");
-        if (navUsers != null) navUsers.getStyleClass().remove("sidebar-nav-item-active");
-        if (navSettings != null) navSettings.getStyleClass().remove("sidebar-nav-item-active");
         
         // Add active class to current item
         if (activeItem != null && !activeItem.getStyleClass().contains("sidebar-nav-item-active")) {
@@ -618,34 +801,150 @@ public class MainController implements Initializable {
         }
     }
 
-    private void showPageEntretiens() {
-        pageContrats.setVisible(true);
-        pageContrats.setManaged(true);
-        pageDashboard.setVisible(false);
-        pageDashboard.setManaged(false);
-        pageStats.setVisible(false);
-        pageStats.setManaged(false);
-        setNavItemActive(navRecrutements);
+    private void hideAllPages() {
+        if (pageRecrutement != null) { pageRecrutement.setVisible(false); pageRecrutement.setManaged(false); }
+        if (pageDashboard != null) { pageDashboard.setVisible(false); pageDashboard.setManaged(false); }
+        if (pageOffres != null) { pageOffres.setVisible(false); pageOffres.setManaged(false); }
+        if (pageEntretiens != null) { pageEntretiens.setVisible(false); pageEntretiens.setManaged(false); }
+        if (pageAdministration != null) { pageAdministration.setVisible(false); pageAdministration.setManaged(false); }
+        if (pageCandidats != null) { pageCandidats.setVisible(false); pageCandidats.setManaged(false); }
+        if (pageStatEntretiens != null) { pageStatEntretiens.setVisible(false); pageStatEntretiens.setManaged(false); }
+        if (pageStatOffres != null) { pageStatOffres.setVisible(false); pageStatOffres.setManaged(false); }
+        if (pageStatRecrutements != null) { pageStatRecrutements.setVisible(false); pageStatRecrutements.setManaged(false); }
+        if (pageUtilisateurs != null) { pageUtilisateurs.setVisible(false); pageUtilisateurs.setManaged(false); }
     }
 
     private void showPageDashboard() {
-        pageContrats.setVisible(false);
-        pageContrats.setManaged(false);
-        pageDashboard.setVisible(true);
-        pageDashboard.setManaged(true);
-        pageStats.setVisible(false);
-        pageStats.setManaged(false);
+        hideAllPages();
+        if (pageDashboard != null) {
+            pageDashboard.setVisible(true);
+            pageDashboard.setManaged(true);
+        }
         setNavItemActive(navDashboard);
     }
 
-    private void showPageStats() {
-        pageContrats.setVisible(false);
-        pageContrats.setManaged(false);
-        pageDashboard.setVisible(false);
-        pageDashboard.setManaged(false);
-        pageStats.setVisible(true);
-        pageStats.setManaged(true);
-        setNavItemActive(navStats);
+    private void showPageRecrutement() {
+        hideAllPages();
+        if (pageRecrutement != null) {
+            pageRecrutement.setVisible(true);
+            pageRecrutement.setManaged(true);
+        }
+    }
+
+    private void showPageOffres() {
+        hideAllPages();
+        if (pageOffres != null) {
+            pageOffres.setVisible(true);
+            pageOffres.setManaged(true);
+        }
+    }
+
+    private void showPageEntretiens() {
+        hideAllPages();
+        if (pageEntretiens != null) {
+            pageEntretiens.setVisible(true);
+            pageEntretiens.setManaged(true);
+        }
+    }
+
+    private void showPageAdministration() {
+        hideAllPages();
+        if (pageAdministration != null) {
+            pageAdministration.setVisible(true);
+            pageAdministration.setManaged(true);
+        }
+    }
+
+    private void showPageCandidats() {
+        hideAllPages();
+        if (pageCandidats != null) {
+            pageCandidats.setVisible(true);
+            pageCandidats.setManaged(true);
+        }
+    }
+
+    private void showPageStatEntretiens() {
+        hideAllPages();
+        if (pageStatEntretiens != null) {
+            pageStatEntretiens.setVisible(true);
+            pageStatEntretiens.setManaged(true);
+        }
+    }
+
+    private void showPageStatOffres() {
+        hideAllPages();
+        if (pageStatOffres != null) {
+            pageStatOffres.setVisible(true);
+            pageStatOffres.setManaged(true);
+        }
+    }
+
+    private void showPageStatRecrutements() {
+        hideAllPages();
+        if (pageStatRecrutements != null) {
+            pageStatRecrutements.setVisible(true);
+            pageStatRecrutements.setManaged(true);
+        }
+    }
+
+    private void showPageUtilisateurs() {
+        hideAllPages();
+        if (pageUtilisateurs != null) {
+            pageUtilisateurs.setVisible(true);
+            pageUtilisateurs.setManaged(true);
+        }
+    }
+
+    @FXML
+    private void onMenuOffresClicked() {
+        showPageOffres();
+    }
+
+    @FXML
+    private void onMenuEntretiensClicked() {
+        showPageEntretiens();
+    }
+
+    @FXML
+    private void onMenuRecrutementClicked() {
+        showPageRecrutement();
+    }
+
+    @FXML
+    private void onMenuAdministrationClicked() {
+        showPageAdministration();
+    }
+
+    @FXML
+    private void onMenuCandidatsClicked() {
+        showPageCandidats();
+    }
+
+    @FXML
+    private void onMenuStatEntretiensClicked() {
+        showPageStatEntretiens();
+    }
+
+    @FXML
+    private void onMenuStatOffresClicked() {
+        showPageStatOffres();
+    }
+
+    @FXML
+    private void onMenuStatRecrutementsClicked() {
+        showPageStatRecrutements();
+    }
+
+    @FXML
+    private void onMenuUtilisateursClicked() {
+        showPageUtilisateurs();
+    }
+
+    @FXML
+    private void handleLogout() {
+        // Placeholder for logout logic
+        System.out.println("Logout clicked");
+        // TODO: Implement logout functionality
     }
 
     @FXML

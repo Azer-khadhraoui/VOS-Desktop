@@ -5,200 +5,273 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
 
-<BorderPane prefHeight="800.0" prefWidth="1400.0" stylesheets="@../styles/modernRecrutement.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
+<HBox prefHeight="1024.0" prefWidth="1440.0" stylesheets="@../styles/modernRecrutement.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
 
-    <!-- LEFT SIDEBAR - HOVER TO EXPAND -->
-    <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0" minWidth="60.0" maxWidth="240.0" 
-              onMouseEntered="#onSidebarEntered" onMouseExited="#onSidebarExited">
-            
-            <!-- Logo -->
-            <VBox alignment="CENTER" styleClass="sidebar-logo">
-                <padding>
-                    <Insets top="15.0" bottom="15.0"/>
-                </padding>
-                <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                    <image>
-                        <Image url="@../images/VOSwhite.png"/>
-                    </image>
-                </ImageView>
-            </VBox>
+    <!-- LEFT SIDEBAR -->
+    <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0" minWidth="60.0" maxWidth="240.0" 
+          onMouseEntered="#onSidebarEntered" onMouseExited="#onSidebarExited">
+        
+        <!-- Logo -->
+        <VBox alignment="CENTER" styleClass="sidebar-logo">
+            <padding>
+                <Insets top="15.0" bottom="15.0"/>
+            </padding>
+            <ImageView fx:id="sidebarLogo" fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
+                <image>
+                    <Image url="@../images/VOSwhite.png"/>
+                </image>
+            </ImageView>
+        </VBox>
 
-            <!-- Navigation Items Container -->
-            <VBox alignment="TOP_CENTER" spacing="12.0" VBox.vgrow="ALWAYS">
-                <padding>
-                    <Insets top="10.0" left="6.0" right="6.0"/>
-                </padding>
+        <!-- Navigation Items Container -->
+        <VBox alignment="TOP_LEFT" spacing="4.0" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets top="15.0" left="8.0" right="8.0"/>
+            </padding>
 
-                <!-- Dashboard -->
-                <HBox fx:id="navDashboard" styleClass="sidebar-nav-item, sidebar-nav-item-active">
-                    <Label styleClass="sidebar-nav-icon" text="📊"/>
-                    <Label fx:id="navDashboardText" styleClass="sidebar-nav-label" text="Dashboard"/>
-                </HBox>
-
-                <!-- Recrutements -->
-                <HBox fx:id="navRecrutements" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="📋"/>
-                    <Label fx:id="navRecrutementsText" styleClass="sidebar-nav-label" text="Recrutements"/>
-                </HBox>
-
-                <!-- Statistiques -->
-                <HBox fx:id="navStats" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="📈"/>
-                    <Label fx:id="navStatsText" styleClass="sidebar-nav-label" text="Statistiques"/>
-                </HBox>
-
-                <!-- Utilisateurs -->
-                <HBox fx:id="navUsers" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="👥"/>
-                    <Label fx:id="navUsersText" styleClass="sidebar-nav-label" text="Utilisateurs"/>
-                </HBox>
-
-                <!-- Paramètres -->
-                <HBox fx:id="navSettings" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="⚙️"/>
-                    <Label fx:id="navSettingsText" styleClass="sidebar-nav-label" text="Paramètres"/>
-                </HBox>
-            </VBox>
+            <!-- Dashboard Title -->
+            <Label fx:id="lblDashboardSection" text="DASHBOARD" styleClass="sidebar-section-title"/>
+            <HBox fx:id="navDashboard" styleClass="sidebar-nav-item, sidebar-nav-item-active">
+                <Label styleClass="sidebar-nav-icon" text="📊"/>
+                <Label fx:id="navDashboardText" styleClass="sidebar-nav-label" text="Dashboard"/>
+            </HBox>
 
             <!-- Spacer -->
-            <VBox VBox.vgrow="ALWAYS"/>
+            <VBox style="-fx-min-height: 12.0;"/>
 
-            <!-- Logout at bottom -->
-            <HBox fx:id="navLogout" styleClass="sidebar-nav-item, sidebar-nav-logout">
-                <Label styleClass="sidebar-nav-icon" text="🚪"/>
-                <Label fx:id="navLogoutText" styleClass="sidebar-nav-label" text="Déconnexion"/>
-            </HBox>
-            
-            <VBox style="-fx-min-height: 8.0;"/>
+            <!-- Gestions Section -->
+            <Label fx:id="lblGestionsSection" text="GESTIONS" styleClass="sidebar-section-title"/>
+            <TitledPane fx:id="gestionsPane" text="Gestions" styleClass="sidebar-titled-pane" animated="true" collapsible="true">
+                <VBox spacing="4.0" style="-fx-padding: 8 0 0 0;">
+                    <HBox fx:id="menuOffres" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuOffresClicked">
+                        <Label styleClass="sidebar-nav-icon" text="💼"/>
+                        <Label styleClass="sidebar-nav-label" text="Offres d'emploi"/>
+                    </HBox>
+                    <HBox fx:id="menuEntretiens" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuEntretiensClicked">
+                        <Label styleClass="sidebar-nav-icon" text="🗣️"/>
+                        <Label styleClass="sidebar-nav-label" text="Entretiens"/>
+                    </HBox>
+                    <HBox fx:id="menuRecrutement" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuRecrutementClicked">
+                        <Label styleClass="sidebar-nav-icon" text="📋"/>
+                        <Label styleClass="sidebar-nav-label" text="Recrutement"/>
+                    </HBox>
+                    <HBox fx:id="menuAdministration" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuAdministrationClicked">
+                        <Label styleClass="sidebar-nav-icon" text="🔧"/>
+                        <Label styleClass="sidebar-nav-label" text="Administration"/>
+                    </HBox>
+                </VBox>
+            </TitledPane>
+
+            <!-- Spacer -->
+            <VBox style="-fx-min-height: 12.0;"/>
+
+            <!-- Statistiques Section -->
+            <Label fx:id="lblStatistiquesSection" text="STATISTIQUES" styleClass="sidebar-section-title"/>
+            <TitledPane fx:id="statsPane" text="Statistiques" styleClass="sidebar-titled-pane" animated="true" collapsible="true">
+                <VBox spacing="4.0" style="-fx-padding: 8 0 0 0;">
+                    <HBox fx:id="menuCandidats" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuCandidatsClicked">
+                        <Label styleClass="sidebar-nav-icon" text="👤"/>
+                        <Label styleClass="sidebar-nav-label" text="Gestion Candidats"/>
+                    </HBox>
+                    <HBox fx:id="menuStatEntretiens" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuStatEntretiensClicked">
+                        <Label styleClass="sidebar-nav-icon" text="💬"/>
+                        <Label styleClass="sidebar-nav-label" text="Gestion Entretiens"/>
+                    </HBox>
+                    <HBox fx:id="menuStatOffres" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuStatOffresClicked">
+                        <Label styleClass="sidebar-nav-icon" text="📑"/>
+                        <Label styleClass="sidebar-nav-label" text="Gestion Offres"/>
+                    </HBox>
+                    <HBox fx:id="menuStatRecrutements" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuStatRecrutementsClicked">
+                        <Label styleClass="sidebar-nav-icon" text="✅"/>
+                        <Label styleClass="sidebar-nav-label" text="Gestion Recrutements"/>
+                    </HBox>
+                    <HBox fx:id="menuUtilisateurs" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuUtilisateursClicked">
+                        <Label styleClass="sidebar-nav-icon" text="👨‍💼"/>
+                        <Label styleClass="sidebar-nav-label" text="Gestion Utilisateurs"/>
+                    </HBox>
+                </VBox>
+            </TitledPane>
         </VBox>
-    </left>
 
-    <!-- MAIN CONTENT -->
-    <center>
-        <VBox>
-            <!-- TOP HEADER BAR -->
-            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
-                <padding>
-                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0"/>
-                </padding>
+        <!-- Spacer -->
+        <VBox VBox.vgrow="ALWAYS"/>
 
-                <!-- Search Bar -->
-                <TextField fx:id="searchField" promptText="🔍 Rechercher..." styleClass="search-bar" prefWidth="400.0"/>
+        <!-- Logout at bottom -->
+        <HBox fx:id="navLogout" styleClass="sidebar-nav-item, sidebar-nav-logout">
+            <Label styleClass="sidebar-nav-icon" text="🚪"/>
+            <Label fx:id="navLogoutText" styleClass="sidebar-nav-label" text="Déconnexion"/>
+        </HBox>
+        
+        <VBox style="-fx-min-height: 8.0;"/>
+    </VBox>
 
-                <!-- Spacer -->
-                <Region HBox.hgrow="ALWAYS"/>
+    <!-- MAIN CONTENT AREA -->
+    <VBox HBox.hgrow="ALWAYS">
+        <!-- TOP HEADER BAR -->
+        <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+            <padding>
+                <Insets top="20.0" right="30.0" bottom="20.0" left="30.0"/>
+            </padding>
 
-                <!-- Dark/Light Toggle -->
-                <HBox spacing="10.0" alignment="CENTER">
-                    <Label text="🌙" styleClass="toggle-icon"/>
-                    <ToggleButton styleClass="theme-toggle"/>
-                    <Label text="☀️" styleClass="toggle-icon"/>
-                </HBox>
+            <!-- Search Bar -->
+            <TextField fx:id="searchField" promptText="🔍 Rechercher..." styleClass="search-bar" prefWidth="400.0"/>
 
-                <!-- User Profile -->
-                <HBox spacing="15.0" alignment="CENTER">
-                    <ImageView fitHeight="40.0" fitWidth="40.0" preserveRatio="true">
-                        <image>
-                            <Image url="@../images/linkedIN.png"/>
-                        </image>
-                    </ImageView>
-                    <VBox alignment="CENTER_LEFT" spacing="2.0">
-                        <Label text="Fares Manai" styleClass="user-name"/>
-                        <Label text="Admin" styleClass="user-role"/>
-                    </VBox>
-                </HBox>
+            <!-- Spacer -->
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- User Profile -->
+            <HBox spacing="15.0" alignment="CENTER">
+                <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/linkedIN.png"/>
+                    </image>
+                </ImageView>
+                <VBox alignment="CENTER_LEFT" spacing="2.0">
+                    <Label text="Fares Manai" styleClass="user-name"/>
+                    <Label text="Admin" styleClass="user-role"/>
+                </VBox>
             </HBox>
+        </HBox>
 
-            <!-- CONTENT AREA with StackPane for page switching -->
-            <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS">
+        <!-- CONTENT AREA with StackPane for page switching -->
+        <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS" style="-fx-background-color: #f5f5f5;">
 
-                <!-- PAGE: CONTRATS & RECRUTEMENTS -->
-                <VBox fx:id="pageContrats" visible="true" managed="true">
-                    <TabPane styleClass="modern-tabs" VBox.vgrow="ALWAYS">
-                        <tabs>
-                            <!-- Recrutements Tab -->
-                            <Tab text="Gestion des Recrutements" closable="false">
-                                <VBox spacing="25.0">
-                                    <padding>
-                                        <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
-                                    </padding>
+            <!-- PAGE: RECRUTEMENT -->
+            <VBox fx:id="pageRecrutement" visible="false" managed="false">
+                <TabPane styleClass="modern-tabs" VBox.vgrow="ALWAYS">
+                    <tabs>
+                        <!-- Recrutements Tab -->
+                        <Tab text="Gestion des Recrutements" closable="false">
+                            <VBox spacing="25.0">
+                                <padding>
+                                    <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                                </padding>
 
-                                    <!-- Page Header -->
-                                    <HBox alignment="CENTER_LEFT" spacing="20.0">
-                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <Label text="👥 Gestion des Recrutements" styleClass="page-title"/>
-                                            <Label text="Gérez vos recrutements" styleClass="page-subtitle"/>
-                                        </VBox>
-                                        <Button text="➕ Ajouter Recrutement" onAction="#ajouterRecrutement" styleClass="btn-add"/>
-                                    </HBox>
+                                <!-- Page Header -->
+                                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                        <Label text="👥 Gestion des Recrutements" styleClass="page-title"/>
+                                        <Label text="Gérez vos recrutements" styleClass="page-subtitle"/>
+                                    </VBox>
+                                    <Button text="➕ Ajouter Recrutement" onAction="#ajouterRecrutement" styleClass="btn-add"/>
+                                </HBox>
 
-                                    <!-- Table -->
-                                    <TableView fx:id="tableRecrutements" styleClass="modern-table" VBox.vgrow="ALWAYS">
-                                        <columnResizePolicy>
-                                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                                        </columnResizePolicy>
-                                        <columns>
-                                            <TableColumn fx:id="colIdRecrutement" text="ID" prefWidth="60.0"/>
-                                            <TableColumn fx:id="colDateDecision" text="Date Décision" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colDecisionFinale" text="Décision" prefWidth="150.0"/>
-                                            <TableColumn fx:id="colIdEntretien" text="ID Entretien" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colIdUtilisateur" text="ID Utilisateur" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colActionsRecrutement" text="Actions" prefWidth="150.0"/>
-                                        </columns>
-                                    </TableView>
-                                </VBox>
-                            </Tab>
+                                <!-- Table -->
+                                <TableView fx:id="tableRecrutements" styleClass="modern-table" VBox.vgrow="ALWAYS">
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                    </columnResizePolicy>
+                                    <columns>
+                                        <TableColumn fx:id="colIdRecrutement" text="ID" prefWidth="60.0"/>
+                                        <TableColumn fx:id="colDateDecision" text="Date Décision" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colDecisionFinale" text="Décision" prefWidth="150.0"/>
+                                        <TableColumn fx:id="colIdEntretien" text="ID Entretien" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colIdUtilisateur" text="ID Utilisateur" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colActionsRecrutement" text="Actions" prefWidth="150.0"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </Tab>
 
-                            <!-- Contrats Tab -->
-                            <Tab text="Gestion des Contrats" closable="false">
-                                <VBox spacing="25.0">
-                                    <padding>
-                                        <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
-                                    </padding>
+                        <!-- Contrats Tab -->
+                        <Tab text="Gestion des Contrats" closable="false">
+                            <VBox spacing="25.0">
+                                <padding>
+                                    <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                                </padding>
 
-                                    <!-- Page Header -->
-                                    <HBox alignment="CENTER_LEFT" spacing="20.0">
-                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <Label text="📄 Gestion des Contrats" styleClass="page-title"/>
-                                            <Label text="Gérez vos contrats" styleClass="page-subtitle"/>
-                                        </VBox>
-                                        <Button text="➕ Ajouter Contrat" onAction="#ajouterContrat" styleClass="btn-add"/>
-                                    </HBox>
+                                <!-- Page Header -->
+                                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                        <Label text="📄 Gestion des Contrats" styleClass="page-title"/>
+                                        <Label text="Gérez vos contrats" styleClass="page-subtitle"/>
+                                    </VBox>
+                                    <Button text="➕ Ajouter Contrat" onAction="#ajouterContrat" styleClass="btn-add"/>
+                                </HBox>
 
-                                    <!-- Table -->
-                                    <TableView fx:id="tableContrats" styleClass="modern-table" VBox.vgrow="ALWAYS">
-                                        <columnResizePolicy>
-                                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                                        </columnResizePolicy>
-                                        <columns>
-                                            <TableColumn fx:id="colIdContrat" text="ID" prefWidth="60.0"/>
-                                            <TableColumn fx:id="colTypeContrat" text="Type" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colDateDebut" text="Date Début" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colSalaire" text="Salaire" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colIdRecrutementContrat" text="ID Recrutement" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colActionsContrat" text="Actions" prefWidth="150.0"/>
-                                        </columns>
-                                    </TableView>
-                                </VBox>
-                            </Tab>
-                        </tabs>
-                    </TabPane>
-                </VBox>
+                                <!-- Table -->
+                                <TableView fx:id="tableContrats" styleClass="modern-table" VBox.vgrow="ALWAYS">
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                    </columnResizePolicy>
+                                    <columns>
+                                        <TableColumn fx:id="colIdContrat" text="ID" prefWidth="60.0"/>
+                                        <TableColumn fx:id="colTypeContrat" text="Type" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colDateDebut" text="Date Début" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colSalaire" text="Salaire" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colIdRecrutementContrat" text="ID Recrutement" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colActionsContrat" text="Actions" prefWidth="150.0"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+            </VBox>
 
-                <!-- PAGE: DASHBOARD (Futur) -->
-                <VBox fx:id="pageDashboard" visible="false" managed="false" alignment="CENTER" style="-fx-background-color: white;">
-                    <Label text="📊 Dashboard" style="-fx-font-size: 48px;"/>
-                    <Label text="Statistiques à venir..." style="-fx-font-size: 18px; -fx-text-fill: gray;"/>
-                </VBox>
+            <!-- PAGE: DASHBOARD -->
+            <VBox fx:id="pageDashboard" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="📊" style="-fx-font-size: 72px;"/>
+                <Label text="Dashboard" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
 
-                <!-- PAGE: STATISTIQUES (Futur) -->
-                <VBox fx:id="pageStats" visible="false" managed="false" alignment="CENTER" style="-fx-background-color: white;">
-                    <Label text="📈 Statistiques" style="-fx-font-size: 48px;"/>
-                    <Label text="Graphiques à venir..." style="-fx-font-size: 18px; -fx-text-fill: gray;"/>
-                </VBox>
+            <!-- PAGE: OFFRES D'EMPLOI -->
+            <VBox fx:id="pageOffres" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="💼" style="-fx-font-size: 72px;"/>
+                <Label text="Offres d'emploi" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
 
-            </StackPane>
-        </VBox>
-    </center>
-</BorderPane>
+            <!-- PAGE: ENTRETIENS -->
+            <VBox fx:id="pageEntretiens" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="🗣️" style="-fx-font-size: 72px;"/>
+                <Label text="Entretiens" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
+
+            <!-- PAGE: ADMINISTRATION -->
+            <VBox fx:id="pageAdministration" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="🔧" style="-fx-font-size: 72px;"/>
+                <Label text="Administration" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
+
+            <!-- PAGE: GESTION CANDIDATS -->
+            <VBox fx:id="pageCandidats" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="👤" style="-fx-font-size: 72px;"/>
+                <Label text="Gestion Candidats" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
+
+            <!-- PAGE: GESTION ENTRETIENS STATS -->
+            <VBox fx:id="pageStatEntretiens" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="💬" style="-fx-font-size: 72px;"/>
+                <Label text="Gestion Entretiens" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
+
+            <!-- PAGE: GESTION OFFRES STATS -->
+            <VBox fx:id="pageStatOffres" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="📑" style="-fx-font-size: 72px;"/>
+                <Label text="Gestion Offres" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
+
+            <!-- PAGE: GESTION RECRUTEMENTS STATS -->
+            <VBox fx:id="pageStatRecrutements" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="✅" style="-fx-font-size: 72px;"/>
+                <Label text="Gestion Recrutements" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
+
+            <!-- PAGE: GESTION UTILISATEURS -->
+            <VBox fx:id="pageUtilisateurs" visible="false" managed="false" alignment="CENTER" spacing="15.0">
+                <Label text="👨‍💼" style="-fx-font-size: 72px;"/>
+                <Label text="Gestion Utilisateurs" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                <Label text="À venir..." style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+            </VBox>
+
+        </StackPane>
+    </VBox>
+</HBox>
