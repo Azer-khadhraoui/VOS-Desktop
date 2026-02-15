@@ -13,78 +13,46 @@
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="90.0"
-              style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-width: 0 1 0 0;">
+        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0">
             <!-- Logo -->
-            <VBox alignment="CENTER" styleClass="logo-container" style="-fx-padding: 30 0 30 0;">
-                <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
+            <VBox alignment="CENTER" styleClass="sidebar-logo">
+                <ImageView fitHeight="55" fitWidth="55" preserveRatio="true">
                     <image>
                         <Image url="@/org/example/images/VOS 1.png"/>
                     </image>
                 </ImageView>
-                <Label fx:id="sidebarSubtitle" text="Bâtir l'avenir avec vous!" 
-                       style="-fx-text-fill: #6b7280; -fx-font-size: 10px; -fx-padding: 8 0 0 0; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
             </VBox>
 
             <!-- Navigation Icons -->
-            <VBox fx:id="navContainer" alignment="TOP_LEFT" spacing="8.0" VBox.vgrow="ALWAYS" style="-fx-padding: 20 15 20 15;">
+            <VBox fx:id="navContainer" alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="30.0"/>
+                </padding>
 
-                <HBox fx:id="navStatistiques" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="📊" style="-fx-text-fill: #1f2937; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelStatistiques" text="Statistiques" 
-                           style="-fx-text-fill: #1f2937; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+                <HBox fx:id="navStatistiques" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="📊" styleClass="sidebar-nav-icon"/>
+                    <Label fx:id="labelStatistiques" text="Statistiques" styleClass="sidebar-nav-label" style="-fx-opacity: 0; -fx-max-width: 0;"/>
                 </HBox>
-                
-                <HBox fx:id="navOpportunites" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="💼" style="-fx-text-fill: #1f2937; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelOpportunites" text="Opportunités" 
-                           style="-fx-text-fill: #1f2937; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+                <HBox fx:id="navOpportunites" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="💼" styleClass="sidebar-nav-icon"/>
+                    <Label fx:id="labelOpportunites" text="Offres" styleClass="sidebar-nav-label" style="-fx-opacity: 0; -fx-max-width: 0;"/>
                 </HBox>
-                
-                <HBox fx:id="navApropos" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="ℹ️" style="-fx-text-fill: #1f2937; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelApropos" text="À propos" 
-                           style="-fx-text-fill: #1f2937; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+                <HBox fx:id="navApropos" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="ℹ️" styleClass="sidebar-nav-icon"/>
+                    <Label fx:id="labelApropos" text="Informations" styleClass="sidebar-nav-label" style="-fx-opacity: 0; -fx-max-width: 0;"/>
                 </HBox>
-                
-                <HBox fx:id="navAdministration" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="👤" style="-fx-text-fill: #1f2937; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelAdministration" text="Administration" 
-                           style="-fx-text-fill: #1f2937; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+                <HBox fx:id="navAdministration" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="👤" styleClass="sidebar-nav-icon"/>
+                    <Label fx:id="labelAdministration" text="Profil" styleClass="sidebar-nav-label" style="-fx-opacity: 0; -fx-max-width: 0;"/>
                 </HBox>
-                
-                <Region VBox.vgrow="ALWAYS"/>
-                
-                <HBox fx:id="navParametres" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="⚙️" style="-fx-text-fill: #6b7280; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelParametres" text="Paramètres" 
-                           style="-fx-text-fill: #6b7280; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+                <HBox fx:id="navParametres" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="⚙️" styleClass="sidebar-nav-icon"/>
+                    <Label fx:id="labelParametres" text="Paramètres" styleClass="sidebar-nav-label" style="-fx-opacity: 0; -fx-max-width: 0;"/>
                 </HBox>
-                
-                <HBox fx:id="navDeconnexion" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="⎋" style="-fx-text-fill: #ef4444; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelDeconnexion" text="Déconnexion" 
-                           style="-fx-text-fill: #ef4444; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+                <HBox fx:id="navDeconnexion" styleClass="sidebar-nav-item,sidebar-nav-logout" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="➡️" styleClass="sidebar-nav-icon"/>
+                    <Label fx:id="labelDeconnexion" text="Déconnexion" styleClass="sidebar-nav-label" style="-fx-opacity: 0; -fx-max-width: 0;"/>
                 </HBox>
-            </VBox>
-            
-            <!-- Support Section -->
-            <VBox fx:id="supportSection" alignment="CENTER" spacing="10" 
-                  style="-fx-padding: 15; -fx-opacity: 0; -fx-max-height: 0; -fx-background-color: #f9fafb; -fx-background-radius: 12;">
-                <Label text="Besoin d'aide ?" 
-                       style="-fx-text-fill: #1f2937; -fx-font-size: 13px; -fx-font-weight: 600;"/>
-                <Label text="N'hésitez pas" 
-                       style="-fx-text-fill: #6b7280; -fx-font-size: 11px; -fx-text-alignment: center;"/>
-                <Label text="à nous contacter." 
-                       style="-fx-text-fill: #6b7280; -fx-font-size: 11px; -fx-text-alignment: center;"/>
-                <Button text="Support" 
-                        style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-size: 11px; -fx-padding: 6 16; -fx-background-radius: 8; -fx-cursor: hand;"/>
             </VBox>
         </VBox>
     </left>

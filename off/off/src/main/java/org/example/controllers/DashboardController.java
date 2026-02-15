@@ -33,7 +33,6 @@ public class DashboardController {
     
     // Sidebar elements
     @FXML private VBox sidebar;
-    @FXML private Label sidebarSubtitle;
     @FXML private HBox navStatistiques;
     @FXML private HBox navOpportunites;
     @FXML private HBox navApropos;
@@ -46,7 +45,6 @@ public class DashboardController {
     @FXML private Label labelAdministration;
     @FXML private Label labelParametres;
     @FXML private Label labelDeconnexion;
-    @FXML private VBox supportSection;
 
     // Table
     @FXML private TableView<OffreEmploi> offreTable;
@@ -255,7 +253,7 @@ public class DashboardController {
     
     private void setupSidebarHoverEffect() {
         // Set initial state
-        sidebar.setPrefWidth(90.0);
+        sidebar.setPrefWidth(60.0);
         
         // Variable to track if mouse is inside sidebar
         final boolean[] isMouseInside = {false};
@@ -304,9 +302,7 @@ public class DashboardController {
     private void expandSidebar() {
         Timeline expandTimeline = new Timeline(
             new KeyFrame(Duration.millis(250),
-                new KeyValue(sidebar.prefWidthProperty(), 240),
-                new KeyValue(sidebarSubtitle.opacityProperty(), 1),
-                new KeyValue(sidebarSubtitle.maxWidthProperty(), 200),
+                new KeyValue(sidebar.prefWidthProperty(), 200),
                 new KeyValue(labelStatistiques.opacityProperty(), 1),
                 new KeyValue(labelStatistiques.maxWidthProperty(), 150),
                 new KeyValue(labelOpportunites.opacityProperty(), 1),
@@ -318,9 +314,7 @@ public class DashboardController {
                 new KeyValue(labelParametres.opacityProperty(), 1),
                 new KeyValue(labelParametres.maxWidthProperty(), 150),
                 new KeyValue(labelDeconnexion.opacityProperty(), 1),
-                new KeyValue(labelDeconnexion.maxWidthProperty(), 150),
-                new KeyValue(supportSection.opacityProperty(), 1),
-                new KeyValue(supportSection.maxHeightProperty(), 200)
+                new KeyValue(labelDeconnexion.maxWidthProperty(), 150)
             )
         );
         expandTimeline.play();
@@ -329,9 +323,7 @@ public class DashboardController {
     private void collapseSidebar() {
         Timeline collapseTimeline = new Timeline(
             new KeyFrame(Duration.millis(250),
-                new KeyValue(sidebar.prefWidthProperty(), 90),
-                new KeyValue(sidebarSubtitle.opacityProperty(), 0),
-                new KeyValue(sidebarSubtitle.maxWidthProperty(), 0),
+                new KeyValue(sidebar.prefWidthProperty(), 60),
                 new KeyValue(labelStatistiques.opacityProperty(), 0),
                 new KeyValue(labelStatistiques.maxWidthProperty(), 0),
                 new KeyValue(labelOpportunites.opacityProperty(), 0),
@@ -343,9 +335,7 @@ public class DashboardController {
                 new KeyValue(labelParametres.opacityProperty(), 0),
                 new KeyValue(labelParametres.maxWidthProperty(), 0),
                 new KeyValue(labelDeconnexion.opacityProperty(), 0),
-                new KeyValue(labelDeconnexion.maxWidthProperty(), 0),
-                new KeyValue(supportSection.opacityProperty(), 0),
-                new KeyValue(supportSection.maxHeightProperty(), 0)
+                new KeyValue(labelDeconnexion.maxWidthProperty(), 0)
             )
         );
         collapseTimeline.play();
@@ -353,11 +343,11 @@ public class DashboardController {
     
     private void addNavItemHoverEffect(HBox navItem) {
         navItem.setOnMouseEntered(e -> {
-            navItem.setStyle(navItem.getStyle() + "-fx-background-color: #f3f4f6;");
+            navItem.setStyle(navItem.getStyle() + "-fx-background-color: rgba(59, 130, 246, 0.3);");
         });
         
         navItem.setOnMouseExited(e -> {
-            navItem.setStyle(navItem.getStyle().replace("-fx-background-color: #f3f4f6;", "-fx-background-color: transparent;"));
+            navItem.setStyle(navItem.getStyle().replace("-fx-background-color: rgba(59, 130, 246, 0.3);", "-fx-background-color: transparent;"));
         });
     }
     private void supprimerCritere(CritereOffre critere) {
