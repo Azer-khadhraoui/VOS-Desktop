@@ -13,15 +13,15 @@
            xmlns:fx="http://javafx.com/fxml/1" 
            fx:controller="controllers.AdministrationController">
 
-<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@modernuser.css">
+<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@AdministrationView.css">
 
     <!-- LEFT SIDEBAR -->
     <left>
         <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="80.0">
             <!-- Logo -->
-            <VBox alignment="CENTER" styleClass="logo-container">
+            <VBox alignment="CENTER" styleClass="sidebar-logo">
                 <ImageView fitHeight="55" fitWidth="55" preserveRatio="true">
-                    <Image url="@img/VOS.png"/>
+                    <Image url="@img/VOSwhiteslogan.png"/>
                 </ImageView>
             </VBox>
 
@@ -31,29 +31,29 @@
                     <Insets top="30.0"/>
                 </padding>
 
-                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="📊" styleClass="nav-item-icon"/>
-                    <Label text="Statistiques" styleClass="nav-item-label"/>
+                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="📊" styleClass="sidebar-nav-icon"/>
+                    <Label text="Statistiques" styleClass="sidebar-nav-label"/>
                 </HBox>
-                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="💼" styleClass="nav-item-icon"/>
-                    <Label text="Offres" styleClass="nav-item-label"/>
+                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="💼" styleClass="sidebar-nav-icon"/>
+                    <Label text="Offres" styleClass="sidebar-nav-label"/>
                 </HBox>
-                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="ℹ️" styleClass="nav-item-icon"/>
-                    <Label text="Informations" styleClass="nav-item-label"/>
+                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="ℹ️" styleClass="sidebar-nav-icon"/>
+                    <Label text="Informations" styleClass="sidebar-nav-label"/>
                 </HBox>
-                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="👤" styleClass="nav-item-icon"/>
-                    <Label text="Profil" styleClass="nav-item-label"/>
+                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="👤" styleClass="sidebar-nav-icon"/>
+                    <Label text="Profil" styleClass="sidebar-nav-label"/>
                 </HBox>
-                <HBox styleClass="nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="⚙️" styleClass="nav-item-icon"/>
-                    <Label text="Paramètres" styleClass="nav-item-label"/>
+                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="⚙️" styleClass="sidebar-nav-icon"/>
+                    <Label text="Paramètres" styleClass="sidebar-nav-label"/>
                 </HBox>
-                <HBox fx:id="logoutBtn" styleClass="nav-item,nav-item-logout" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="➡️" styleClass="nav-item-icon"/>
-                    <Label text="Déconnexion" styleClass="nav-item-label"/>
+                <HBox fx:id="logoutBtn" styleClass="sidebar-nav-item,sidebar-nav-logout" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="➡️" styleClass="sidebar-nav-icon"/>
+                    <Label text="Déconnexion" styleClass="sidebar-nav-label"/>
                 </HBox>
             </VBox>
         </VBox>
