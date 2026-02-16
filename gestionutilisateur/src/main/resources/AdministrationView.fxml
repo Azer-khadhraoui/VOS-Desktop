@@ -31,21 +31,17 @@
                     <Insets top="30.0"/>
                 </padding>
 
-                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                <HBox fx:id="btnStatistiques" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
                     <Label text="📊" styleClass="sidebar-nav-icon"/>
                     <Label text="Statistiques" styleClass="sidebar-nav-label"/>
                 </HBox>
-                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                <HBox fx:id="btnOffres" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
                     <Label text="💼" styleClass="sidebar-nav-icon"/>
                     <Label text="Offres" styleClass="sidebar-nav-label"/>
                 </HBox>
                 <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
                     <Label text="ℹ️" styleClass="sidebar-nav-icon"/>
                     <Label text="Informations" styleClass="sidebar-nav-label"/>
-                </HBox>
-                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="👤" styleClass="sidebar-nav-icon"/>
-                    <Label text="Profil" styleClass="sidebar-nav-label"/>
                 </HBox>
                 <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
                     <Label text="⚙️" styleClass="sidebar-nav-icon"/>
@@ -83,7 +79,6 @@
 
                 <!-- User Profile -->
                 <HBox spacing="15.0" alignment="CENTER">
-                    <Button text="👤 Profil" onAction="#goToProfil" style="-fx-padding: 8 16; -fx-font-size: 12px; -fx-background-color: #4B7FBE; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand; -fx-border-width: 0;"/>
                     <StackPane fx:id="userAvatarContainer" styleClass="user-avatar-container">
                         <Label fx:id="lblUserAvatar" text="👤" styleClass="user-avatar"/>
                     </StackPane>
@@ -112,6 +107,19 @@
                         </HBox>
                     </VBox>
                     <Button text="➕ Ajouter utilisateur" onAction="#showAddUserModal" styleClass="btn-add"/>
+                </HBox>
+
+                <!-- Filtres avancés -->
+                <HBox spacing="15.0" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 5);">
+                    <Label text="🔍 Filtres:" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #374151;"/>
+                    
+                    <ComboBox fx:id="filterRole" promptText="Filtrer par rôle" prefWidth="180.0" style="-fx-background-color: #F3F4F6; -fx-background-radius: 8; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-padding: 8 12;"/>
+                    
+                    <Button text="🔄 Réinitialiser" onAction="#resetFilters" style="-fx-background-color: #EFF6FF; -fx-text-fill: #1E40AF; -fx-font-size: 12px; -fx-font-weight: 600; -fx-padding: 8 16; -fx-background-radius: 8; -fx-border-width: 0; -fx-cursor: hand;"/>
+                    
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <Label fx:id="lblTotalCount" text="Total: 0 utilisateurs" style="-fx-font-size: 13px; -fx-text-fill: #6B7280; -fx-font-weight: 500;"/>
                 </HBox>
 
                 <!-- Table -->

@@ -35,6 +35,11 @@ public class AdministrationController {
     @FXML private VBox sidebar;
     @FXML private VBox navContainer;
     @FXML private javafx.scene.layout.HBox logoutBtn;
+    @FXML private javafx.scene.layout.HBox btnStatistiques;
+    @FXML private javafx.scene.layout.HBox btnOffres;
+    
+    @FXML private ComboBox<String> filterRole;
+    @FXML private Label lblTotalCount;
     
     @FXML private TableView<Utilisateur> tableUsers;
     @FXML private TableColumn<Utilisateur, Integer> colId;
@@ -76,6 +81,7 @@ public class AdministrationController {
         setupNavItemsHoverAnimation();
         setupTable();
         setupComboBox();
+        setupFilters();
         refreshTable();
         setupSearch();
         loadCurrentUser();
@@ -88,8 +94,9 @@ public class AdministrationController {
         deleteModalOverlay.setMaxSize(1440, 1024);
         deleteModalOverlay.setPrefSize(1440, 1024);
         
-        // Add logout button handler
+        // Add navigation handlers
         logoutBtn.setOnMouseClicked(event -> logout());
+        btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
     }
 
     private void loadCurrentUser() {
@@ -491,34 +498,64 @@ public class AdministrationController {
 
     private void setupSearch() {
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null || newVal.isEmpty()) {
-                refreshTable();
-            } else {
-                filterTable(newVal.toLowerCase());
-            }
+            applyFilters();
         });
     }
 
-    private void filterTable(String query) {
+    private void setupFilters() {
+        // Setup filter role combo box
+        filterRole.setItems(FXCollections.observableArrayList("Tous", "CLIENT", "ADMIN_RH", "ADMIN_TECHNIQUE"));
+        filterRole.setValue("Tous");
+        
+        // Apply filters when selection changes
+        filterRole.setOnAction(e -> applyFilters());
+    }
+
+    private void applyFilters() {
         ObservableList<Utilisateur> allUsers = FXCollections.observableArrayList(
             serviceUtilisateur.afficherAll()
         );
         
-        ObservableList<Utilisateur> filtered = allUsers.filtered(user -> 
-            user.getNom().toLowerCase().contains(query) ||
-            user.getPrenom().toLowerCase().contains(query) ||
-            user.getEmail().toLowerCase().contains(query) ||
-            user.getRole().toLowerCase().contains(query)
-        );
+        // Filter by search query
+        String query = searchField.getText();
+        if (query != null && !query.isEmpty()) {
+            allUsers = allUsers.filtered(user -> 
+                user.getNom().toLowerCase().contains(query.toLowerCase()) ||
+                user.getPrenom().toLowerCase().contains(query.toLowerCase()) ||
+                user.getEmail().toLowerCase().contains(query.toLowerCase()) ||
+                user.getRole().toLowerCase().contains(query.toLowerCase())
+            );
+        }
         
-        tableUsers.setItems(filtered);
+        // Filter by role
+        String role = filterRole.getValue();
+        if (role != null && !"Tous".equals(role)) {
+            allUsers = allUsers.filtered(user -> user.getRole().equals(role));
+        }
+        
+        tableUsers.setItems(allUsers);
+        updateUserCount(allUsers.size());
+    }
+
+    @FXML
+    public void resetFilters() {
+        searchField.clear();
+        filterRole.setValue("Tous");
+        applyFilters();
+        
+        System.out.println("🔄 Filtres réinitialisés");
+    }
+
+    private void updateUserCount(int count) {
+        lblTotalCount.setText(String.format("Total: %d utilisateur%s", count, count > 1 ? "s" : ""));
+    }
+
+    private void filterTable(String query) {
+        applyFilters();
     }
 
     public void refreshTable() {
-        ObservableList<Utilisateur> users = FXCollections.observableArrayList(
-            serviceUtilisateur.afficherAll()
-        );
-        tableUsers.setItems(users);
+        applyFilters();
     }
 
     @FXML
@@ -1046,17 +1083,18 @@ public class AdministrationController {
     }
 
     @FXML
-    public void goToProfil() {
+    public void goToStatistiques() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ProfilView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
             Parent root = loader.load();
             Scene scene = tableUsers.getScene();
             scene.setRoot(root);
+            System.out.println("✓ Navigation vers Statistiques");
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Erreur");
-            alert.setContentText("Impossible d'ouvrir le profil");
+            alert.setContentText("Impossible d'ouvrir les statistiques: " + e.getMessage());
             alert.showAndWait();
         }
     }
