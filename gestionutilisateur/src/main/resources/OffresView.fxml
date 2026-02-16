@@ -57,6 +57,7 @@
 
                 <!-- User Profile -->
                 <HBox spacing="15.0" alignment="CENTER">
+                    <Button text="👤 Profil" onAction="#goToProfil" style="-fx-padding: 8 16; -fx-font-size: 12px; -fx-background-color: #4B7FBE; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand; -fx-border-width: 0;"/>
                     <StackPane fx:id="userAvatarContainer" styleClass="user-avatar-container">
                         <Label fx:id="lblUserAvatar" text="👤" styleClass="user-avatar"/>
                     </StackPane>

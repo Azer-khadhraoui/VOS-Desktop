@@ -62,35 +62,63 @@ public class OffresController {
     private void loadCurrentUserInfo() {
         Utilisateur currentUser = UserSession.getInstance().getCurrentUser();
         if (currentUser != null) {
+            System.out.println("=== CHARGEMENT INFO UTILISATEUR DANS OFFRES ===");
+            System.out.println("Nom: " + currentUser.getNom());
+            System.out.println("Prénom: " + currentUser.getPrenom());
+            System.out.println("Image_profil: " + currentUser.getImage_profil());
+            
             lblUserName.setText(currentUser.getNom() + " " + currentUser.getPrenom());
             lblUserRole.setText(currentUser.getRole());
             loadUserAvatar(currentUser.getImage_profil());
+        } else {
+            System.err.println("ERREUR: currentUser est null!");
         }
     }
 
     private void loadUserAvatar(String imagePath) {
-        if (imagePath != null && !imagePath.isEmpty()) {
+        System.out.println("=== CHARGEMENT AVATAR ===");
+        System.out.println("imagePath: " + imagePath);
+        
+        if (imagePath != null && !imagePath.trim().isEmpty()) {
             try {
                 File file = new File(imagePath);
-                if (file.exists()) {
+                System.out.println("Chemin absolu: " + file.getAbsolutePath());
+                System.out.println("Fichier existe: " + file.exists());
+                
+                if (file.exists() && file.isFile()) {
                     Image image = new Image(new FileInputStream(file));
                     ImageView imageView = new ImageView(image);
                     imageView.setFitWidth(50);
                     imageView.setFitHeight(50);
                     imageView.setPreserveRatio(true);
                     
-                    Region clip = new Region();
-                    clip.setPrefSize(50, 50);
-                    clip.setStyle("-fx-background-radius: 50%; -fx-background-color: white;");
-                    imageView.setClip(new javafx.scene.shape.Circle(25, 25, 25));
+                    // Créer un cercle pour clipper l'image
+                    javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(25, 25, 25);
+                    imageView.setClip(clip);
                     
                     userAvatarContainer.getChildren().clear();
                     userAvatarContainer.getChildren().add(imageView);
+                    System.out.println("✓ Avatar chargé avec succès!");
+                } else {
+                    System.out.println("⚠ Fichier introuvable, affichage emoji par défaut");
+                    afficherAvatarParDefaut();
                 }
             } catch (Exception e) {
-                System.err.println("Erreur lors du chargement de l'avatar: " + e.getMessage());
+                System.err.println("✗ Erreur lors du chargement de l'avatar: " + e.getMessage());
+                e.printStackTrace();
+                afficherAvatarParDefaut();
             }
+        } else {
+            System.out.println("ℹ Pas d'image de profil définie, affichage emoji par défaut");
+            afficherAvatarParDefaut();
         }
+    }
+    
+    private void afficherAvatarParDefaut() {
+        // Afficher l'emoji par défaut
+        userAvatarContainer.getChildren().clear();
+        lblUserAvatar.setText("👤");
+        userAvatarContainer.getChildren().add(lblUserAvatar);
     }
 
     private void setupFilters() {
@@ -418,6 +446,22 @@ public class OffresController {
             alert.setTitle("Erreur");
             alert.setHeaderText("Erreur de déconnexion");
             alert.setContentText("Impossible de se déconnecter: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    public void goToProfil() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ProfilView.fxml"));
+            Parent root = loader.load();
+            Scene scene = lblUserName.getScene();
+            scene.setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setContentText("Impossible d'ouvrir le profil");
             alert.showAndWait();
         }
     }

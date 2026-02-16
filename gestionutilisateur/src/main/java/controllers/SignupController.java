@@ -33,6 +33,7 @@ public class SignupController {
     @FXML private ImageView imgProfile;
 
     private String imageName = "default.png";
+    private String imageAbsolutePath = null;  // NOUVEAU : chemin absolu
 
     ServiceUtilisateur su = new ServiceUtilisateur();
 
@@ -70,6 +71,12 @@ public class SignupController {
                 Files.copy(file.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
 
                 imageName = uniqueName;
+                
+                // ENREGISTRER LE CHEMIN ABSOLU COMPLET
+                imageAbsolutePath = dest.toFile().getAbsolutePath();
+                System.out.println("=== UPLOAD IMAGE INSCRIPTION ===");
+                System.out.println("Nom fichier: " + uniqueName);
+                System.out.println("Chemin absolu: " + imageAbsolutePath);
 
                 // Afficher l'image sélectionnée
                 Image image = new Image(new FileInputStream(dest.toFile()));
@@ -131,9 +138,18 @@ public class SignupController {
             return;
         }
 
+        // Utiliser le chemin absolu si une image a été uploadée, sinon null
+        String cheminImage = imageAbsolutePath;  // Peut être null si pas d'image
+        
+        System.out.println("=== CRÉATION UTILISATEUR ===");
+        System.out.println("Nom: " + tfNom.getText());
+        System.out.println("Prénom: " + tfPrenom.getText());
+        System.out.println("Email: " + tfEmail.getText());
+        System.out.println("Image à enregistrer: " + cheminImage);
+
         Utilisateur u = new Utilisateur(
                 0,
-                imageName,
+                cheminImage,  // Utiliser le chemin absolu au lieu de imageName
                 tfEmail.getText(),
                 tfPassword.getText(),
                 "CLIENT",

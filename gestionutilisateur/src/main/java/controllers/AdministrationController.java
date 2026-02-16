@@ -1046,6 +1046,22 @@ public class AdministrationController {
     }
 
     @FXML
+    public void goToProfil() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ProfilView.fxml"));
+            Parent root = loader.load();
+            Scene scene = tableUsers.getScene();
+            scene.setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setContentText("Impossible d'ouvrir le profil");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
     public void logout() {
         try {
             UserSession.getInstance().clearSession();

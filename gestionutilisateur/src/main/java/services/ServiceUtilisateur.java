@@ -18,6 +18,12 @@ public class ServiceUtilisateur {
     // ✅ AJOUT DYNAMIQUE
     // ============================
     public void ajouter(Utilisateur u) {
+        System.out.println("=== AJOUT UTILISATEUR ===");
+        System.out.println("Nom: " + u.getNom());
+        System.out.println("Prénom: " + u.getPrenom());
+        System.out.println("Email: " + u.getEmail());
+        System.out.println("Role: CLIENT");
+        System.out.println("Image_profil à enregistrer: [" + u.getImage_profil() + "]");
 
         try {
             String req = "INSERT INTO utilisateur(image_profil,email,mot_de_passe,role,nom,prenom) " +
@@ -32,9 +38,9 @@ public class ServiceUtilisateur {
             pst.setString(5, u.getNom());
             pst.setString(6, u.getPrenom());
 
-            pst.executeUpdate();
+            int rowsAffected = pst.executeUpdate();
 
-            System.out.println("✅ Utilisateur ajouté !");
+            System.out.println("✅ Utilisateur ajouté ! (" + rowsAffected + " ligne(s) affectée(s))");
 
         } catch (SQLException e) {
             System.out.println("❌ Erreur ajout !");
@@ -178,6 +184,9 @@ public class ServiceUtilisateur {
     }
 
     public Utilisateur getUserByEmail(String email) {
+        System.out.println("=== RÉCUPÉRATION UTILISATEUR PAR EMAIL ===");
+        System.out.println("Email recherché: " + email);
+        
         try {
             String req = "SELECT * FROM utilisateur WHERE email=?";
             PreparedStatement ps = cnx.prepareStatement(req);
@@ -186,18 +195,32 @@ public class ServiceUtilisateur {
             ResultSet rs = ps.executeQuery();
             
             if (rs.next()) {
-                return new Utilisateur(
-                    rs.getInt("id_utilisateur"),
-                    rs.getString("image_profil"),
-                    rs.getString("email"),
-                    rs.getString("mot_de_passe"),
-                    rs.getString("role"),
-                    rs.getString("nom"),
-                    rs.getString("prenom")
-                );
+                int id = rs.getInt("id_utilisateur");
+                String imageProfil = rs.getString("image_profil");
+                String emailDB = rs.getString("email");
+                String motDePasse = rs.getString("mot_de_passe");
+                String role = rs.getString("role");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                
+                System.out.println("✓ Utilisateur trouvé en DB:");
+                System.out.println("  - ID: " + id);
+                System.out.println("  - Nom: " + nom);
+                System.out.println("  - Prénom: " + prenom);
+                System.out.println("  - Email: " + emailDB);
+                System.out.println("  - Role: " + role);
+                System.out.println("  - Image_profil (brut DB): [" + imageProfil + "]");
+                System.out.println("  - Image_profil NULL?: " + (imageProfil == null));
+                System.out.println("  - Image_profil vide?: " + (imageProfil != null && imageProfil.trim().isEmpty()));
+                
+                Utilisateur user = new Utilisateur(id, imageProfil, emailDB, motDePasse, role, nom, prenom);
+                return user;
+            } else {
+                System.out.println("✗ Aucun utilisateur trouvé avec cet email");
             }
 
         } catch (SQLException e) {
+            System.err.println("✗ ERREUR SQL lors de la récupération de l'utilisateur:");
             e.printStackTrace();
         }
         return null;

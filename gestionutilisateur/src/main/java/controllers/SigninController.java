@@ -53,7 +53,25 @@ public class SigninController {
             
             // Récupérer l'utilisateur et le stocker en session
             Utilisateur user = su.getUserByEmail(tfEmail.getText());
+            
+            // LOG DÉTAILLÉ DE L'UTILISATEUR RÉCUPÉRÉ
+            System.out.println("========================================");
+            System.out.println("🔐 CONNEXION RÉUSSIE");
+            System.out.println("========================================");
+            System.out.println("ID: " + user.getId_utilisateur());
+            System.out.println("Nom: " + user.getNom());
+            System.out.println("Prénom: " + user.getPrenom());
+            System.out.println("Email: " + user.getEmail());
+            System.out.println("Role: " + user.getRole());
+            System.out.println("Image_profil (DB): " + user.getImage_profil());
+            System.out.println("========================================");
+            
             UserSession.getInstance().setCurrentUser(user);
+            
+            // Vérifier que l'utilisateur est bien en session
+            Utilisateur sessionUser = UserSession.getInstance().getCurrentUser();
+            System.out.println("✓ Utilisateur mis en session");
+            System.out.println("  - Image en session: " + sessionUser.getImage_profil());
             
             // Déterminer le chemin FXML selon le rôle
             String fxmlPath;
