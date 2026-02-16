@@ -1,0 +1,490 @@
+.root {
+    -fx-font-family: "Segoe UI", Arial;
+    -fx-background-color: #f8f9fa;
+}
+
+.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 20 0 10 0;
+}
+
+.label {
+    -fx-font-size: 13px;
+}
+
+.text-field,
+.text-area,
+.combo-box {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+
+.primary-button {
+    -fx-background-color: #3f51b5;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8 25;
+    -fx-background-radius: 8;
+}
+
+.primary-button:hover {
+    -fx-background-color: #303f9f;
+}
+
+.hero {
+    -fx-padding: 30;
+    -fx-background-radius: 20;
+    -fx-alignment: center;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+}
+
+.logo-text {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 15;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+    -fx-cursor: hand;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.sidebar-btn-active {
+    -fx-background-color: transparent;
+}
+
+.sidebar-icon {
+    -fx-font-size: 22px;
+}
+
+/* HERO CONTAINER */
+.hero {
+    -fx-background-color: #1e3a8a;
+    -fx-background-radius: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 25, 0, 0, 10);
+}
+
+/* HERO TITLE */
+.hero-title {
+    -fx-text-fill: white;
+    -fx-font-size: 36px;
+    -fx-font-weight: 800;
+}
+
+/* HERO SUBTITLE */
+.hero-subtitle {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 18px;
+}
+
+/* SEARCH CONTAINER */
+.search-container {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.06), 15, 0, 0, 6);
+}
+
+/* Search Label */
+.search-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+/* Search Field */
+.search-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-font-size: 14px;
+}
+
+.search-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Cards Container */
+.cards-container {
+    -fx-background-color: transparent;
+    -fx-padding: 10 0 0 0;
+}
+
+.main-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.main-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ============================================
+   JOB CARD - Enhanced Premium Design
+   ============================================ */
+.job-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 18;
+    -fx-pref-width: 260;
+    -fx-min-height: 200;
+    -fx-max-width: 280;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 20, 0, 0, 5);
+    -fx-cursor: hand;
+    -fx-border-color: rgba(226, 232, 240, 0.6);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+}
+
+.job-card:hover {
+    -fx-translate-y: -5;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.3), 35, 0, 0, 12);
+    -fx-border-color: rgba(99, 102, 241, 0.4);
+    -fx-background-color: linear-gradient(to bottom, #ffffff 0%, #f8faff 100%);
+}
+
+/* ICON - Enhanced with background */
+.job-icon {
+    -fx-font-size: 24px;
+    -fx-padding: 10;
+    -fx-background-color: linear-gradient(to bottom right, #eef2ff 0%, #ddd6fe 100%);
+    -fx-background-radius: 14;
+    -fx-text-fill: #6366f1;
+    -fx-min-width: 48;
+    -fx-min-height: 48;
+    -fx-max-width: 48;
+    -fx-max-height: 48;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.2), 10, 0, 0, 2);
+}
+
+/* TITLE - Enhanced Typography */
+.job-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-line-spacing: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.02), 1, 0, 0, 1);
+}
+
+.job-card:hover .job-title {
+    -fx-text-fill: #4f46e5;
+}
+
+/* DESCRIPTION - Improved Readability */
+.job-description {
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+    -fx-line-spacing: 3px;
+    -fx-wrap-text: true;
+    -fx-opacity: 0.9;
+}
+
+.job-card:hover .job-description {
+    -fx-opacity: 1;
+}
+
+/* TYPE BADGE - Premium Gradient Effect */
+.job-type-badge {
+    -fx-background-color: linear-gradient(to right, #eef2ff 0%, #e0e7ff 100%);
+    -fx-text-fill: #6366f1;
+    -fx-background-radius: 12;
+    -fx-padding: 6 16;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.15), 6, 0, 0, 2);
+}
+
+.job-card:hover .job-type-badge {
+    -fx-background-color: linear-gradient(to right, #6366f1 0%, #8b5cf6 100%);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.35), 10, 0, 0, 3);
+}
+
+/* LOCATION - Enhanced */
+.location-text {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.job-card:hover .location-text {
+    -fx-text-fill: #4f46e5;
+}
+
+/* BUTTON - Premium Gradient Design */
+.apply-btn {
+    -fx-background-color: linear-gradient(to right, #6366f1 0%, #8b5cf6 100%);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-padding: 9 22;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.35), 10, 0, 0, 3);
+}
+
+.apply-btn:hover {
+    -fx-background-color: linear-gradient(to right, #4f46e5 0%, #7c3aed 100%);
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.5), 16, 0, 0, 6);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.apply-btn:pressed {
+    -fx-background-color: linear-gradient(to right, #4338ca 0%, #6d28d9 100%);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* CARD DIVIDER - Elegant Separator */
+.card-divider {
+    -fx-background-color: transparent;
+    -fx-border-color: linear-gradient(to right, transparent 0%, #e2e8f0 50%, transparent 100%);
+    -fx-border-width: 0 0 1.5 0;
+    -fx-opacity: 0.8;
+}
+
+/* ============================================
+   SIDEBAR JOB CARDS
+   ============================================ */
+.sidebar-job-card {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 16;
+    -fx-padding: 16;
+    -fx-cursor: hand;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+}
+
+.sidebar-job-card:hover {
+    -fx-background-color: white;
+    -fx-border-color: #c7d2fe;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.15), 12, 0, 0, 3);
+}
+
+.sidebar-job-card-selected {
+    -fx-background-color: linear-gradient(to bottom, #eef2ff 0%, #e0e7ff 100%);
+    -fx-border-color: #6366f1;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.25), 15, 0, 0, 4);
+}
+
+.sidebar-job-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e293b;
+    -fx-line-spacing: 1px;
+}
+
+.sidebar-type-badge {
+    -fx-background-color: linear-gradient(to right, #ddd6fe 0%, #c7d2fe 100%);
+    -fx-text-fill: #6366f1;
+    -fx-background-radius: 8;
+    -fx-padding: 4 12;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+}
+
+.sidebar-tag {
+    -fx-background-color: white;
+    -fx-text-fill: #6366f1;
+    -fx-background-radius: 6;
+    -fx-padding: 3 8;
+    -fx-font-size: 9px;
+    -fx-font-weight: 600;
+    -fx-border-color: #e0e7ff;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.sidebar-list-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.sidebar-list-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-line-spacing: 2px;
+}
+
+/* ============================================
+   DETAIL VIEW COMPONENTS
+   ============================================ */
+.detail-job-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+    -fx-line-spacing: 2px;
+}
+
+.detail-tag {
+    -fx-background-color: linear-gradient(to right, #eef2ff 0%, #e0e7ff 100%);
+    -fx-text-fill: #6366f1;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.detail-meta-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: 500;
+}
+
+.detail-section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-padding: 20 0 10 0;
+}
+
+.detail-section-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #475569;
+    -fx-line-spacing: 4px;
+}
+
+.detail-criteria-item {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 12;
+    -fx-padding: 12 16;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+}
+
+.detail-criteria-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #1e293b;
+    -fx-font-weight: 500;
+}
+
+.detail-apply-btn {
+    -fx-background-color: linear-gradient(to right, #6366f1 0%, #8b5cf6 100%);
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-padding: 14 40;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.4), 15, 0, 0, 5);
+}
+
+.detail-apply-btn:hover {
+    -fx-background-color: linear-gradient(to right, #4f46e5 0%, #7c3aed 100%);
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.6), 20, 0, 0, 8);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.detail-apply-btn:pressed {
+    -fx-background-color: linear-gradient(to right, #4338ca 0%, #6d28d9 100%);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 4;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #cbd5e1;
+    -fx-background-radius: 4;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #94a3b8;
+}
+
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+/* ============================================
+   BACK BUTTON
+   ============================================ */
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6366f1;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-padding: 12 0;
+    -fx-border-color: transparent;
+    -fx-alignment: center-left;
+}
+
+.back-button:hover {
+    -fx-text-fill: #4f46e5;
+    -fx-underline: true;
+}
+
+.back-button:pressed {
+    -fx-text-fill: #4338ca;
+}
+
+.sidebar {
+    -fx-background-color: white;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+}
+
+.logo-text {
+    -fx-text-fill: #1a1a1a;
+    -fx-font-weight: bold;
+}
+
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+    -fx-padding: 12;
+    -fx-cursor: hand;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.sidebar-btn-active {
+    -fx-background-color: transparent;
+}
