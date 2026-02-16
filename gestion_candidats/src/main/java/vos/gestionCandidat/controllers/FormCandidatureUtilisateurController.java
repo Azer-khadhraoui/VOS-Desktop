@@ -94,6 +94,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
         SpinnerValueFactory<Integer> svf = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 0);
         anneesExperience.setValueFactory(svf);
         anneesExperience.setEditable(true);
+        setupRealtimeValidation();
     }
 
     /**
@@ -281,11 +282,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
         return fc.showOpenDialog(stage);
     }
 
-    private void afficherErreur(String msg) {
-        errorLabel.setText("⚠️ " + msg);
-        errorLabel.setVisible(true);
-        errorLabel.setManaged(true);
-    }
+ 
 
     private void cacherErreur() {
         errorLabel.setText("");
@@ -293,13 +290,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
         errorLabel.setManaged(false);
     }
 
-    private void afficherSucces(String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Succès");
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
-    }
+   
 
     private void fermerFenetre() {
         Stage stage = (Stage) btnSoumettre.getScene().getWindow();
@@ -406,26 +397,124 @@ public class FormCandidatureUtilisateurController implements Initializable {
         }
     }
 
-    /** Affiche ou cache un label d'erreur sous un champ */
-    private void setErreurChamp(Label label, String msg) {
-        if (msg == null) {
-            label.setText("");
-            label.setVisible(false);
-            label.setManaged(false);
-        } else {
-            label.setText("⚠ " + msg);
-            label.setVisible(true);
-            label.setManaged(true);
-        }
-    }
+    
 
-    /** Applique ou retire la bordure rouge sur un contrôle */
-    private void setBordureErreur(Control ctrl, boolean erreur) {
-        if (erreur) {
-            ctrl.setStyle(ctrl.getStyle() + "; -fx-border-color: #ef4444; -fx-border-width: 1.5;");
-        } else {
-            ctrl.setStyle(ctrl.getStyle()
-                    .replace("; -fx-border-color: #ef4444; -fx-border-width: 1.5;", ""));
+// Dans la méthode initialize() ou initData(), ajoutez ces listeners pour la validation en temps réel:
+
+private void setupRealtimeValidation() {
+    // Validation en temps réel pour le niveau d'expérience
+    niveauExperience.valueProperty().addListener((obs, oldVal, newVal) -> {
+        if (newVal != null) {
+            setErreurChamp(errNiveauExp, null);
+            niveauExperience.setStyle(niveauExperience.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
         }
+    });
+
+    // Validation en temps réel pour le domaine d'expérience
+    domaineExperience.valueProperty().addListener((obs, oldVal, newVal) -> {
+        if (newVal != null) {
+            setErreurChamp(errDomaineExp, null);
+            domaineExperience.setStyle(domaineExperience.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
+        }
+    });
+
+    // Validation en temps réel pour le CV
+    cv.textProperty().addListener((obs, oldVal, newVal) -> {
+        if (newVal != null && !newVal.trim().isEmpty()) {
+            setErreurChamp(errCv, null);
+            cv.setStyle(cv.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
+        }
+    });
+}
+
+// Méthode pour appliquer le style d'erreur moderne
+private void setBordureErreur(Control ctrl, boolean erreur) {
+    String baseStyle = ctrl.getStyle();
+    
+    // Retirer les anciennes bordures
+    baseStyle = baseStyle.replace("-fx-border-color: #ef4444; -fx-border-width: 2;", "");
+    baseStyle = baseStyle.replace("-fx-border-color: #10b981; -fx-border-width: 2;", "");
+    
+    if (erreur) {
+        // Bordure rouge pour erreur
+        ctrl.setStyle(baseStyle + " -fx-border-color: #ef4444; -fx-border-width: 2;");
+    } else {
+        // Bordure verte pour validé
+        ctrl.setStyle(baseStyle + " -fx-border-color: #10b981; -fx-border-width: 2;");
     }
+}
+
+// Méthode améliorée pour afficher les erreurs avec le nouveau style
+private void setErreurChamp(Label label, String msg) {
+    if (msg == null) {
+        label.setText("");
+        label.setVisible(false);
+        label.setManaged(false);
+        label.getStyleClass().remove("error-label");
+        label.getStyleClass().add("valid");
+    } else {
+        label.setText("❌ " + msg);
+        label.setVisible(true);
+        label.setManaged(true);
+        label.getStyleClass().remove("valid");
+        label.getStyleClass().add("error-label");
+    }
+}
+
+// Méthode pour afficher un succès moderne
+private void afficherSucces(String msg) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle("✅ Succès");
+    alert.setHeaderText(null);
+    alert.setContentText(msg);
+    
+    // Style moderne pour l'alerte
+    DialogPane dialogPane = alert.getDialogPane();
+    dialogPane.setStyle(
+        "-fx-background-color: #2d2d48; " +
+        "-fx-border-color: #10b981; " +
+        "-fx-border-width: 2; " +
+        "-fx-border-radius: 12; " +
+        "-fx-background-radius: 12;"
+    );
+    
+    // Style pour les labels
+    dialogPane.lookup(".content").setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+    
+    // Style pour les boutons
+    Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
+    okButton.setStyle(
+        "-fx-background-color: linear-gradient(to right, #10b981, #059669); " +
+        "-fx-text-fill: white; " +
+        "-fx-font-weight: bold; " +
+        "-fx-padding: 12 30; " +
+        "-fx-background-radius: 10; " +
+        "-fx-cursor: hand;"
+    );
+    
+    alert.showAndWait();
+}
+
+// Méthode pour afficher une erreur moderne
+private void afficherErreur(String msg) {
+    errorLabel.setText("⚠️ " + msg);
+    errorLabel.setVisible(true);
+    errorLabel.setManaged(true);
+    
+    // Animation de shake pour attirer l'attention
+    animerShake(errorLabel);
+}
+
+// Animation shake pour les erreurs
+private void animerShake(javafx.scene.Node node) {
+    javafx.animation.TranslateTransition shake = new javafx.animation.TranslateTransition(
+        javafx.util.Duration.millis(50), node
+    );
+    shake.setFromX(0);
+    shake.setByX(10);
+    shake.setCycleCount(6);
+    shake.setAutoReverse(true);
+    shake.play();
+}
+
 }
