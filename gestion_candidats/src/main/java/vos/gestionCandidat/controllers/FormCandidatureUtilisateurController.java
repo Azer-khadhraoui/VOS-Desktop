@@ -76,6 +76,14 @@ public class FormCandidatureUtilisateurController implements Initializable {
     @FXML
     private Button btnSoumettre;
 
+    // Labels d'erreur par champ
+    @FXML
+    private Label errNiveauExp;
+    @FXML
+    private Label errDomaineExp;
+    @FXML
+    private Label errCv;
+
     /* ===================== STATE ===================== */
 
     private final CandidatureService service = new CandidatureService();
@@ -139,6 +147,21 @@ public class FormCandidatureUtilisateurController implements Initializable {
 
             messageCandidat.setText(candidature.getMessageCandidat());
         }
+
+        // Listeners pour effacer les erreurs en temps réel
+        niveauExperience.valueProperty().addListener((obs, old, val) -> {
+            if (val != null) {
+                setErreurChamp(errNiveauExp, null);
+                setBordureErreur(niveauExperience, false);
+            }
+        });
+
+        domaineExperience.valueProperty().addListener((obs, old, val) -> {
+            if (val != null) {
+                setErreurChamp(errDomaineExp, null);
+                setBordureErreur(domaineExperience, false);
+            }
+        });
     }
 
     /**
@@ -154,8 +177,6 @@ public class FormCandidatureUtilisateurController implements Initializable {
     private int idOffreTemporaire = 1;
 
     /* ===================== ACTIONS FXML ===================== */
-
-    
 
     @FXML
     private void retour(ActionEvent event) {
@@ -174,6 +195,8 @@ public class FormCandidatureUtilisateurController implements Initializable {
             cv.setText(f.getAbsolutePath());
             cvFileName.setText(f.getName());
             cvFileName.setStyle("-fx-text-fill: #10b981; -fx-font-size: 12px; -fx-font-weight: 600;");
+            setErreurChamp(errCv, null);
+            setBordureErreur(cv, false);
         }
     }
 
@@ -190,24 +213,53 @@ public class FormCandidatureUtilisateurController implements Initializable {
     /* ===================== VALIDATION ===================== */
 
     private boolean validerFormulaire() {
+        boolean valide = true;
+
+        // 1. Réinitialiser tous les labels d'erreur et bordures
+        setErreurChamp(errNiveauExp, null);
+        setErreurChamp(errDomaineExp, null);
+        setErreurChamp(errCv, null);
         cacherErreur();
+        setBordureErreur(niveauExperience, false);
+        setBordureErreur(domaineExperience, false);
+        setBordureErreur(cv, false);
 
+        // 2. Valider chaque champ obligatoire
         if (niveauExperience.getValue() == null) {
-            afficherErreur("Veuillez sélectionner votre niveau d'expérience.");
-            return false;
+            setErreurChamp(errNiveauExp, "Le niveau d'expérience est obligatoire.");
+            setBordureErreur(niveauExperience, true);
+            valide = false;
         }
-        // Ajouter après la validation du niveauExperience
-        if (domaineExperience.getValue() == null || domaineExperience.getValue().isBlank()) {
-            afficherErreur("Le domaine d'expérience est obligatoire.");
-            return false;
-        }
-        if (cv.getText() == null || cv.getText().isBlank()) {
-            afficherErreur("Veuillez joindre votre CV.");
-            return false;
-        }
-        return true;
-    }
 
+        if (domaineExperience.getValue() == null || domaineExperience.getValue().isBlank()) {
+            setErreurChamp(errDomaineExp, "Le domaine d'expérience est obligatoire.");
+            setBordureErreur(domaineExperience, true);
+            valide = false;
+        }
+
+        if (cv.getText() == null || cv.getText().isBlank()) {
+            setErreurChamp(errCv, "Veuillez joindre votre CV.");
+            valide = false;
+        }
+
+        // 3. Alerte globale si tout est vide
+        if (!valide) {
+            boolean toutVide = niveauExperience.getValue() == null
+                    && domaineExperience.getValue() == null
+                    && (cv.getText() == null || cv.getText().isBlank());
+
+            if (toutVide) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Formulaire incomplet");
+                alert.setHeaderText("⚠️ Aucun champ rempli !");
+                alert.setContentText(
+                        "Veuillez remplir au moins les champs obligatoires (*) avant de soumettre votre candidature.");
+                alert.showAndWait();
+            }
+        }
+
+        return valide;
+    }
     /* ===================== CONSTRUCTION ENTITÉ ===================== */
 
     private Candidature construireCandidature() {
@@ -278,9 +330,11 @@ public class FormCandidatureUtilisateurController implements Initializable {
         File f = new File(path);
         return f.getName();
     }
-        @FXML
+
+    @FXML
     private void soumettreForm(ActionEvent event) {
-        if (!validerFormulaire()) return;
+        if (!validerFormulaire())
+            return;
 
         Candidature c = construireCandidature();
         int idCandidatureCreee = -1;
@@ -289,7 +343,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
             service.ajouter(c);
             // Récupérer l'ID de la candidature créée
             List<Candidature> candidates = service.getAll().stream()
-                    .filter(cand -> cand.getIdUtilisateur() == idUtilisateurCourant 
+                    .filter(cand -> cand.getIdUtilisateur() == idUtilisateurCourant
                             && cand.getIdOffre() == idOffreTemporaire
                             && cand.getStatut().equals("En attente"))
                     .collect(Collectors.toList());
@@ -304,8 +358,9 @@ public class FormCandidatureUtilisateurController implements Initializable {
             afficherSucces("Candidature modifiée avec succès !");
         }
 
-        if (parentController != null) parentController.rafraichir();
-        
+        if (parentController != null)
+            parentController.rafraichir();
+
         // Proposer d'ajouter les préférences
         if (idCandidatureCreee > 0 && candidatureEnEdition == null) {
             proposerAjouterPreferences(idCandidatureCreee, c);
@@ -316,7 +371,8 @@ public class FormCandidatureUtilisateurController implements Initializable {
     }
 
     /**
-     * Propose à l'utilisateur d'ajouter ses préférences après création de la candidature
+     * Propose à l'utilisateur d'ajouter ses préférences après création de la
+     * candidature
      */
     private void proposerAjouterPreferences(int idCandidature, Candidature candidature) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -336,7 +392,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
             cand.setIdCandidature(idCandidature);
             cand.setIdOffre(candidature.getIdOffre());
             cand.setIdUtilisateur(idUtilisateurCourant);
-            
+
             ouvrirPreferences(cand);
         }
     }
@@ -351,10 +407,10 @@ public class FormCandidatureUtilisateurController implements Initializable {
             Parent root = loader.load();
 
             FormPreferenceUtilisateurController ctrl = loader.getController();
-            
+
             PreferenceCandidatureService prefService = new PreferenceCandidatureService();
             PreferenceCandidature preference = prefService.getByIdCandidature(candidature.getIdCandidature());
-            
+
             ctrl.initData(candidature, preference, parentController);
 
             Stage stage = new Stage();
@@ -365,6 +421,29 @@ public class FormCandidatureUtilisateurController implements Initializable {
 
         } catch (IOException e) {
             System.err.println("Erreur : " + e.getMessage());
+        }
+    }
+
+    /** Affiche ou cache un label d'erreur sous un champ */
+    private void setErreurChamp(Label label, String msg) {
+        if (msg == null) {
+            label.setText("");
+            label.setVisible(false);
+            label.setManaged(false);
+        } else {
+            label.setText("⚠ " + msg);
+            label.setVisible(true);
+            label.setManaged(true);
+        }
+    }
+
+    /** Applique ou retire la bordure rouge sur un contrôle */
+    private void setBordureErreur(Control ctrl, boolean erreur) {
+        if (erreur) {
+            ctrl.setStyle(ctrl.getStyle() + "; -fx-border-color: #ef4444; -fx-border-width: 1.5;");
+        } else {
+            ctrl.setStyle(ctrl.getStyle()
+                    .replace("; -fx-border-color: #ef4444; -fx-border-width: 1.5;", ""));
         }
     }
 }

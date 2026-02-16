@@ -20,28 +20,52 @@ public class FormPreferenceUtilisateurController implements Initializable {
 
     /* ===================== FXML INJECTIONS ===================== */
 
-    @FXML private Label formTitle;
-    @FXML private Label candidatureLabel;
+    @FXML
+    private Label formTitle;
+    @FXML
+    private Label candidatureLabel;
 
     // Section 1 — Poste
-    @FXML private ComboBox<String> typePosteSouhaite;
-    @FXML private ComboBox<String> modeTravail;
-    @FXML private ComboBox<String> typeContratSouhaite;
+    @FXML
+    private ComboBox<String> typePosteSouhaite;
+    @FXML
+    private ComboBox<String> modeTravail;
+    @FXML
+    private ComboBox<String> typeContratSouhaite;
 
     // Section 2 — Disponibilité
-    @FXML private ComboBox<String> disponibilite;
-    @FXML private DatePicker dateDisponibilite;
+    @FXML
+    private ComboBox<String> disponibilite;
+    @FXML
+    private DatePicker dateDisponibilite;
 
     // Section 3 — Mobilité
-    @FXML private ComboBox<String> mobiliteGeographique;
-    @FXML private ComboBox<String> pretDeplacement;
+    @FXML
+    private ComboBox<String> mobiliteGeographique;
+    @FXML
+    private ComboBox<String> pretDeplacement;
 
     // Section 4 — Salaire
-    @FXML private TextField pretentionSalariale;
+    @FXML
+    private TextField pretentionSalariale;
 
     // Feedback
-    @FXML private Label errorLabel;
-    @FXML private Button btnSauvegarder;
+    @FXML
+    private Label errorLabel;
+    @FXML
+    private Button btnSauvegarder;
+
+    // Labels d'erreur par champ
+    @FXML
+    private Label errTypePoste;
+    @FXML
+    private Label errModeTravail;
+    @FXML
+    private Label errDisponibilite;
+    @FXML
+    private Label errDateDispo;
+    @FXML
+    private Label errSalaire;
 
     /* ===================== STATE ===================== */
 
@@ -59,12 +83,14 @@ public class FormPreferenceUtilisateurController implements Initializable {
 
     /**
      * Appelé par le contrôleur parent
-     * @param candidature la candidature pour laquelle ajouter/modifier la préférence
-     * @param preference null = ajout, objet = édition
-     * @param parent référence pour rafraîchir après sauvegarde
+     * 
+     * @param candidature la candidature pour laquelle ajouter/modifier la
+     *                    préférence
+     * @param preference  null = ajout, objet = édition
+     * @param parent      référence pour rafraîchir après sauvegarde
      */
     public void initData(Candidature candidature, PreferenceCandidature preference,
-                         ListeCandidaturesUtilisateurController parent) {
+            ListeCandidaturesUtilisateurController parent) {
         this.candidatureActuelle = candidature;
         this.parentController = parent;
         this.preferenceEnEdition = preference;
@@ -89,8 +115,7 @@ public class FormPreferenceUtilisateurController implements Initializable {
 
             if (preference.getDateDisponibilite() != null) {
                 dateDisponibilite.setValue(
-                        new java.sql.Date(preference.getDateDisponibilite().getTime()).toLocalDate()
-                );
+                        new java.sql.Date(preference.getDateDisponibilite().getTime()).toLocalDate());
             }
 
             mobiliteGeographique.setValue(preference.getMobiliteGeographique());
@@ -100,13 +125,45 @@ public class FormPreferenceUtilisateurController implements Initializable {
                 pretentionSalariale.setText(String.valueOf(preference.getPretentionSalariale()));
             }
         }
+        // Listeners pour effacer les erreurs en temps réel
+        typePosteSouhaite.valueProperty().addListener((obs, old, val) -> {
+            if (val != null) {
+                setErreurChamp(errTypePoste, null);
+                setBordureErreur(typePosteSouhaite, false);
+            }
+        });
+        modeTravail.valueProperty().addListener((obs, old, val) -> {
+            if (val != null) {
+                setErreurChamp(errModeTravail, null);
+                setBordureErreur(modeTravail, false);
+            }
+        });
+        disponibilite.valueProperty().addListener((obs, old, val) -> {
+            if (val != null) {
+                setErreurChamp(errDisponibilite, null);
+                setBordureErreur(disponibilite, false);
+            }
+        });
+        dateDisponibilite.valueProperty().addListener((obs, old, val) -> {
+            if (val != null) {
+                setErreurChamp(errDateDispo, null);
+                setBordureErreur(dateDisponibilite, false);
+            }
+        });
+        pretentionSalariale.textProperty().addListener((obs, old, val) -> {
+            if (estDoubleValide(val)) {
+                setErreurChamp(errSalaire, null);
+                setBordureErreur(pretentionSalariale, false);
+            }
+        });
     }
 
     /* ===================== ACTIONS FXML ===================== */
 
     @FXML
     private void sauvegarder(ActionEvent event) {
-        if (!validerFormulaire()) return;
+        if (!validerFormulaire())
+            return;
 
         PreferenceCandidature p = construirePreference();
 
@@ -119,7 +176,8 @@ public class FormPreferenceUtilisateurController implements Initializable {
             afficherSucces("Préférences modifiées avec succès !");
         }
 
-        if (parentController != null) parentController.rafraichir();
+        if (parentController != null)
+            parentController.rafraichir();
         fermerFenetre();
     }
 
@@ -131,35 +189,82 @@ public class FormPreferenceUtilisateurController implements Initializable {
     /* ===================== VALIDATION ===================== */
 
     private boolean validerFormulaire() {
-        errorLabel.setText("");
+        boolean valide = true;
 
+        // 1. Réinitialiser
+        setErreurChamp(errTypePoste, null);
+        setErreurChamp(errModeTravail, null);
+        setErreurChamp(errDisponibilite, null);
+        setErreurChamp(errDateDispo, null);
+        setErreurChamp(errSalaire, null);
+        setBordureErreur(typePosteSouhaite, false);
+        setBordureErreur(modeTravail, false);
+        setBordureErreur(disponibilite, false);
+        setBordureErreur(dateDisponibilite, false);
+        setBordureErreur(pretentionSalariale, false);
+
+        // 2. Valider chaque champ
         if (typePosteSouhaite.getValue() == null || typePosteSouhaite.getValue().isBlank()) {
-            afficherErreur("Le type de poste souhaité est obligatoire.");
-            return false;
+            setErreurChamp(errTypePoste, "Le type de poste est obligatoire.");
+            setBordureErreur(typePosteSouhaite, true);
+            valide = false;
         }
+
         if (modeTravail.getValue() == null || modeTravail.getValue().isBlank()) {
-            afficherErreur("Le mode de travail est obligatoire.");
-            return false;
+            setErreurChamp(errModeTravail, "Le mode de travail est obligatoire.");
+            setBordureErreur(modeTravail, true);
+            valide = false;
         }
+
         if (disponibilite.getValue() == null || disponibilite.getValue().isBlank()) {
-            afficherErreur("La disponibilité est obligatoire.");
-            return false;
+            setErreurChamp(errDisponibilite, "La disponibilité est obligatoire.");
+            setBordureErreur(disponibilite, true);
+            valide = false;
         }
+
         if (dateDisponibilite.getValue() == null) {
-            afficherErreur("La date de disponibilité est obligatoire.");
-            return false;
+            setErreurChamp(errDateDispo, "La date de disponibilité est obligatoire.");
+            setBordureErreur(dateDisponibilite, true);
+            valide = false;
         }
+
         if (!estDoubleValide(pretentionSalariale.getText())) {
-            afficherErreur("La prétention salariale doit être un nombre valide.");
-            return false;
+            setErreurChamp(errSalaire, "Veuillez saisir un montant valide (ex: 45000).");
+            setBordureErreur(pretentionSalariale, true);
+            valide = false;
         }
-        return true;
+
+        // 3. Alerte globale si tout est vide
+        if (!valide) {
+            boolean toutVide = typePosteSouhaite.getValue() == null
+                    && modeTravail.getValue() == null
+                    && disponibilite.getValue() == null
+                    && dateDisponibilite.getValue() == null
+                    && (pretentionSalariale.getText() == null
+                            || pretentionSalariale.getText().isBlank());
+
+            if (toutVide) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Formulaire incomplet");
+                alert.setHeaderText("⚠️ Aucun champ rempli !");
+                alert.setContentText(
+                        "Veuillez remplir au moins les champs obligatoires (*) avant d'enregistrer vos préférences.");
+                alert.showAndWait();
+            }
+        }
+
+        return valide;
     }
 
     private boolean estDoubleValide(String txt) {
-        if (txt == null || txt.isBlank()) return false;
-        try { Double.parseDouble(txt.trim()); return true; }
-        catch (NumberFormatException e) { return false; }
+        if (txt == null || txt.isBlank())
+            return false;
+        try {
+            Double.parseDouble(txt.trim());
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     /* ===================== CONSTRUCTION ENTITÉ ===================== */
@@ -200,5 +305,26 @@ public class FormPreferenceUtilisateurController implements Initializable {
     private void fermerFenetre() {
         Stage stage = (Stage) btnSauvegarder.getScene().getWindow();
         stage.close();
+    }
+
+    private void setErreurChamp(Label label, String msg) {
+        if (msg == null) {
+            label.setText("");
+            label.setVisible(false);
+            label.setManaged(false);
+        } else {
+            label.setText("⚠ " + msg);
+            label.setVisible(true);
+            label.setManaged(true);
+        }
+    }
+
+    private void setBordureErreur(Control ctrl, boolean erreur) {
+        if (erreur) {
+            ctrl.setStyle(ctrl.getStyle() + "; -fx-border-color: #ef4444; -fx-border-width: 1.5;");
+        } else {
+            ctrl.setStyle(ctrl.getStyle()
+                    .replace("; -fx-border-color: #ef4444; -fx-border-width: 1.5;", ""));
+        }
     }
 }
