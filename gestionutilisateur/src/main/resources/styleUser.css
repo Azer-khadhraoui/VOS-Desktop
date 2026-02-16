@@ -133,3 +133,23 @@
 .link:hover {
     -fx-underline: true;
 }
+
+/* ================= BOUTON RECONNAISSANCE FACIALE ================= */
+
+.btnFaceRecognition {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 12 24;
+    -fx-background-radius: 25;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(33, 150, 243, 0.4), 15, 0, 0, 5);
+}
+
+.btnFaceRecognition:hover {
+    -fx-background-color: #1976D2;
+    -fx-effect: dropshadow(gaussian, rgba(33, 150, 243, 0.6), 20, 0, 0, 8);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}

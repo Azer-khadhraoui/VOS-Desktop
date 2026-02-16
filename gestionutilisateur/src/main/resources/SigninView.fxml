@@ -52,6 +52,20 @@
                     styleClass="btnSignupGlow"/>
         </HBox>
 
+        <!-- OU DIVIDER -->
+        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 8 0;">
+            <Separator prefWidth="150" style="-fx-background-color: rgba(255,255,255,0.3);"/>
+            <Label text="OU" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12px; -fx-font-weight: bold;"/>
+            <Separator prefWidth="150" style="-fx-background-color: rgba(255,255,255,0.3);"/>
+        </HBox>
+
+        <!-- BOUTON RECONNAISSANCE FACIALE -->
+        <HBox alignment="CENTER" style="-fx-padding: 0 0 6 0;">
+            <Button text="📷 Connexion par reconnaissance faciale"
+                    onAction="#signinWithFace"
+                    styleClass="btnFaceRecognition"/>
+        </HBox>
+
         <!-- LIEN SIGNUP -->
         <HBox spacing="6" alignment="CENTER_LEFT" styleClass="hintRow">
             <Label text="Vous n’avez pas de compte ?" styleClass="hintText"/>

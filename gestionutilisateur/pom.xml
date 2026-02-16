@@ -38,6 +38,15 @@
             <version>21</version>
         </dependency>
 
+        <!-- OpenCV for facial recognition -->
+        <dependency>
+            <groupId>org.opencv</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.12.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/opencv/build/java/opencv-4120.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
     <!-- ================= BUILD ================= -->

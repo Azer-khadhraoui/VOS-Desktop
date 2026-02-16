@@ -204,9 +204,13 @@ public class AdministrationController {
         }
     }
     
-    private void loadUserAvatar(String imageName) {
+    private void loadUserAvatar(String imagePath) {
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            return;
+        }
+        
         try {
-            File imgFile = new File("images/" + imageName);
+            File imgFile = new File(imagePath);
             if (imgFile.exists()) {
                 ImageView imageView = new ImageView();
                 imageView.setFitWidth(50);
@@ -222,9 +226,14 @@ public class AdministrationController {
                 
                 userAvatarContainer.getChildren().clear();
                 userAvatarContainer.getChildren().add(imageView);
+                
+                System.out.println("✓ Avatar chargé dans AdministrationView: " + imagePath);
+            } else {
+                System.err.println("⚠ Fichier avatar introuvable: " + imagePath);
             }
         } catch (Exception e) {
-            // Garder l'icône par défaut
+            System.err.println("✗ Erreur chargement avatar: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

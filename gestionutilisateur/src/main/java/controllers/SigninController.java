@@ -336,5 +336,108 @@ public class SigninController {
         ParallelTransition parallel = new ParallelTransition(fade, scaleX, scaleY, slide);
         parallel.play();
     }
+    
+    // =====================================================
+    // CONNEXION PAR RECONNAISSANCE FACIALE
+    // =====================================================
+    @FXML
+    public void signinWithFace() {
+        lblMessage.setStyle("-fx-text-fill: #667EEA;");
+        lblMessage.setText("📷 Préparation de la caméra...");
+        
+        // Validation de l'email
+        if (tfEmail.getText().trim().isEmpty()) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Veuillez saisir votre email d'abord !");
+            return;
+        }
+        
+        // Vérifier que l'utilisateur existe
+        Utilisateur user = su.getUserByEmail(tfEmail.getText());
+        if (user == null) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Aucun compte trouvé avec cet email !");
+            return;
+        }
+        
+        // Vérifier que l'utilisateur a une photo de profil
+        if (user.getImage_profil() == null || user.getImage_profil().trim().isEmpty()) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Aucune photo de profil enregistrée !");
+            return;
+        }
+        
+        // Vérifier que le fichier existe (chemin absolu)
+        java.io.File imageFile = new java.io.File(user.getImage_profil());
+        if (!imageFile.exists()) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Photo de profil introuvable : " + user.getImage_profil());
+            System.err.println("✗ Fichier introuvable: " + user.getImage_profil());
+            return;
+        }
+        
+        // Ouvrir la fenêtre de webcam
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/WebcamView.fxml"));
+            Parent root = loader.load();
+            
+            WebcamController webcamController = loader.getController();
+            webcamController.setUserImagePath(user.getImage_profil());
+            webcamController.setCallback(new WebcamController.WebcamCallback() {
+                @Override
+                public void onSuccess(String email) {
+                    lblMessage.setStyle("-fx-text-fill: green;");
+                    lblMessage.setText("✅ Visage reconnu ! Connexion réussie !");
+                    
+                    // LOG DÉTAILLÉ
+                    System.out.println("========================================");
+                    System.out.println("🔐 CONNEXION PAR RECONNAISSANCE FACIALE");
+                    System.out.println("========================================");
+                    System.out.println("ID: " + user.getId_utilisateur());
+                    System.out.println("Nom: " + user.getNom());
+                    System.out.println("Prénom: " + user.getPrenom());
+                    System.out.println("Email: " + user.getEmail());
+                    System.out.println("Role: " + user.getRole());
+                    System.out.println("========================================");
+                    
+                    UserSession.getInstance().setCurrentUser(user);
+                    
+                    // Déterminer le chemin FXML selon le rôle
+                    String fxmlPath;
+                    if ("ADMIN_RH".equals(user.getRole()) || "ADMIN_TECHNIQUE".equals(user.getRole())) {
+                        fxmlPath = "/AdministrationView.fxml";
+                    } else {
+                        fxmlPath = "/OffresView.fxml";
+                    }
+                    
+                    // Lancer l'animation
+                    playLogoAnimation(fxmlPath);
+                }
+                
+                @Override
+                public void onFailure(String message) {
+                    lblMessage.setStyle("-fx-text-fill: red;");
+                    lblMessage.setText("❌ " + message);
+                }
+            });
+            
+            // Créer une nouvelle fenêtre
+            Stage webcamStage = new Stage();
+            webcamStage.setTitle("Reconnaissance Faciale");
+            webcamStage.setScene(new Scene(root));
+            webcamStage.setResizable(false);
+            webcamStage.setOnCloseRequest(e -> webcamController.cleanup());
+            
+            // Démarrer la webcam après affichage
+            webcamStage.setOnShown(e -> webcamController.startWebcam());
+            
+            webcamStage.show();
+            
+        } catch (Exception e) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Erreur: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
 }
