@@ -60,11 +60,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
     @FXML
     private TextField cv;
     @FXML
-    private Label cvFileName;
-    @FXML
     private TextField lettreMotivation;
-    @FXML
-    private Label lettreFileName;
 
     // Message
     @FXML
@@ -136,14 +132,8 @@ public class FormCandidatureUtilisateurController implements Initializable {
             dernierPoste.setValue(candidature.getDernierPoste());
 
             // Documents
-            if (candidature.getCv() != null) {
-                cv.setText(candidature.getCv());
-                cvFileName.setText(extractFileName(candidature.getCv()));
-            }
-            if (candidature.getLettreMotivation() != null) {
-                lettreMotivation.setText(candidature.getLettreMotivation());
-                lettreFileName.setText(extractFileName(candidature.getLettreMotivation()));
-            }
+            cv.setText(candidature.getCv());
+            lettreMotivation.setText(candidature.getLettreMotivation());
 
             messageCandidat.setText(candidature.getMessageCandidat());
         }
@@ -188,26 +178,18 @@ public class FormCandidatureUtilisateurController implements Initializable {
         fermerFenetre();
     }
 
-    @FXML
-    private void parcourirCv(javafx.scene.input.MouseEvent event) {
-        File f = ouvrirSelecteurFichier("Sélectionner votre CV");
-        if (f != null) {
+   @FXML
+    private void parcourirCv(ActionEvent event) {
+        File f = ouvrirSelecteurFichier("Sélectionner le CV");
+        if (f != null)
             cv.setText(f.getAbsolutePath());
-            cvFileName.setText(f.getName());
-            cvFileName.setStyle("-fx-text-fill: #10b981; -fx-font-size: 12px; -fx-font-weight: 600;");
-            setErreurChamp(errCv, null);
-            setBordureErreur(cv, false);
-        }
     }
 
     @FXML
-    private void parcourirLettre(javafx.scene.input.MouseEvent event) {
-        File f = ouvrirSelecteurFichier("Sélectionner votre lettre de motivation");
-        if (f != null) {
+    private void parcourirLettre(ActionEvent event) {
+        File f = ouvrirSelecteurFichier("Sélectionner la lettre de motivation");
+        if (f != null)
             lettreMotivation.setText(f.getAbsolutePath());
-            lettreFileName.setText(f.getName());
-            lettreFileName.setStyle("-fx-text-fill: #10b981; -fx-font-size: 12px; -fx-font-weight: 600;");
-        }
     }
 
     /* ===================== VALIDATION ===================== */
@@ -280,8 +262,8 @@ public class FormCandidatureUtilisateurController implements Initializable {
         c.setAnneesExperience(anneesExperience.getValue() != null ? anneesExperience.getValue() : 0);
         c.setDomaineExperience(domaineExperience.getValue() != null ? domaineExperience.getValue().trim() : "");
         c.setDernierPoste(dernierPoste.getValue() != null ? dernierPoste.getValue().trim() : "");
-        c.setCv(cv.getText() != null ? cv.getText().trim() : "");
-        c.setLettreMotivation(lettreMotivation.getText() != null ? lettreMotivation.getText().trim() : "");
+        c.setCv(cv.getText());
+        c.setLettreMotivation(lettreMotivation.getText());
         c.setMessageCandidat(messageCandidat.getText() != null ? messageCandidat.getText().trim() : "");
 
         return c;
@@ -295,7 +277,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
         fc.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("PDF / Documents", "*.pdf", "*.doc", "*.docx"),
                 new FileChooser.ExtensionFilter("Tous les fichiers", "*.*"));
-        Stage stage = (Stage) btnSoumettre.getScene().getWindow();
+        Stage stage = (Stage) cv.getScene().getWindow();
         return fc.showOpenDialog(stage);
     }
 

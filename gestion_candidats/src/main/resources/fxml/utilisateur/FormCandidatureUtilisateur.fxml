@@ -198,9 +198,7 @@
                                         </FXCollections>
                                     </items>
                                 </ComboBox>
-                                <Label fx:id="errDomaineExp" text=""
-                                    style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 4;"
-                                    visible="false" managed="false" />
+
                             </VBox>
                         </GridPane>
                     </VBox>
@@ -220,35 +218,30 @@
                             </columnConstraints>
 
                             <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label text="CV *"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
-                                <VBox spacing="8"
-                                    style="-fx-background-color: #fafafa; -fx-background-radius: 10; -fx-border-color: dashed #c7d2fe; -fx-border-width: 2; -fx-border-radius: 10; -fx-padding: 14 16; -fx-cursor: hand;"
-                                    onMouseClicked="#parcourirCv">
-                                    <Label text="📄 Glisser votre CV ici ou cliquer"
-                                        style="-fx-text-fill: #6366f1; -fx-font-size: 13px; -fx-font-weight: 600;" />
-                                    <Label fx:id="cvFileName" text="Aucun fichier sélectionné"
-                                        style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
-                                    <TextField fx:id="cv" visible="false" managed="false" />
-                                </VBox>
+                                <Label text="CV (chemin / URL)"
+                                       style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;"/>
+                                <HBox spacing="8">
+                                    <TextField fx:id="cv" promptText="Chemin vers le CV..."
+                                               style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-background-color: white; -fx-pref-height: 40; -fx-padding: 0 12;"
+                                               HBox.hgrow="ALWAYS"/>
+                                    <Button text="📎" onAction="#parcourirCv"
+                                            style="-fx-background-color: #eef2ff; -fx-text-fill: #2563eb; -fx-background-radius: 8; -fx-pref-height: 40; -fx-pref-width: 40; -fx-cursor: hand; -fx-font-size: 16px;"/>
+                                </HBox>
                                 <Label fx:id="errCv" text=""
                                     style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 4;"
                                     visible="false" managed="false" />
                             </VBox>
 
                             <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label text="Lettre de motivation"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
-                                <VBox spacing="8"
-                                    style="-fx-background-color: #fafafa; -fx-background-radius: 10; -fx-border-color: dashed #c7d2fe; -fx-border-width: 2; -fx-border-radius: 10; -fx-padding: 14 16; -fx-cursor: hand;"
-                                    onMouseClicked="#parcourirLettre">
-                                    <Label text="📝 Glisser votre lettre ici ou cliquer"
-                                        style="-fx-text-fill: #6366f1; -fx-font-size: 13px; -fx-font-weight: 600;" />
-                                    <Label fx:id="lettreFileName" text="Aucun fichier sélectionné"
-                                        style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
-                                    <TextField fx:id="lettreMotivation" visible="false"
-                                        managed="false" />
-                                </VBox>
+                                <Label text="Lettre de motivation (chemin / URL)"
+                                       style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;"/>
+                                <HBox spacing="8">
+                                    <TextField fx:id="lettreMotivation" promptText="Chemin vers la lettre..."
+                                               style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-background-color: white; -fx-pref-height: 40; -fx-padding: 0 12;"
+                                               HBox.hgrow="ALWAYS"/>
+                                    <Button text="📎" onAction="#parcourirLettre"
+                                            style="-fx-background-color: #eef2ff; -fx-text-fill: #2563eb; -fx-background-radius: 8; -fx-pref-height: 40; -fx-pref-width: 40; -fx-cursor: hand; -fx-font-size: 16px;"/>
+                                </HBox>
                             </VBox>
                         </GridPane>
                     </VBox>
