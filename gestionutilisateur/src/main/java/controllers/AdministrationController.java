@@ -313,17 +313,28 @@ public class AdministrationController {
                     imageView.setStyle("-fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 5, 0, 0, 1);");
                     
                     try {
-                        File imgFile = new File("images/" + user.getImage_profil());
-                        if (imgFile.exists()) {
-                            Image img = new Image(new FileInputStream(imgFile));
-                            imageView.setImage(img);
+                        String imagePath = user.getImage_profil();
+                        if (imagePath != null && !imagePath.isEmpty()) {
+                            File imgFile = new File(imagePath);
+                            if (imgFile.exists()) {
+                                Image img = new Image(new FileInputStream(imgFile));
+                                imageView.setImage(img);
+                            } else {
+                                System.out.println("⚠ Image non trouvée pour " + user.getNom() + ": " + imagePath);
+                                // Image par défaut (emoji)
+                                Label defaultIcon = new Label("👤");
+                                defaultIcon.setStyle("-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
+                                hbox.getChildren().add(defaultIcon);
+                            }
                         } else {
+                            System.out.println("⚠ Pas d'image pour " + user.getNom());
                             // Image par défaut (emoji)
                             Label defaultIcon = new Label("👤");
                             defaultIcon.setStyle("-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
                             hbox.getChildren().add(defaultIcon);
                         }
                     } catch (Exception e) {
+                        System.out.println("❌ Erreur chargement image pour " + user.getNom() + ": " + e.getMessage());
                         // Image par défaut en cas d'erreur
                         Label defaultIcon = new Label("👤");
                         defaultIcon.setStyle("-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
@@ -724,15 +735,23 @@ public class AdministrationController {
         transition.play();
     }
     
-    private void loadProfileImage(String imageName) {
+    private void loadProfileImage(String imagePath) {
         try {
-            System.out.println("DEBUG: Loading image: " + imageName);
-            if (imageName == null || imageName.isEmpty() || imageName.equals("default.png")) {
+            System.out.println("DEBUG: Loading image: " + imagePath);
+            if (imagePath == null || imagePath.isEmpty() || imagePath.equals("default.png")) {
                 resetProfileImage();
                 return;
             }
             
-            File imgFile = new File("images/" + imageName);
+            // Gérer à la fois les chemins absolus et les noms de fichiers (rétro-compatibilité)
+            File imgFile;
+            if (imagePath.contains("/") || imagePath.contains("\\")) {
+                // C'est un chemin absolu
+                imgFile = new File(imagePath);
+            } else {
+                // C'est juste un nom de fichier (anciens utilisateurs)
+                imgFile = new File("images/" + imagePath);
+            }
             System.out.println("DEBUG: Image path: " + imgFile.getAbsolutePath());
             System.out.println("DEBUG: Image exists: " + imgFile.exists());
             
@@ -916,7 +935,9 @@ public class AdministrationController {
                 Path dest = Path.of("images", uniqueName);
                 Files.copy(file.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
 
-                currentImageName = uniqueName;
+                // Stocker le chemin ABSOLU au lieu du nom de fichier seul
+                currentImageName = dest.toAbsolutePath().toString().replace("\\", "/");
+                System.out.println("✓ Image uploadée: " + currentImageName);
                 loadProfileImage(currentImageName);
                 
                 // Animation de confirmation

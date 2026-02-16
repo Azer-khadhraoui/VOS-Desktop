@@ -243,7 +243,7 @@ public class WebcamController {
 
             System.out.println("ℹ Similarité: " + String.format("%.2f%%", similarity));
 
-            return similarity >= 50.0; // Seuil réduit à 50%
+            return similarity >= 64.0; // Seuil augmenté à 70% pour plus de précision
 
         } catch (Exception e) {
             System.err.println("✗ Erreur comparaison: " + e.getMessage());
