@@ -17,7 +17,7 @@
    ai.provider=gemini
    gemini.api.key=YOUR_KEY_HERE
    ```
-3. Replace `AIzaSyDPPMBJS_GlZVEOXK69JHkUOCfBuYd9eHU` with the key you copied
+3. Replace `` with the key you copied
 4. Save the file
 
 ### Step 3: Restart the Application
