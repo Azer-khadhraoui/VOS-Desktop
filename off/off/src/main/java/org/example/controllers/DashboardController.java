@@ -16,12 +16,16 @@ import javafx.scene.layout.GridPane;
 import org.example.entities.CritereOffre;
 import org.example.services.CritereOffreService;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.util.Duration;
+import org.example.services.AIEnhancementService;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 
 
 
@@ -33,6 +37,7 @@ public class DashboardController {
     
     // Sidebar elements
     @FXML private VBox sidebar;
+    @FXML private Label sidebarSubtitle;
     @FXML private HBox navStatistiques;
     @FXML private HBox navOpportunites;
     @FXML private HBox navApropos;
@@ -45,6 +50,7 @@ public class DashboardController {
     @FXML private Label labelAdministration;
     @FXML private Label labelParametres;
     @FXML private Label labelDeconnexion;
+    @FXML private VBox supportSection;
 
     // Table
     @FXML private TableView<OffreEmploi> offreTable;
@@ -77,6 +83,7 @@ public class DashboardController {
     private final OffreEmploiService service = new OffreEmploiService();
     private final ObservableList<OffreEmploi> data = FXCollections.observableArrayList();
     private CritereOffreService critereService = new CritereOffreService();
+    private AIEnhancementService aiService = new AIEnhancementService();
     private Integer currentOffreId = null;
 
     /**
@@ -253,7 +260,7 @@ public class DashboardController {
     
     private void setupSidebarHoverEffect() {
         // Set initial state
-        sidebar.setPrefWidth(60.0);
+        sidebar.setPrefWidth(90.0);
         
         // Variable to track if mouse is inside sidebar
         final boolean[] isMouseInside = {false};
@@ -302,7 +309,9 @@ public class DashboardController {
     private void expandSidebar() {
         Timeline expandTimeline = new Timeline(
             new KeyFrame(Duration.millis(250),
-                new KeyValue(sidebar.prefWidthProperty(), 200),
+                new KeyValue(sidebar.prefWidthProperty(), 240),
+                new KeyValue(sidebarSubtitle.opacityProperty(), 1),
+                new KeyValue(sidebarSubtitle.maxWidthProperty(), 200),
                 new KeyValue(labelStatistiques.opacityProperty(), 1),
                 new KeyValue(labelStatistiques.maxWidthProperty(), 150),
                 new KeyValue(labelOpportunites.opacityProperty(), 1),
@@ -314,7 +323,9 @@ public class DashboardController {
                 new KeyValue(labelParametres.opacityProperty(), 1),
                 new KeyValue(labelParametres.maxWidthProperty(), 150),
                 new KeyValue(labelDeconnexion.opacityProperty(), 1),
-                new KeyValue(labelDeconnexion.maxWidthProperty(), 150)
+                new KeyValue(labelDeconnexion.maxWidthProperty(), 150),
+                new KeyValue(supportSection.opacityProperty(), 1),
+                new KeyValue(supportSection.maxHeightProperty(), 200)
             )
         );
         expandTimeline.play();
@@ -323,7 +334,9 @@ public class DashboardController {
     private void collapseSidebar() {
         Timeline collapseTimeline = new Timeline(
             new KeyFrame(Duration.millis(250),
-                new KeyValue(sidebar.prefWidthProperty(), 60),
+                new KeyValue(sidebar.prefWidthProperty(), 90),
+                new KeyValue(sidebarSubtitle.opacityProperty(), 0),
+                new KeyValue(sidebarSubtitle.maxWidthProperty(), 0),
                 new KeyValue(labelStatistiques.opacityProperty(), 0),
                 new KeyValue(labelStatistiques.maxWidthProperty(), 0),
                 new KeyValue(labelOpportunites.opacityProperty(), 0),
@@ -335,7 +348,9 @@ public class DashboardController {
                 new KeyValue(labelParametres.opacityProperty(), 0),
                 new KeyValue(labelParametres.maxWidthProperty(), 0),
                 new KeyValue(labelDeconnexion.opacityProperty(), 0),
-                new KeyValue(labelDeconnexion.maxWidthProperty(), 0)
+                new KeyValue(labelDeconnexion.maxWidthProperty(), 0),
+                new KeyValue(supportSection.opacityProperty(), 0),
+                new KeyValue(supportSection.maxHeightProperty(), 0)
             )
         );
         collapseTimeline.play();
@@ -343,11 +358,11 @@ public class DashboardController {
     
     private void addNavItemHoverEffect(HBox navItem) {
         navItem.setOnMouseEntered(e -> {
-            navItem.setStyle(navItem.getStyle() + "-fx-background-color: rgba(59, 130, 246, 0.3);");
+            navItem.setStyle(navItem.getStyle() + "-fx-background-color: #f3f4f6;");
         });
         
         navItem.setOnMouseExited(e -> {
-            navItem.setStyle(navItem.getStyle().replace("-fx-background-color: rgba(59, 130, 246, 0.3);", "-fx-background-color: transparent;"));
+            navItem.setStyle(navItem.getStyle().replace("-fx-background-color: #f3f4f6;", "-fx-background-color: transparent;"));
         });
     }
     private void supprimerCritere(CritereOffre critere) {
@@ -563,6 +578,160 @@ public class DashboardController {
         descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                 "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+        
+        // Small AI Enhancement Button (inside TextArea)
+        Button enhanceBtn = new Button("✨");
+        enhanceBtn.setStyle(
+            "-fx-background-color: linear-gradient(to right, #8b5cf6, #ec4899); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 6 10; " +
+            "-fx-background-radius: 6; " +
+            "-fx-cursor: hand; " +
+            "-fx-opacity: 0.9; " +
+            "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 6, 0, 0, 2);"
+        );
+        enhanceBtn.setTooltip(new javafx.scene.control.Tooltip("Améliorer avec l'IA"));
+        
+        // Stack the button on top of TextArea
+        StackPane descriptionStack = new StackPane();
+        descriptionStack.getChildren().addAll(descriptionArea, enhanceBtn);
+        StackPane.setAlignment(enhanceBtn, javafx.geometry.Pos.TOP_RIGHT);
+        StackPane.setMargin(enhanceBtn, new javafx.geometry.Insets(8, 8, 0, 0));
+        
+        // Status indicators below the text area
+        HBox enhanceBox = new HBox(10);
+        enhanceBox.setStyle("-fx-alignment: center-left; -fx-padding: 5 0 0 0;");
+        
+        ProgressIndicator enhanceProgress = new ProgressIndicator();
+        enhanceProgress.setPrefSize(20, 20);
+        enhanceProgress.setVisible(false);
+        
+        Label enhanceStatus = new Label("");
+        enhanceStatus.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px;");
+        enhanceStatus.setVisible(false);
+        
+        enhanceBox.getChildren().addAll(enhanceProgress, enhanceStatus);
+        
+        // Hover effect for small enhance button
+        enhanceBtn.setOnMouseEntered(e -> enhanceBtn.setStyle(
+            "-fx-background-color: linear-gradient(to right, #7c3aed, #db2777); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 6 10; " +
+            "-fx-background-radius: 6; " +
+            "-fx-cursor: hand; " +
+            "-fx-opacity: 1.0; " +
+            "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 8, 0, 0, 3);"
+        ));
+        
+        enhanceBtn.setOnMouseExited(e -> enhanceBtn.setStyle(
+            "-fx-background-color: linear-gradient(to right, #8b5cf6, #ec4899); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 6 10; " +
+            "-fx-background-radius: 6; " +
+            "-fx-cursor: hand; " +
+            "-fx-opacity: 0.9; " +
+            "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 6, 0, 0, 2);"
+        ));
+        
+        // AI Enhancement Handler
+        enhanceBtn.setOnAction(evt -> {
+            String currentText = descriptionArea.getText();
+            
+            if (currentText == null || currentText.trim().isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Description vide");
+                alert.setHeaderText(null);
+                alert.setContentText("Veuillez entrer une description avant de l'améliorer.");
+                alert.showAndWait();
+                return;
+            }
+            
+            if (!aiService.isConfigured()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Configuration manquante");
+                alert.setHeaderText(null);
+                alert.setContentText("L'API AI n'est pas configurée.\n\n" +
+                    "OPTION GRATUITE (Recommandée):\n" +
+                    "1. Ouvrez: src/main/resources/config.properties\n" +
+                    "2. Définissez: ai.provider=gemini\n" +
+                    "3. Obtenez une clé GRATUITE sur:\n" +
+                    "   https://aistudio.google.com/app/apikey\n" +
+                    "4. Définissez: gemini.api.key=votre-clé\n\n" +
+                    "Redémarrez l'application après configuration.");
+                alert.showAndWait();
+                return;
+            }
+            
+            // Disable UI during processing
+            enhanceBtn.setDisable(true);
+            descriptionArea.setDisable(true);
+            enhanceProgress.setVisible(true);
+            enhanceStatus.setVisible(true);
+            enhanceStatus.setText("Amélioration en cours...");
+            enhanceStatus.setStyle("-fx-text-fill: #60a5fa; -fx-font-size: 11px;");
+            
+            // Create background task
+            Task<String> enhanceTask = new Task<String>() {
+                @Override
+                protected String call() throws Exception {
+                    return aiService.enhanceDescription(currentText);
+                }
+                
+                @Override
+                protected void succeeded() {
+                    Platform.runLater(() -> {
+                        String enhanced = getValue();
+                        descriptionArea.setText(enhanced);
+                        enhanceStatus.setText("✅ Description améliorée!");
+                        enhanceStatus.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px;");
+                        
+                        // Hide status after 3 seconds
+                        Timeline timeline = new Timeline(new KeyFrame(
+                            Duration.seconds(3),
+                            e -> {
+                                enhanceStatus.setVisible(false);
+                                enhanceProgress.setVisible(false);
+                            }
+                        ));
+                        timeline.play();
+                        
+                        enhanceBtn.setDisable(false);
+                        descriptionArea.setDisable(false);
+                    });
+                }
+                
+                @Override
+                protected void failed() {
+                    Platform.runLater(() -> {
+                        Throwable ex = getException();
+                        enhanceStatus.setText("❌ Échec: " + ex.getMessage());
+                        enhanceStatus.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px;");
+                        
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Erreur d'amélioration");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Impossible d'améliorer la description:\n\n" + ex.getMessage());
+                        alert.showAndWait();
+                        
+                        enhanceProgress.setVisible(false);
+                        enhanceBtn.setDisable(false);
+                        descriptionArea.setDisable(false);
+                    });
+                }
+            };
+            
+            // Run task in background
+            Thread thread = new Thread(enhanceTask);
+            thread.setDaemon(true);
+            thread.start();
+        });
+        
         // Error label for description
         Label descError = new Label(" ");
         descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
@@ -740,7 +909,7 @@ public class DashboardController {
         container.getChildren().addAll(
             titleLabel,
             titreLbl, titreField, titreError,
-            descLbl, descriptionArea, descError,
+            descLbl, descriptionStack, enhanceBox, descError,
             typeLbl, typeCombo,
             statutLbl, statutCombo,
             userLbl, userIdCombo, userError
