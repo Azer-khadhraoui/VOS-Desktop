@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import utilis.UserSession;
+import services.AITextGeneratorService;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
@@ -48,7 +49,7 @@ public class DemissionController {
     @FXML private TextArea taComments;
     @FXML private CheckBox cbConfirm;
     @FXML private Label lblMessage, lblWarning;
-    @FXML private Button btnGeneratePDF, btnCancel;
+    @FXML private Button btnGeneratePDF, btnCancel, btnGenerateAI;
 
     private Utilisateur currentUser;
 
@@ -144,11 +145,57 @@ public class DemissionController {
     private void setupButtons() {
         btnGeneratePDF.setOnAction(event -> generateAndDownloadPDF());
         btnCancel.setOnAction(event -> goBack());
+        btnGenerateAI.setOnAction(event -> generateAIText());
     }
 
     private void setupDefaults() {
         cbConfirm.setSelected(false);
         lblMessage.setText("");
+    }
+
+    @FXML
+    private void generateAIText() {
+        // Validation des champs requis
+        if (cbRaison.getValue() == null || cbRaison.getValue().isEmpty()) {
+            showError("Veuillez d'abord sélectionner une raison de démission");
+            return;
+        }
+        
+        Integer preavis = spPreavis.getValue();
+        if (preavis == null || preavis < 0) {
+            showError("Veuillez spécifier un préavis valide");
+            return;
+        }
+
+        // Affichage d'un message de chargement
+        taComments.setText("🤖 Génération en cours...");
+        taComments.setDisable(true);
+        btnGenerateAI.setDisable(true);
+
+        // Appel de l'IA dans un thread séparé pour ne pas bloquer l'interface
+        new Thread(() -> {
+            try {
+                String generatedText = AITextGeneratorService.generateDemissionText(
+                    cbRaison.getValue(),
+                    preavis
+                );
+                
+                // Mise à jour de l'interface sur le thread JavaFX
+                javafx.application.Platform.runLater(() -> {
+                    taComments.setText(generatedText);
+                    taComments.setDisable(false);
+                    btnGenerateAI.setDisable(false);
+                    showSuccess("✨ Texte généré par IA avec succès !");
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    taComments.setText("");
+                    taComments.setDisable(false);
+                    btnGenerateAI.setDisable(false);
+                    showError("Erreur lors de la génération IA: " + e.getMessage());
+                });
+            }
+        }).start();
     }
 
     @FXML

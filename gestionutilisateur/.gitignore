@@ -40,3 +40,4 @@ build/
 # Ne jamais commiter les mots de passe et credentials !
 src/main/resources/config.properties
 src/main/java/services/EmailService.java
+src/main/java/services/AITextGeneratorService.java

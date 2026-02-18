@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import javafx.stage.Stage;
 import utilis.UserSession;
+import services.AITextGeneratorService;
 
 public class DemandeCongeController {
 
@@ -47,7 +48,7 @@ public class DemandeCongeController {
     @FXML private TextArea taComments;
     @FXML private CheckBox cbConfirm;
     @FXML private Label lblMessage, lblWarning;
-    @FXML private Button btnDownloadPDF, btnCancel;
+    @FXML private Button btnDownloadPDF, btnCancel, btnGenerateAI;
 
     private Utilisateur currentUser;
 
@@ -112,6 +113,7 @@ public class DemandeCongeController {
     private void setupButtons() {
         btnDownloadPDF.setOnAction(event -> generateAndDownloadPDF());
         btnCancel.setOnAction(event -> goBack());
+        btnGenerateAI.setOnAction(event -> generateAIText());
     }
 
     private void setupDefaults() {
@@ -150,6 +152,58 @@ public class DemandeCongeController {
                 spNombreJours.getValueFactory().setValue((int) jours);
             }
         }
+    }
+
+    @FXML
+    private void generateAIText() {
+        // Validation des champs requis
+        if (cbTypeCongé.getValue() == null || cbTypeCongé.getValue().isEmpty()) {
+            showError("Veuillez d'abord sélectionner un type de congé");
+            return;
+        }
+        
+        if (dpDateDebut.getValue() == null || dpDateFin.getValue() == null) {
+            showError("Veuillez d'abord sélectionner les dates");
+            return;
+        }
+        
+        Integer nombreJours = spNombreJours.getValue();
+        if (nombreJours == null || nombreJours <= 0) {
+            showError("Veuillez spécifier un nombre de jours valide");
+            return;
+        }
+
+        // Affichage d'un message de chargement
+        taComments.setText("🤖 Génération en cours...");
+        taComments.setDisable(true);
+        btnGenerateAI.setDisable(true);
+
+        // Appel de l'IA dans un thread séparé pour ne pas bloquer l'interface
+        new Thread(() -> {
+            try {
+                String generatedText = AITextGeneratorService.generateCongeText(
+                    cbTypeCongé.getValue(),
+                    dpDateDebut.getValue(),
+                    dpDateFin.getValue(),
+                    nombreJours
+                );
+                
+                // Mise à jour de l'interface sur le thread JavaFX
+                javafx.application.Platform.runLater(() -> {
+                    taComments.setText(generatedText);
+                    taComments.setDisable(false);
+                    btnGenerateAI.setDisable(false);
+                    showSuccess("✨ Texte généré par IA avec succès !");
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    taComments.setText("");
+                    taComments.setDisable(false);
+                    btnGenerateAI.setDisable(false);
+                    showError("Erreur lors de la génération IA: " + e.getMessage());
+                });
+            }
+        }).start();
     }
 
     @FXML
