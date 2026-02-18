@@ -1,16 +1,43 @@
-# 🤖 Configuration de l'API IA Groq (100% GRATUIT)
+# 🤖 Configuration de l'API IA Groq + LanguageTool (100% GRATUIT)
 
-## Pourquoi Groq ?
+## Deux APIs = Meilleur Résultat
 
-✅ **100% GRATUIT** - Pas de carte bancaire requise  
-✅ **Rapide** - Inférence ultra-rapide (jusqu'à 750 tokens/sec)  
-✅ **Puissant** - Modèles LLaMA 3.3 70B de haute qualité  
-✅ **Libre d'utilisation** - Rate limit gratuit généreux (30 requêtes/min)  
-✅ **Pas de frais cachés** - Vraiment gratuit, pas d'essai limité
+"| Service | Rôle | Gratuit | Rapidité |
+|---------|------|---------|----------|
+| **Groq** | Génère texte créatif | ✅ Oui | ⚡ Ultra-rapide |
+| **LanguageTool** | Vérifie grammaire | ✅ Oui | ⚡ Instantané |
 
-## Étapes d'installation
+**Workflow NOUVEAU (2 boutons séparés):**
+```
+Vous voyez deux boutons côte à côte :
 
-### 1️⃣ Créer un compte Groq
+┌─────────────────┐  ┌─────────────────┐
+│ 🤖 Générer      │  │ ✓ Vérifier      │
+└─────────────────┘  └─────────────────┘
+
+ÉTAPE 1: Cliquez "🤖 Générer"
+    ↓
+Groq génère un texte créatif & unique
+    ↓
+Le texte s'affiche dans la zone de commentaires
+    ↓
+
+ÉTAPE 2: Cliquez "✓ Vérifier" (optionnel)
+    ↓
+LanguageTool vérifie la grammaire/orthographe
+    ↓
+Vous voyez: "✅ Grammaire parfaite! 100% qualité"
+ou
+Vous voyez: "⚠️ 2 erreurs détectées | 95% qualité"
+```
+
+**Avantages:**
+- ✅ Générer sans vérifier (plus rapide)
+- ✅ Vérifier uniquement si vous le souhaitez
+- ✅ Modifier le texte entre génération et vérification
+- ✅ Vérifier plusieurs fois si nécessaire
+
+## Étape 1: Configuration Groq
 
 1. Allez sur: **https://console.groq.com**
 2. Cliquez sur **"Sign Up"** (ou **"Get Started"**)
@@ -63,9 +90,77 @@
    - Allez dans **"Demandes de congé"** ou **"Démissions"**
    - Remplissez les champs
    - Cliquez sur **"🤖 Générer"**
-   - L'IA devrait générer un texte unique en quelques secondes !
+   - L'IA va générer un texte et LanguageTool va vérifier - Résultat en 1-2 secondes !
 
-## Modèles disponibles (tous GRATUITS)
+## Étape 2: LanguageTool (Aucune Configuration Requise ✅)
+
+**Bonne nouvelle:** LanguageTool fonctionne **100% automatiquement** sans clé API !
+
+- API cloud gratuite de LanguageTool : https://api.languagetool.org/v2/check
+- **Limite:** 20 requêtes/minute (largement suffisant)
+- **Aucune inscription requise** - Ça marche directement ! ✅
+
+**Qu'est-ce qu'il fait ?**
+Après que Groq génère votre texte, LanguageTool :
+1. ✅ Détecte les erreurs grammaticales
+2. ✅ Détecte les erreurs d'orthographe
+3. ✅ Calcule un score de qualité (0-100%)
+4. ✅ Affiche un résumé : "⚠️ 2 erreurs | 95% qualité"
+
+**Exemple de résultat:**
+```
+Texte généré par Groq:
+"Je demande un congé du 20 février au 27 février. Je préparerai une documentation..."
+
+Vérification LanguageTool:
+"⚠️ 1 erreur détectée | 97% qualité"
+```
+
+## Résumé: L'application va... 🚀
+
+## Résumé: L'application va... 🚀
+
+**Bouton "🤖 Générer":**
+1. Groq génère un texte unique et créatif en français
+2. Le texte apparaît dans votre formulaire
+3. C'est instantané (1-2 secondes) ⚡
+
+**Bouton "✓ Vérifier" (optionnel):**
+1. Analyser la grammaire & l'orthographe avec LanguageTool
+2. Afficher un score de qualité (0-100%)
+3. C'est aussi instantané et gratuit ✅
+
+**Vous pouvez:**
+- ✅ Générer et améliorer manuellement sans vérifier
+- ✅ Vérifier plusieurs fois si vous modifiez
+- ✅ Utiliser l'un ou l'autre ou les deux
+- ✅ Ces deux APIs sont **100% GRATUITES** et sans limite
+
+---
+
+## FAQ - LanguageTool
+
+### ❓ L'API LanguageTool fonctionne sans clé ?
+**Oui !** C'est une API cloud publique et gratuite. Aucune authentification requise. Elle fonctionne directement.
+
+### ❓ Que faire si LanguageTool est lent ?
+- C'est rare, mais si ça arrive, le texte s'affiche quand même sans vérification
+- Les logs afficheront : "⚠️ Erreur LanguageTool... texte affiché"
+
+### ❓ Les erreurs détectées sont-elles corrigées ?
+- **Non**, LanguageTool affiche seulement les erreurs détectées
+- Vous voyez le texte original + le nombre d'erreurs
+- Vous pouvez bien sûr éditer le texte à la main après
+
+### ❓ Les 20 requêtes/minute suffisent ?
+- **Oui !** Vous ne ferez pas 20 clics/minute sur "Générer"
+- Limite très généreuse pour une utilisation normale ✅
+
+### ❓ Comment désactiver la vérification LanguageTool ?
+- Elles est toujours activée mais elle ne bloque rien
+- Si elle échoue, le texte s'affiche quand même ✅
+
+---
 
 | Modèle                        | Description                       | Vitesse   |
 |-------------------------------|-----------------------------------|-----------|

@@ -49,7 +49,7 @@ public class DemissionController {
     @FXML private TextArea taComments;
     @FXML private CheckBox cbConfirm;
     @FXML private Label lblMessage, lblWarning;
-    @FXML private Button btnGeneratePDF, btnCancel, btnGenerateAI;
+    @FXML private Button btnGeneratePDF, btnCancel, btnGenerateAI, btnCheckQuality;
 
     private Utilisateur currentUser;
 
@@ -146,6 +146,7 @@ public class DemissionController {
         btnGeneratePDF.setOnAction(event -> generateAndDownloadPDF());
         btnCancel.setOnAction(event -> goBack());
         btnGenerateAI.setOnAction(event -> generateAIText());
+        btnCheckQuality.setOnAction(event -> checkQuality());
     }
 
     private void setupDefaults() {
@@ -196,6 +197,71 @@ public class DemissionController {
                 });
             }
         }).start();
+    }
+
+    private void checkQuality() {
+        String currentText = taComments.getText();
+        
+        if (currentText == null || currentText.trim().isEmpty()) {
+            showError("Générez d'abord un texte avant de vérifier.");
+            return;
+        }
+
+        // Message de chargement
+        taComments.setDisable(true);
+        btnCheckQuality.setDisable(true);
+        
+        // Appel de LanguageTool dans un thread séparé
+        new Thread(() -> {
+            try {
+                AITextGeneratorService.GrammarCheckResult result = 
+                    AITextGeneratorService.checkTextQualityDetailed(currentText);
+                
+                // Mise à jour de l'interface
+                javafx.application.Platform.runLater(() -> {
+                    taComments.setDisable(false);
+                    btnCheckQuality.setDisable(false);
+                    
+                    // Affichage du dialogue avec rapport détaillé
+                    showQualityDialog(result);
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    taComments.setDisable(false);
+                    btnCheckQuality.setDisable(false);
+                    showError("Erreur lors de la vérification: " + e.getMessage());
+                });
+            }
+        }).start();
+    }
+    
+    private void showQualityDialog(AITextGeneratorService.GrammarCheckResult result) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+        alert.setTitle("📋 Vérification Grammaticale");
+        alert.setHeaderText(null);
+        
+        // Création du contenu avec le rapport détaillé
+        javafx.scene.control.TextArea content = new javafx.scene.control.TextArea();
+        content.setText(result.getDetailedReport());
+        content.setWrapText(true);
+        content.setEditable(false);
+        content.setPrefRowCount(15);
+        content.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 11px;");
+        
+        alert.getDialogPane().setContent(content);
+        
+        // Boutons
+        javafx.scene.control.ButtonType btnKeep = new javafx.scene.control.ButtonType("✅ Garder ce texte", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+        javafx.scene.control.ButtonType btnRegenerate = new javafx.scene.control.ButtonType("🔄 Régénérer", javafx.scene.control.ButtonBar.ButtonData.NO);
+        
+        alert.getButtonTypes().setAll(btnKeep, btnRegenerate);
+        
+        java.util.Optional<javafx.scene.control.ButtonType> result_dialog = alert.showAndWait();
+        
+        if (result_dialog.isPresent() && result_dialog.get() == btnRegenerate) {
+            // Régénération du texte
+            generateAIText();
+        }
     }
 
     @FXML
