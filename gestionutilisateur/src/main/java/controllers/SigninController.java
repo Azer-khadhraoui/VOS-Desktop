@@ -439,5 +439,25 @@ public class SigninController {
             e.printStackTrace();
         }
     }
+    
+    // =====================================================
+    // MOT DE PASSE OUBLIÉ
+    // =====================================================
+    @FXML
+    public void goToForgotPassword() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ForgotPasswordView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) tfEmail.getScene().getWindow();
+            Scene scene = new Scene(root, 1440, 1024);
+            stage.setScene(scene);
+            stage.show();
+            
+        } catch (Exception e) {
+            System.err.println("❌ Erreur navigation vers ForgotPasswordView: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
 }

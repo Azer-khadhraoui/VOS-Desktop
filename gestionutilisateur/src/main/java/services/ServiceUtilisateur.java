@@ -225,5 +225,35 @@ public class ServiceUtilisateur {
         }
         return null;
     }
+    
+    // ============================
+    // ✅ METTRE À JOUR LE MOT DE PASSE
+    // ============================
+    public boolean updatePassword(String email, String newPassword) {
+        System.out.println("=== MISE À JOUR MOT DE PASSE ===");
+        System.out.println("Email: " + email);
+        
+        try {
+            String req = "UPDATE utilisateur SET mot_de_passe = ? WHERE email = ?";
+            PreparedStatement pst = cnx.prepareStatement(req);
+            pst.setString(1, newPassword);
+            pst.setString(2, email);
+            
+            int rowsAffected = pst.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                System.out.println("✅ Mot de passe mis à jour ! (" + rowsAffected + " ligne(s) affectée(s))");
+                return true;
+            } else {
+                System.out.println("❌ Aucun utilisateur trouvé avec cet email");
+                return false;
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur mise à jour mot de passe !");
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

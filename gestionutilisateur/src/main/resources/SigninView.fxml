@@ -45,6 +45,14 @@
                            styleClass="inputField"/>
         </HBox>
 
+        <!-- LIEN MOT DE PASSE OUBLIÉ -->
+        <HBox alignment="CENTER_RIGHT" style="-fx-padding: 4 0 0 0;">
+            <Hyperlink text="Mot de passe oublié ?" 
+                       onAction="#goToForgotPassword"
+                       styleClass="link"
+                       style="-fx-font-size: 12px;"/>
+        </HBox>
+
         <!-- BOUTON CENTRÉ -->
         <HBox alignment="CENTER" style="-fx-padding: 6 0 0 0;">
             <Button text="🔐 Se connecter"
