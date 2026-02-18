@@ -166,6 +166,11 @@ public class DemandeCongeController {
                 return;
             }
             
+            if (dpDateDebut.getValue().isBefore(LocalDate.now())) {
+                showError("La date de début ne peut pas être dans le passé");
+                return;
+            }
+            
             if (dpDateFin.getValue().isBefore(dpDateDebut.getValue())) {
                 showError("La date de fin doit être après la date de début");
                 return;

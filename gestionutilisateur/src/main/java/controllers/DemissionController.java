@@ -163,8 +163,11 @@ public class DemissionController {
             if (dpDemissionDate.getValue() == null) {
                 showError("Veuillez sélectionner une date de démission");
                 return;
-            }
-            
+            }            
+            if (dpDemissionDate.getValue().isBefore(LocalDate.now())) {
+                showError("La date de démission ne peut pas être dans le passé");
+                return;
+            }            
             if (cbRaison.getValue() == null || cbRaison.getValue().isEmpty()) {
                 showError("Veuillez sélectionner une raison");
                 return;
