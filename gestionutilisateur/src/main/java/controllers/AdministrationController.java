@@ -37,6 +37,7 @@ public class AdministrationController {
     @FXML private javafx.scene.layout.HBox logoutBtn;
     @FXML private javafx.scene.layout.HBox btnStatistiques;
     @FXML private javafx.scene.layout.HBox btnOffres;
+    @FXML private javafx.scene.layout.HBox btnServices;
     
     @FXML private ComboBox<String> filterRole;
     @FXML private Label lblTotalCount;
@@ -97,6 +98,7 @@ public class AdministrationController {
         // Add navigation handlers
         logoutBtn.setOnMouseClicked(event -> logout());
         btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
+        btnServices.setOnMouseClicked(event -> goToServices());
     }
 
     private void loadCurrentUser() {
@@ -1125,6 +1127,23 @@ public class AdministrationController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Erreur");
             alert.setContentText("Impossible d'ouvrir les statistiques: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    public void goToServices() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ServicesView.fxml"));
+            Parent root = loader.load();
+            Scene scene = tableUsers.getScene();
+            scene.setRoot(root);
+            System.out.println("✓ Navigation vers Services");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setContentText("Impossible d'ouvrir les services: " + e.getMessage());
             alert.showAndWait();
         }
     }

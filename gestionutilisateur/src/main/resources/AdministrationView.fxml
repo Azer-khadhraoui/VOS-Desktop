@@ -39,6 +39,10 @@
                     <Label text="💼" styleClass="sidebar-nav-icon"/>
                     <Label text="Offres" styleClass="sidebar-nav-label"/>
                 </HBox>
+                <HBox fx:id="btnServices" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="🛠️" styleClass="sidebar-nav-icon"/>
+                    <Label text="Services" styleClass="sidebar-nav-label"/>
+                </HBox>
                 <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
                     <Label text="ℹ️" styleClass="sidebar-nav-icon"/>
                     <Label text="Informations" styleClass="sidebar-nav-label"/>
