@@ -12,6 +12,24 @@ public class ServiceUtilisateur {
     Connection cnx;
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    /**
+     * Retourne vrai si la chaîne ressemble à un hash BCrypt ($2a$, $2b$, $2y$...)
+     */
+    private boolean looksLikeBCrypt(String s) {
+        if (s == null) return false;
+        return s.startsWith("$2a$") || s.startsWith("$2b$") || s.startsWith("$2y$") || s.startsWith("$2x$");
+    }
+
+    /**
+     * Si la valeur fournie n'est pas déjà un hash BCrypt, la hache et retourne le hash.
+     * Utile pour accepter les anciens mots de passe en clair et ne pas double-hasher.
+     */
+    private String ensureHashed(String maybeHash) {
+        if (maybeHash == null) return null;
+        if (looksLikeBCrypt(maybeHash)) return maybeHash;
+        return passwordEncoder.encode(maybeHash);
+    }
+
     public ServiceUtilisateur() {
         cnx = MyConnection.getInstance().getCnx();
     }
@@ -35,7 +53,7 @@ public class ServiceUtilisateur {
 
             pst.setString(1, u.getImage_profil());
             pst.setString(2, u.getEmail());
-            pst.setString(3, u.getMot_de_passe());
+            pst.setString(3, ensureHashed(u.getMot_de_passe()));
             pst.setString(4, "CLIENT"); // rôle par défaut
             pst.setString(5, u.getNom());
             pst.setString(6, u.getPrenom());
@@ -137,7 +155,7 @@ public class ServiceUtilisateur {
 
             pst.setString(1, u.getImage_profil());
             pst.setString(2, u.getEmail());
-            pst.setString(3, u.getMot_de_passe());
+            pst.setString(3, ensureHashed(u.getMot_de_passe()));
             pst.setString(4, u.getRole());
             pst.setString(5, u.getNom());
             pst.setString(6, u.getPrenom());
@@ -181,9 +199,20 @@ public class ServiceUtilisateur {
             if (rs.next()) {
                 // Récupérer le mot de passe hashé de la BD
                 String hashedPassword = rs.getString("mot_de_passe");
-                
-                // Vérifier le mot de passe en clair avec le hash
-                return passwordEncoder.matches(password, hashedPassword);
+                // Si le mot de passe en BD ressemble à BCrypt -> vérification normale
+                if (looksLikeBCrypt(hashedPassword)) {
+                    return passwordEncoder.matches(password, hashedPassword);
+                }
+
+                // Ancien mot de passe en clair stocké en DB : comparer directement
+                if (password != null && password.equals(hashedPassword)) {
+                    // Migrer : hacher le mot de passe et mettre à jour la DB
+                    String newHash = passwordEncoder.encode(password);
+                    updatePassword(email, newHash);
+                    return true;
+                }
+
+                return false;
             }
             
             return false;
@@ -247,7 +276,7 @@ public class ServiceUtilisateur {
         try {
             String req = "UPDATE utilisateur SET mot_de_passe = ? WHERE email = ?";
             PreparedStatement pst = cnx.prepareStatement(req);
-            pst.setString(1, newPassword);
+            pst.setString(1, ensureHashed(newPassword));
             pst.setString(2, email);
             
             int rowsAffected = pst.executeUpdate();
