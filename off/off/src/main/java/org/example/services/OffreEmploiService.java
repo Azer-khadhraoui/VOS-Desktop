@@ -13,14 +13,17 @@ import java.sql.ResultSet;
 public class OffreEmploiService {
 
     private Connection connection;
+    private EmailService emailService;
 
     public OffreEmploiService() {
         connection = MyDataBase.getInstance().getConnection();
+        emailService = new EmailService();
     }
 
     /**
      * Inserts a new job offer (OffreEmploi) into the database.
      * This method creates a new record in the offre_emploi table with all offer details.
+     * After insertion, sends a notification email to the user who created the offer.
      * 
      * @param offre The OffreEmploi object containing the job offer details to be inserted
      */
@@ -44,9 +47,77 @@ public class OffreEmploiService {
 
             ps.executeUpdate();
             System.out.println("Offre inserted");
+            
+            // Send email notification after insertion
+            sendOffreCreationEmail(offre);
+            
         } catch (SQLException e) {
             System.out.println("Insert error: " + e.getMessage());
         }
+    }
+
+    /**
+     * Sends a notification email when a new offer is created.
+     * Runs asynchronously in a background thread to avoid blocking the UI.
+     * 
+     * @param offre The OffreEmploi object that was just created
+     */
+    private void sendOffreCreationEmail(OffreEmploi offre) {
+        // Send email in a background thread to avoid blocking the UI
+        Thread emailThread = new Thread(() -> {
+            try {
+                // Get user email from database
+                String userEmail = getUserEmailById(offre.getIdUtilisateur());
+                
+                if (userEmail != null && !userEmail.isEmpty()) {
+                    // Send email notification with all offer details
+                    boolean emailSent = emailService.sendOffreInsertionEmail(
+                        userEmail,
+                        offre
+                    );
+                    
+                    if (emailSent) {
+                        System.out.println("Notification email sent to: " + userEmail);
+                    } else {
+                        System.out.println("Failed to send notification email");
+                    }
+                } else {
+                    System.out.println("User email not found for user ID: " + offre.getIdUtilisateur());
+                }
+            } catch (Exception e) {
+                System.out.println("Error sending email notification: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+        
+        // Set as daemon thread so it doesn't prevent app shutdown
+        emailThread.setDaemon(true);
+        emailThread.setName("Email-Sender-Thread");
+        emailThread.start();
+    }
+
+    /**
+     * Retrieves the email address of a user by their ID.
+     * 
+     * @param userId The ID of the user
+     * @return The user's email address, or null if not found
+     */
+    private String getUserEmailById(int userId) {
+        String sql = "SELECT email FROM utilisateur WHERE id_utilisateur = ?";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("email");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving user email: " + e.getMessage());
+        }
+        
+        return null;
     }
 
     /**

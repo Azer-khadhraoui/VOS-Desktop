@@ -48,6 +48,20 @@
             <version>2.10.1</version>
         </dependency>
 
+        <!-- Email -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+
+        <!-- Activation API (required for Java 9+) -->
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
