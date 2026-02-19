@@ -21,7 +21,7 @@
     <VBox spacing="10"
           prefWidth="360"
           layoutX="800"
-          layoutY="160"
+          layoutY="80"
           alignment="TOP_LEFT"
           style="-fx-background-color: transparent;">
 
@@ -65,6 +65,22 @@
                            promptText="••••••••"
                            styleClass="inputField"/>
         </HBox>
+        
+        <!-- PASSWORD STRENGTH BAR -->
+        <VBox spacing="4">
+            <ProgressBar fx:id="passwordStrengthBar" prefWidth="300" style="-fx-padding: 0; -fx-min-height: 6px;" progress="0"/>
+            <Label fx:id="passwordStrengthLabel" text="Aucun mot de passe" style="-fx-font-size: 10px; -fx-text-fill: #999;"/>
+        </VBox>
+        
+        <!-- CONFIRM PASSWORD -->
+        <Label text="Confirmer mot de passe" styleClass="fieldLabel"/>
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="inputBox">
+            <Label text="🔒"/>
+            <PasswordField fx:id="tfConfirmPassword"
+                           promptText="••••••••"
+                           styleClass="inputField"/>
+        </HBox>
+        <Label fx:id="lblPasswordMatch" style="-fx-font-size: 10px; -fx-text-fill: #e74c3c;"/>
 
         <!-- BOUTONS -->
         <VBox spacing="15"

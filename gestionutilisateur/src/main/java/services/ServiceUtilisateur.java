@@ -2,6 +2,7 @@ package services;
 
 import entities.Utilisateur;
 import utils.MyConnection;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 public class ServiceUtilisateur {
 
     Connection cnx;
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public ServiceUtilisateur() {
         cnx = MyConnection.getInstance().getCnx();
@@ -169,13 +171,22 @@ public class ServiceUtilisateur {
     }
     public boolean login(String email, String password) {
         try {
-            String req = "SELECT * FROM utilisateur WHERE email=? AND mot_de_passe=?";
+            // Récupérer l'utilisateur par son email
+            String req = "SELECT mot_de_passe FROM utilisateur WHERE email=?";
             PreparedStatement ps = cnx.prepareStatement(req);
             ps.setString(1, email);
-            ps.setString(2, password);
 
             ResultSet rs = ps.executeQuery();
-            return rs.next();
+            
+            if (rs.next()) {
+                // Récupérer le mot de passe hashé de la BD
+                String hashedPassword = rs.getString("mot_de_passe");
+                
+                // Vérifier le mot de passe en clair avec le hash
+                return passwordEncoder.matches(password, hashedPassword);
+            }
+            
+            return false;
 
         } catch (SQLException e) {
             e.printStackTrace();

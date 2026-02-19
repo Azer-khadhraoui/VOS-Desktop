@@ -15,6 +15,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import services.ServiceUtilisateur;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,14 +29,106 @@ public class SignupController {
     @FXML private TextField tfPrenom;
     @FXML private TextField tfEmail;
     @FXML private PasswordField tfPassword;
+    @FXML private PasswordField tfConfirmPassword;
     @FXML private Label lblMessage;
+    @FXML private Label lblPasswordMatch;
+    @FXML private ProgressBar passwordStrengthBar;
+    @FXML private Label passwordStrengthLabel;
     @FXML private StackPane profileImageContainer;
     @FXML private ImageView imgProfile;
 
     private String imageName = "default.png";
     private String imageAbsolutePath = null;  // NOUVEAU : chemin absolu
+    
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     ServiceUtilisateur su = new ServiceUtilisateur();
+
+    @FXML
+    public void initialize() {
+        // Écouter les changements du mot de passe pour la barre de force
+        tfPassword.textProperty().addListener((obs, oldVal, newVal) -> updatePasswordStrength(newVal));
+        
+        // Écouter les changements de confirmation de mot de passe
+        tfConfirmPassword.textProperty().addListener((obs, oldVal, newVal) -> checkPasswordMatch());
+    }
+
+    // =====================================================
+    // PASSWORD STRENGTH INDICATOR
+    // =====================================================
+    private void updatePasswordStrength(String password) {
+        if (password == null || password.isEmpty()) {
+            passwordStrengthBar.setProgress(0);
+            passwordStrengthLabel.setText("Aucun mot de passe");
+            passwordStrengthLabel.setStyle("-fx-text-fill: #999;");
+            return;
+        }
+        
+        double strength = 0.0;
+        String label = "";
+        
+        // Calcul de la force
+        if (password.length() >= 8) strength += 0.2;
+        if (password.length() >= 12) strength += 0.15;
+        if (password.matches(".*[a-z].*")) strength += 0.15;
+        if (password.matches(".*[A-Z].*")) strength += 0.15;
+        if (password.matches(".*[0-9].*")) strength += 0.15;
+        if (password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) strength += 0.2;
+        
+        // Normaliser entre 0 et 1
+        strength = Math.min(1.0, strength);
+        
+        // Déterminer le niveau
+        if (strength < 0.3) {
+            label = "🔴 Très faible";
+            passwordStrengthLabel.setStyle("-fx-text-fill: #e74c3c;");
+        } else if (strength < 0.5) {
+            label = "🟠 Faible";
+            passwordStrengthLabel.setStyle("-fx-text-fill: #e67e22;");
+        } else if (strength < 0.7) {
+            label = "🟡 Moyen";
+            passwordStrengthLabel.setStyle("-fx-text-fill: #f39c12;");
+        } else if (strength < 0.9) {
+            label = "🟢 Bon";
+            passwordStrengthLabel.setStyle("-fx-text-fill: #27ae60;");
+        } else {
+            label = "🟢 Excellent";
+            passwordStrengthLabel.setStyle("-fx-text-fill: #16a085;");
+        }
+        
+        passwordStrengthBar.setProgress(strength);
+        passwordStrengthLabel.setText(label);
+        
+        // Mise à jour de la couleur de la barre
+        String styleClass = "";
+        if (strength < 0.3) {
+            passwordStrengthBar.setStyle("-fx-accent: #e74c3c;");
+        } else if (strength < 0.5) {
+            passwordStrengthBar.setStyle("-fx-accent: #e67e22;");
+        } else if (strength < 0.7) {
+            passwordStrengthBar.setStyle("-fx-accent: #f39c12;");
+        } else {
+            passwordStrengthBar.setStyle("-fx-accent: #27ae60;");
+        }
+    }
+    
+    private void checkPasswordMatch() {
+        String password = tfPassword.getText();
+        String confirmPassword = tfConfirmPassword.getText();
+        
+        if (password.isEmpty() || confirmPassword.isEmpty()) {
+            lblPasswordMatch.setText("");
+            return;
+        }
+        
+        if (password.equals(confirmPassword)) {
+            lblPasswordMatch.setText("✅ Les mots de passe correspondent");
+            lblPasswordMatch.setStyle("-fx-text-fill: #27ae60;");
+        } else {
+            lblPasswordMatch.setText("❌ Les mots de passe ne correspondent pas");
+            lblPasswordMatch.setStyle("-fx-text-fill: #e74c3c;");
+        }
+    }
 
     // =====================================================
     // UPLOAD IMAGE
@@ -104,7 +197,8 @@ public class SignupController {
         if (tfNom.getText().trim().isEmpty() ||
                 tfPrenom.getText().trim().isEmpty() ||
                 tfEmail.getText().trim().isEmpty() ||
-                tfPassword.getText().trim().isEmpty()) {
+                tfPassword.getText().trim().isEmpty() ||
+                tfConfirmPassword.getText().trim().isEmpty()) {
 
             lblMessage.setStyle("-fx-text-fill: red;");
             lblMessage.setText("❌ Remplissez tous les champs !");
@@ -131,6 +225,13 @@ public class SignupController {
             lblMessage.setText("❌ Le mot de passe doit contenir au moins 6 caractères !");
             return;
         }
+        
+        // Validation correspondance des mots de passe
+        if (!tfPassword.getText().equals(tfConfirmPassword.getText())) {
+            lblMessage.setStyle("-fx-text-fill: red;");
+            lblMessage.setText("❌ Les mots de passe ne correspondent pas !");
+            return;
+        }
 
         if (su.emailExiste(tfEmail.getText())) {
             lblMessage.setStyle("-fx-text-fill: red;");
@@ -141,17 +242,21 @@ public class SignupController {
         // Utiliser le chemin absolu si une image a été uploadée, sinon null
         String cheminImage = imageAbsolutePath;  // Peut être null si pas d'image
         
+        // Hacher le mot de passe avant de l'enregistrer
+        String hashedPassword = passwordEncoder.encode(tfPassword.getText());
+        
         System.out.println("=== CRÉATION UTILISATEUR ===");
         System.out.println("Nom: " + tfNom.getText());
         System.out.println("Prénom: " + tfPrenom.getText());
         System.out.println("Email: " + tfEmail.getText());
         System.out.println("Image à enregistrer: " + cheminImage);
+        System.out.println("Mot de passe hashé: " + hashedPassword);
 
         Utilisateur u = new Utilisateur(
                 0,
                 cheminImage,  // Utiliser le chemin absolu au lieu de imageName
                 tfEmail.getText(),
-                tfPassword.getText(),
+                hashedPassword,  // Utiliser le mot de passe hashé
                 "CLIENT",
                 tfNom.getText(),
                 tfPrenom.getText()
