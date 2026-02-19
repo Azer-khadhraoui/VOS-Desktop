@@ -11,6 +11,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import java.nio.file.*;
+import java.nio.file.StandardCopyOption;
+
 
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.entities.PreferenceCandidature;
@@ -86,6 +89,8 @@ public class FormCandidatureUtilisateurController implements Initializable {
     private Candidature candidatureEnEdition = null;
     private ListeCandidaturesUtilisateurController parentController;
     private int idUtilisateurCourant = 3;
+    private File fichierCvSelectionne = null;
+    private File fichierLettreSelectionnee = null;
 
     /* ===================== INITIALISE ===================== */
 
@@ -179,18 +184,22 @@ public class FormCandidatureUtilisateurController implements Initializable {
         fermerFenetre();
     }
 
-   @FXML
+    @FXML
     private void parcourirCv(ActionEvent event) {
         File f = ouvrirSelecteurFichier("Sélectionner le CV");
-        if (f != null)
-            cv.setText(f.getAbsolutePath());
+        if (f != null) {
+            fichierCvSelectionne = f;
+            cv.setText(f.getName()); // Affiche juste le nom dans l'UI
+        }
     }
 
     @FXML
     private void parcourirLettre(ActionEvent event) {
         File f = ouvrirSelecteurFichier("Sélectionner la lettre de motivation");
-        if (f != null)
-            lettreMotivation.setText(f.getAbsolutePath());
+        if (f != null) {
+            fichierLettreSelectionnee = f;
+            lettreMotivation.setText(f.getName()); // Affiche juste le nom dans l'UI
+        }
     }
 
     /* ===================== VALIDATION ===================== */
@@ -263,9 +272,21 @@ public class FormCandidatureUtilisateurController implements Initializable {
         c.setAnneesExperience(anneesExperience.getValue() != null ? anneesExperience.getValue() : 0);
         c.setDomaineExperience(domaineExperience.getValue() != null ? domaineExperience.getValue().trim() : "");
         c.setDernierPoste(dernierPoste.getValue() != null ? dernierPoste.getValue().trim() : "");
-        c.setCv(cv.getText());
-        c.setLettreMotivation(lettreMotivation.getText());
         c.setMessageCandidat(messageCandidat.getText() != null ? messageCandidat.getText().trim() : "");
+        if (fichierCvSelectionne != null) {
+            String cheminCv = copierFichierVersProjet(fichierCvSelectionne, "cv");
+            c.setCv(cheminCv); // Chemin relatif ex: "uploads/cv/1234567_monCV.pdf"
+        } else {
+            // En mode édition, garder l'ancien chemin si pas de nouveau fichier
+            c.setCv(candidatureEnEdition != null ? candidatureEnEdition.getCv() : "");
+        }
+
+        if (fichierLettreSelectionnee != null) {
+            String cheminLettre = copierFichierVersProjet(fichierLettreSelectionnee, "lettres");
+            c.setLettreMotivation(cheminLettre);
+        } else {
+            c.setLettreMotivation(candidatureEnEdition != null ? candidatureEnEdition.getLettreMotivation() : "");
+        }
 
         return c;
     }
@@ -516,5 +537,28 @@ private void animerShake(javafx.scene.Node node) {
     shake.setAutoReverse(true);
     shake.play();
 }
+    private String copierFichierVersProjet(File fichierSource, String sousDossier) {
+        try {
+            // Chemin absolu vers le dossier uploads dans les resources
+            String basePath = System.getProperty("user.dir") + "/src/main/resources/uploads/" + sousDossier + "/";
+
+            // Créer le dossier s'il n'existe pas
+            Files.createDirectories(Paths.get(basePath));
+
+            // Nom unique pour éviter les conflits : timestamp + nom original
+            String nomFichier = System.currentTimeMillis() + "_" + fichierSource.getName();
+            Path destination = Paths.get(basePath + nomFichier);
+
+            // Copier le fichier
+            Files.copy(fichierSource.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
+
+            // Retourner le chemin RELATIF (ce qui sera enregistré en BDD)
+            return "uploads/" + sousDossier + "/" + nomFichier;
+
+        } catch (IOException e) {
+            System.out.println("Erreur copie fichier : " + e.getMessage());
+            return null;
+        }
+    }
 
 }

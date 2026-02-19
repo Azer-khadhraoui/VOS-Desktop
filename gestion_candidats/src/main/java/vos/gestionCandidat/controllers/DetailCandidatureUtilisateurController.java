@@ -254,12 +254,27 @@ public class DetailCandidatureUtilisateurController implements Initializable {
 
     /* ===================== UTILITAIRES ===================== */
 
-    private void ouvrirFichier(String path) {
+    // ✅ APRÈS — reconstruit le chemin absolu depuis la racine du projet
+    private void ouvrirFichier(String cheminRelatif) {
         try {
-            java.awt.Desktop.getDesktop().open(new java.io.File(path));
+            // Reconstruire le chemin absolu : racine_projet/src/main/resources/uploads/...
+            String cheminAbsolu = System.getProperty("user.dir")
+                    + "/src/main/resources/"
+                    + cheminRelatif;
+
+            java.io.File fichier = new java.io.File(cheminAbsolu);
+
+            if (!fichier.exists()) {
+                afficherAlerte(Alert.AlertType.ERROR, "Fichier introuvable",
+                        "Le fichier n'existe pas :\n" + cheminAbsolu);
+                return;
+            }
+
+            java.awt.Desktop.getDesktop().open(fichier);
+
         } catch (Exception e) {
             afficherAlerte(Alert.AlertType.ERROR, "Erreur",
-                    "Impossible d'ouvrir le fichier : " + path);
+                    "Impossible d'ouvrir le fichier : " + e.getMessage());
         }
     }
 
