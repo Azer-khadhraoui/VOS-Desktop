@@ -110,8 +110,8 @@ public class FormCandidatureUtilisateurController implements Initializable {
      * @param idUtilisateur ID de l'utilisateur connecté
      */
     public void initData(Candidature candidature,
-            ListeCandidaturesUtilisateurController parent,
-            int idUtilisateur) {
+                         ListeCandidaturesUtilisateurController parent,
+                         int idUtilisateur) {
 
         this.parentController = parent;
         this.idUtilisateurCourant = idUtilisateur;
@@ -303,7 +303,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
         return fc.showOpenDialog(stage);
     }
 
- 
+
 
     private void cacherErreur() {
         errorLabel.setText("");
@@ -311,7 +311,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
         errorLabel.setManaged(false);
     }
 
-   
+
 
     private void fermerFenetre() {
         Stage stage = (Stage) btnSoumettre.getScene().getWindow();
@@ -369,24 +369,79 @@ public class FormCandidatureUtilisateurController implements Initializable {
      * candidature
      */
     private void proposerAjouterPreferences(int idCandidature, Candidature candidature) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Ajouter vos préférences");
-        alert.setHeaderText("Candidature créée avec succès ! 🎉");
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("🎉 Candidature soumise !");
+        alert.setHeaderText(null);
         alert.setContentText("Souhaitez-vous ajouter vos préférences maintenant ?");
 
-        ButtonType btnOui = new ButtonType("Oui, ajouter les préférences");
-        ButtonType btnNon = new ButtonType("Non, plus tard", ButtonBar.ButtonData.CANCEL_CLOSE);
-
+        ButtonType btnOui = new ButtonType("⭐ Oui, ajouter mes préférences");
+        ButtonType btnNon = new ButtonType("Plus tard", ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(btnOui, btnNon);
+
+        // ── Style sombre cohérent avec le formulaire ──
+        DialogPane dp = alert.getDialogPane();
+        dp.setStyle(
+                "-fx-background-color: #1a1a2e;" +
+                        "-fx-border-color: #3d3d5c;" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-background-radius: 16;"
+        );
+
+        // Titre personnalisé
+        Label titre = new Label("🎉  Candidature soumise avec succès !");
+        titre.setStyle(
+                "-fx-font-size: 18px;" +
+                        "-fx-font-weight: 800;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 0 0 8 0;"
+        );
+
+        Label sousTitre = new Label("Complétez votre dossier en ajoutant vos préférences de poste,\ndisponibilité et prétention salariale.");
+        sousTitre.setStyle(
+                "-fx-font-size: 13px;" +
+                        "-fx-text-fill: #94a3b8;" +
+                        "-fx-padding: 0 0 6 0;"
+        );
+
+        javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(10, titre, sousTitre);
+        content.setStyle("-fx-padding: 10 6 0 6;");
+        dp.setContent(content);
+        dp.setHeader(null);
+        dp.setGraphic(null);
+
+        // Style des boutons
+        dp.lookupButton(btnOui).setStyle(
+                "-fx-background-color: linear-gradient(to right, #a855f7 0%, #ec4899 100%);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: 700;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-padding: 12 24;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-cursor: hand;"
+        );
+        dp.lookupButton(btnNon).setStyle(
+                "-fx-background-color: #2d2d48;" +
+                        "-fx-text-fill: #94a3b8;" +
+                        "-fx-font-weight: 600;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-padding: 12 24;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-border-color: #3d3d5c;" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 10;"
+        );
+
+        // ButtonBar fond sombre
+        dp.lookup(".button-bar").setStyle("-fx-background-color: #1a1a2e; -fx-padding: 16 20 20 20;");
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == btnOui) {
-            // Récréer la candidature avec l'ID pour l'ouvrir en préférence
             Candidature cand = new Candidature();
             cand.setIdCandidature(idCandidature);
             cand.setIdOffre(candidature.getIdOffre());
             cand.setIdUtilisateur(idUtilisateurCourant);
-
             ouvrirPreferences(cand);
         }
     }
@@ -418,125 +473,125 @@ public class FormCandidatureUtilisateurController implements Initializable {
         }
     }
 
-    
+
 
 // Dans la méthode initialize() ou initData(), ajoutez ces listeners pour la validation en temps réel:
 
-private void setupRealtimeValidation() {
-    // Validation en temps réel pour le niveau d'expérience
-    niveauExperience.valueProperty().addListener((obs, oldVal, newVal) -> {
-        if (newVal != null) {
-            setErreurChamp(errNiveauExp, null);
-            niveauExperience.setStyle(niveauExperience.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
-        }
-    });
+    private void setupRealtimeValidation() {
+        // Validation en temps réel pour le niveau d'expérience
+        niveauExperience.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                setErreurChamp(errNiveauExp, null);
+                niveauExperience.setStyle(niveauExperience.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
+            }
+        });
 
-    // Validation en temps réel pour le domaine d'expérience
-    domaineExperience.valueProperty().addListener((obs, oldVal, newVal) -> {
-        if (newVal != null) {
-            setErreurChamp(errDomaineExp, null);
-            domaineExperience.setStyle(domaineExperience.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
-        }
-    });
+        // Validation en temps réel pour le domaine d'expérience
+        domaineExperience.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                setErreurChamp(errDomaineExp, null);
+                domaineExperience.setStyle(domaineExperience.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
+            }
+        });
 
-    // Validation en temps réel pour le CV
-    cv.textProperty().addListener((obs, oldVal, newVal) -> {
-        if (newVal != null && !newVal.trim().isEmpty()) {
-            setErreurChamp(errCv, null);
-            cv.setStyle(cv.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
-        }
-    });
-}
-
-// Méthode pour appliquer le style d'erreur moderne
-private void setBordureErreur(Control ctrl, boolean erreur) {
-    String baseStyle = ctrl.getStyle();
-    
-    // Retirer les anciennes bordures
-    baseStyle = baseStyle.replace("-fx-border-color: #ef4444; -fx-border-width: 2;", "");
-    baseStyle = baseStyle.replace("-fx-border-color: #10b981; -fx-border-width: 2;", "");
-    
-    if (erreur) {
-        // Bordure rouge pour erreur
-        ctrl.setStyle(baseStyle + " -fx-border-color: #ef4444; -fx-border-width: 2;");
-    } else {
-        // Bordure verte pour validé
-        ctrl.setStyle(baseStyle + " -fx-border-color: #10b981; -fx-border-width: 2;");
+        // Validation en temps réel pour le CV
+        cv.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                setErreurChamp(errCv, null);
+                cv.setStyle(cv.getStyle().replace("-fx-border-color: #ef4444;", "-fx-border-color: #10b981;"));
+            }
+        });
     }
-}
 
-// Méthode améliorée pour afficher les erreurs avec le nouveau style
-private void setErreurChamp(Label label, String msg) {
-    if (msg == null) {
-        label.setText("");
-        label.setVisible(false);
-        label.setManaged(false);
-        label.getStyleClass().remove("error-label");
-        label.getStyleClass().add("valid");
-    } else {
-        label.setText("❌ " + msg);
-        label.setVisible(true);
-        label.setManaged(true);
-        label.getStyleClass().remove("valid");
-        label.getStyleClass().add("error-label");
+    // Méthode pour appliquer le style d'erreur moderne
+    private void setBordureErreur(Control ctrl, boolean erreur) {
+        String baseStyle = ctrl.getStyle();
+
+        // Retirer les anciennes bordures
+        baseStyle = baseStyle.replace("-fx-border-color: #ef4444; -fx-border-width: 2;", "");
+        baseStyle = baseStyle.replace("-fx-border-color: #10b981; -fx-border-width: 2;", "");
+
+        if (erreur) {
+            // Bordure rouge pour erreur
+            ctrl.setStyle(baseStyle + " -fx-border-color: #ef4444; -fx-border-width: 2;");
+        } else {
+            // Bordure verte pour validé
+            ctrl.setStyle(baseStyle + " -fx-border-color: #10b981; -fx-border-width: 2;");
+        }
     }
-}
 
-// Méthode pour afficher un succès moderne
-private void afficherSucces(String msg) {
-    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    alert.setTitle("✅ Succès");
-    alert.setHeaderText(null);
-    alert.setContentText(msg);
-    
-    // Style moderne pour l'alerte
-    DialogPane dialogPane = alert.getDialogPane();
-    dialogPane.setStyle(
-        "-fx-background-color: #2d2d48; " +
-        "-fx-border-color: #10b981; " +
-        "-fx-border-width: 2; " +
-        "-fx-border-radius: 12; " +
-        "-fx-background-radius: 12;"
-    );
-    
-    // Style pour les labels
-    dialogPane.lookup(".content").setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-    
-    // Style pour les boutons
-    Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
-    okButton.setStyle(
-        "-fx-background-color: linear-gradient(to right, #10b981, #059669); " +
-        "-fx-text-fill: white; " +
-        "-fx-font-weight: bold; " +
-        "-fx-padding: 12 30; " +
-        "-fx-background-radius: 10; " +
-        "-fx-cursor: hand;"
-    );
-    
-    alert.showAndWait();
-}
+    // Méthode améliorée pour afficher les erreurs avec le nouveau style
+    private void setErreurChamp(Label label, String msg) {
+        if (msg == null) {
+            label.setText("");
+            label.setVisible(false);
+            label.setManaged(false);
+            label.getStyleClass().remove("error-label");
+            label.getStyleClass().add("valid");
+        } else {
+            label.setText("❌ " + msg);
+            label.setVisible(true);
+            label.setManaged(true);
+            label.getStyleClass().remove("valid");
+            label.getStyleClass().add("error-label");
+        }
+    }
 
-// Méthode pour afficher une erreur moderne
-private void afficherErreur(String msg) {
-    errorLabel.setText("⚠️ " + msg);
-    errorLabel.setVisible(true);
-    errorLabel.setManaged(true);
-    
-    // Animation de shake pour attirer l'attention
-    animerShake(errorLabel);
-}
+    // Méthode pour afficher un succès moderne
+    private void afficherSucces(String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("✅ Succès");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
 
-// Animation shake pour les erreurs
-private void animerShake(javafx.scene.Node node) {
-    javafx.animation.TranslateTransition shake = new javafx.animation.TranslateTransition(
-        javafx.util.Duration.millis(50), node
-    );
-    shake.setFromX(0);
-    shake.setByX(10);
-    shake.setCycleCount(6);
-    shake.setAutoReverse(true);
-    shake.play();
-}
+        // Style moderne pour l'alerte
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setStyle(
+                "-fx-background-color: #2d2d48; " +
+                        "-fx-border-color: #10b981; " +
+                        "-fx-border-width: 2; " +
+                        "-fx-border-radius: 12; " +
+                        "-fx-background-radius: 12;"
+        );
+
+        // Style pour les labels
+        dialogPane.lookup(".content").setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+
+        // Style pour les boutons
+        Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
+        okButton.setStyle(
+                "-fx-background-color: linear-gradient(to right, #10b981, #059669); " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-padding: 12 30; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-cursor: hand;"
+        );
+
+        alert.showAndWait();
+    }
+
+    // Méthode pour afficher une erreur moderne
+    private void afficherErreur(String msg) {
+        errorLabel.setText("⚠️ " + msg);
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
+
+        // Animation de shake pour attirer l'attention
+        animerShake(errorLabel);
+    }
+
+    // Animation shake pour les erreurs
+    private void animerShake(javafx.scene.Node node) {
+        javafx.animation.TranslateTransition shake = new javafx.animation.TranslateTransition(
+                javafx.util.Duration.millis(50), node
+        );
+        shake.setFromX(0);
+        shake.setByX(10);
+        shake.setCycleCount(6);
+        shake.setAutoReverse(true);
+        shake.play();
+    }
     private String copierFichierVersProjet(File fichierSource, String sousDossier) {
         try {
             // Chemin absolu vers le dossier uploads dans les resources

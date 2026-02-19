@@ -6,49 +6,86 @@
 <?import java.lang.String?>
 <?import javafx.collections.FXCollections?>
 
-<BorderPane prefHeight="850.0" prefWidth="900.0"
-    stylesheets="@../../css/styleoffre.css"
-    xmlns="http://javafx.com/javafx/17"
-    xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="vos.gestionCandidat.controllers.FormPreferenceUtilisateurController">
-
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="15.0"
-            style="-fx-background-color: white; -fx-padding: 20 30; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;">
-            <Button text="← Retour" onAction="#annuler"
-                style="-fx-background-color: transparent; -fx-text-fill: #6366f1; -fx-font-size: 14px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;" />
-            <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="formTitle" text="Ajouter mes préférences"
-                style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #111827;" />
-            <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="candidatureLabel" text=""
-                style="-fx-font-size: 13px; -fx-text-fill: #6366f1; -fx-font-weight: 600;" />
-        </HBox>
-    </top>
+<BorderPane prefHeight="800.0" prefWidth="1000.0"
+            stylesheets="@../../css/style.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="vos.gestionCandidat.controllers.FormPreferenceUtilisateurController"
+            style="-fx-background-color: #1a1a2e;">
 
     <center>
-        <ScrollPane fitToWidth="true"
-            style="-fx-background-color: #f8fafc; -fx-border-color: transparent;">
-            <VBox spacing="24" style="-fx-background-color: #f8fafc; -fx-padding: 35 40 50 40;">
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="0" styleClass="form-container">
 
-                <VBox spacing="12">
-                    <Label text="🎯 Poste souhaité"
-                        style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #111827;" />
+                <!-- En-tête avec bouton retour et breadcrumb -->
+                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 0 0 25 0;">
+                    <Button text="← Retour" onAction="#annuler"
+                            style="-fx-background-color: transparent; -fx-text-fill: #a855f7; -fx-font-size: 14px; -fx-font-weight: 700; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0;" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label text="Candidatures  >  Préférences"
+                           style="-fx-text-fill: #6b7280; -fx-font-size: 12px;" />
+                </HBox>
 
-                    <VBox spacing="0"
-                        style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-border-color: #e5e7eb; -fx-border-width: 1;">
-                        <GridPane hgap="20" vgap="16">
+                <!-- Carte d'en-tête avec gradient -->
+                <HBox spacing="20" alignment="CENTER_LEFT" styleClass="gradient-header"
+                      style="-fx-margin: 0 0 30 0;">
+                    <Label text="⭐" style="-fx-font-size: 40px;" />
+                    <VBox spacing="6">
+                        <Label fx:id="formTitle" text="Ajouter mes préférences"
+                               styleClass="main-title" />
+                        <Label fx:id="candidatureLabel" text=""
+                               style="-fx-font-size: 14px; -fx-text-fill: #a855f7; -fx-font-weight: 600;" />
+                    </VBox>
+                </HBox>
+
+                <!-- Stepper -->
+                <HBox spacing="0" alignment="CENTER" style="-fx-padding: 0 0 35 0;" maxWidth="700">
+                    <VBox alignment="CENTER" spacing="8">
+                        <StackPane styleClass="step-circle">
+                            <Label text="1" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;" />
+                        </StackPane>
+                        <Label text="Poste souhaité" styleClass="step-label" />
+                    </VBox>
+                    <Region styleClass="step-line" HBox.hgrow="ALWAYS" />
+                    <VBox alignment="CENTER" spacing="8">
+                        <StackPane styleClass="step-circle">
+                            <Label text="2" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;" />
+                        </StackPane>
+                        <Label text="Disponibilité" styleClass="step-label" />
+                    </VBox>
+                    <Region styleClass="step-line inactive" HBox.hgrow="ALWAYS" />
+                    <VBox alignment="CENTER" spacing="8">
+                        <StackPane styleClass="step-circle inactive">
+                            <Label text="3" style="-fx-font-weight: bold; -fx-font-size: 15px;" />
+                        </StackPane>
+                        <Label text="Salaire" styleClass="step-label inactive" />
+                    </VBox>
+                </HBox>
+
+                <!-- Carte principale du formulaire -->
+                <VBox spacing="35" styleClass="section-card">
+
+                    <!-- Section Poste souhaité -->
+                    <VBox spacing="18">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label text="🎯" style="-fx-font-size: 20px;" />
+                            <Label text="Poste souhaité" styleClass="section-title" />
+                        </HBox>
+                        <Separator styleClass="modern-separator" />
+
+                        <GridPane hgap="24" vgap="20">
                             <columnConstraints>
                                 <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                                 <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                             </columnConstraints>
 
-                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label text="Type de poste souhaité *"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
+                            <!-- Type de poste -->
+                            <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="TYPE DE POSTE SOUHAITÉ *" styleClass="field-label" />
                                 <ComboBox fx:id="typePosteSouhaite" maxWidth="Infinity"
-                                    promptText="Sélectionner..."
-                                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-pref-height: 40;">
+                                          promptText="Sélectionner un poste..."
+                                          styleClass="modern-combo-box"
+                                          style="-fx-pref-height: 48;">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="Développeur Backend" />
@@ -62,17 +99,17 @@
                                         </FXCollections>
                                     </items>
                                 </ComboBox>
-                                <Label fx:id="errTypePoste" text=""
-                                    style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 4;"
-                                    visible="false" managed="false" />
+                                <Label fx:id="errTypePoste" text="" styleClass="error-label"
+                                       visible="false" managed="false" />
                             </VBox>
 
-                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label text="Mode de travail *"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
+                            <!-- Mode de travail -->
+                            <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="MODE DE TRAVAIL *" styleClass="field-label" />
                                 <ComboBox fx:id="modeTravail" maxWidth="Infinity"
-                                    promptText="Sélectionner..."
-                                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-pref-height: 40;">
+                                          promptText="Sélectionner un mode..."
+                                          styleClass="modern-combo-box"
+                                          style="-fx-pref-height: 48;">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="100% Présentiel" />
@@ -82,17 +119,17 @@
                                         </FXCollections>
                                     </items>
                                 </ComboBox>
-                                <Label fx:id="errModeTravail" text=""
-                                    style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 4;"
-                                    visible="false" managed="false" />
+                                <Label fx:id="errModeTravail" text="" styleClass="error-label"
+                                       visible="false" managed="false" />
                             </VBox>
 
-                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                <Label text="Type de contrat souhaité"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
+                            <!-- Type de contrat -->
+                            <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label text="TYPE DE CONTRAT SOUHAITÉ" styleClass="field-label" />
                                 <ComboBox fx:id="typeContratSouhaite" maxWidth="Infinity"
-                                    promptText="Sélectionner..."
-                                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-pref-height: 40;">
+                                          promptText="Sélectionner un contrat..."
+                                          styleClass="modern-combo-box"
+                                          style="-fx-pref-height: 48;">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="CDI" />
@@ -106,26 +143,28 @@
                             </VBox>
                         </GridPane>
                     </VBox>
-                </VBox>
 
-                <VBox spacing="12">
-                    <Label text="📅 Disponibilité"
-                        style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #111827;" />
+                    <!-- Section Disponibilité -->
+                    <VBox spacing="18">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label text="📅" style="-fx-font-size: 20px;" />
+                            <Label text="Disponibilité" styleClass="section-title" />
+                        </HBox>
+                        <Separator styleClass="modern-separator" />
 
-                    <VBox spacing="0"
-                        style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-border-color: #e5e7eb; -fx-border-width: 1;">
-                        <GridPane hgap="20" vgap="16">
+                        <GridPane hgap="24" vgap="20">
                             <columnConstraints>
                                 <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                                 <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                             </columnConstraints>
 
-                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label text="Disponibilité *"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
+                            <!-- Disponibilité -->
+                            <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="DISPONIBILITÉ *" styleClass="field-label" />
                                 <ComboBox fx:id="disponibilite" maxWidth="Infinity"
-                                    promptText="Sélectionner..."
-                                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-pref-height: 40;">
+                                          promptText="Sélectionner..."
+                                          styleClass="modern-combo-box"
+                                          style="-fx-pref-height: 48;">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="Immédiatement" />
@@ -136,43 +175,42 @@
                                         </FXCollections>
                                     </items>
                                 </ComboBox>
-                                <Label fx:id="errDisponibilite" text=""
-                                    style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 4;"
-                                    visible="false" managed="false" />
+                                <Label fx:id="errDisponibilite" text="" styleClass="error-label"
+                                       visible="false" managed="false" />
                             </VBox>
 
-                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label text="Date de disponibilité *"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
-                                <DatePicker fx:id="dateDisponibilite"
-                                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-pref-height: 40;"
-                                    maxWidth="Infinity" />
-                                <Label fx:id="errDateDispo" text=""
-                                    style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 4;"
-                                    visible="false" managed="false" />
+                            <!-- Date de disponibilité -->
+                            <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="DATE DE DISPONIBILITÉ *" styleClass="field-label" />
+                                <DatePicker fx:id="dateDisponibilite" maxWidth="Infinity"
+                                            style="-fx-background-color: #1a1a2e; -fx-border-color: #3d3d5c; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-width: 1.5; -fx-pref-height: 48;" />
+                                <Label fx:id="errDateDispo" text="" styleClass="error-label"
+                                       visible="false" managed="false" />
                             </VBox>
                         </GridPane>
                     </VBox>
-                </VBox>
 
-                <VBox spacing="12">
-                    <Label text="🌍 Mobilité géographique"
-                        style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #111827;" />
+                    <!-- Section Mobilité -->
+                    <VBox spacing="18">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label text="🌍" style="-fx-font-size: 20px;" />
+                            <Label text="Mobilité géographique" styleClass="section-title" />
+                        </HBox>
+                        <Separator styleClass="modern-separator" />
 
-                    <VBox spacing="0"
-                        style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-border-color: #e5e7eb; -fx-border-width: 1;">
-                        <GridPane hgap="20" vgap="16">
+                        <GridPane hgap="24" vgap="20">
                             <columnConstraints>
                                 <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                                 <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                             </columnConstraints>
 
-                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label text="Mobilité géographique"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
+                            <!-- Mobilité géographique -->
+                            <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="MOBILITÉ GÉOGRAPHIQUE" styleClass="field-label" />
                                 <ComboBox fx:id="mobiliteGeographique" maxWidth="Infinity"
-                                    promptText="Sélectionner..."
-                                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-pref-height: 40;">
+                                          promptText="Sélectionner..."
+                                          styleClass="modern-combo-box"
+                                          style="-fx-pref-height: 48;">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="Non" />
@@ -184,12 +222,13 @@
                                 </ComboBox>
                             </VBox>
 
-                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label text="Prêt à déplacement"
-                                    style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
+                            <!-- Prêt à déplacement -->
+                            <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="PRÊT AU DÉPLACEMENT" styleClass="field-label" />
                                 <ComboBox fx:id="pretDeplacement" maxWidth="Infinity"
-                                    promptText="Sélectionner..."
-                                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-pref-height: 40;">
+                                          promptText="Sélectionner..."
+                                          styleClass="modern-combo-box"
+                                          style="-fx-pref-height: 48;">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="Non" />
@@ -201,42 +240,43 @@
                             </VBox>
                         </GridPane>
                     </VBox>
-                </VBox>
 
-                <VBox spacing="12">
-                    <Label text="💰 Prétention salariale"
-                        style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #111827;" />
+                    <!-- Section Salaire -->
+                    <VBox spacing="18">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label text="💰" style="-fx-font-size: 20px;" />
+                            <Label text="Prétention salariale" styleClass="section-title" />
+                        </HBox>
+                        <Separator styleClass="modern-separator" />
 
-                    <VBox spacing="0"
-                        style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-border-color: #e5e7eb; -fx-border-width: 1;">
-                        <VBox spacing="6">
-                            <Label text="Prétention salariale annuelle (€) *"
-                                style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #374151;" />
+                        <VBox spacing="8" maxWidth="400">
+                            <Label text="MONTANT ANNUEL (€) *" styleClass="field-label" />
                             <TextField fx:id="pretentionSalariale" promptText="Ex: 45000"
-                                style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-background-color: white; -fx-pref-height: 40; -fx-padding: 0 12;" />
-                            <Label fx:id="errSalaire" text=""
-                                style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 4;"
-                                visible="false" managed="false" />
+                                       styleClass="modern-text-field"
+                                       style="-fx-pref-height: 48;" />
+                            <Label fx:id="errSalaire" text="" styleClass="error-label"
+                                   visible="false" managed="false" />
                         </VBox>
                     </VBox>
+
+                    <!-- Message d'erreur global -->
+                    <Label fx:id="errorLabel" text="" styleClass="error-label"
+                           style="-fx-background-color: #2d1f1f; -fx-background-radius: 10; -fx-padding: 14 18; -fx-border-color: #ef4444; -fx-border-width: 1.5; -fx-border-radius: 10; -fx-font-size: 13px;"
+                           wrapText="true" visible="false" managed="false" />
+
+                    <!-- Boutons d'action -->
+                    <HBox spacing="16" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+                        <Button text="Annuler" onAction="#annuler"
+                                styleClass="secondary-button"
+                                style="-fx-pref-width: 150;" />
+                        <Button fx:id="btnSauvegarder" text="🚀 Enregistrer mes préférences"
+                                onAction="#sauvegarder"
+                                styleClass="primary-button"
+                                style="-fx-pref-width: 290;" />
+                    </HBox>
+
                 </VBox>
-
-                <Label fx:id="errorLabel" text=""
-                    style="-fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-background-color: #fef2f2; -fx-background-radius: 8; -fx-padding: 10 14; -fx-border-color: #fecaca; -fx-border-width: 1; -fx-border-radius: 8;"
-                    wrapText="true" visible="false" managed="false" />
-
             </VBox>
         </ScrollPane>
     </center>
-
-    <bottom>
-        <HBox spacing="14" alignment="CENTER_RIGHT"
-            style="-fx-background-color: white; -fx-padding: 20 30; -fx-border-color: #e5e7eb; -fx-border-width: 1 0 0 0;">
-            <Button text="Annuler" onAction="#annuler"
-                style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 13 30; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand; -fx-pref-width: 140;" />
-            <Button fx:id="btnSauvegarder" text="🚀 Enregistrer mes préférences"
-                onAction="#sauvegarder"
-                style="-fx-background-color: linear-gradient(to right, #6366f1 0%, #8b5cf6 100%); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 700; -fx-padding: 13 30; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.4), 12, 0, 0, 4); -fx-pref-width: 280;" />
-        </HBox>
-    </bottom>
 </BorderPane>
