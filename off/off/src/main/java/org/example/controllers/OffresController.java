@@ -946,13 +946,11 @@ public class OffresController {
     
     private boolean matchesSearchFilter(OffreEmploi offre, String searchText) {
         if (searchText == null || searchText.trim().isEmpty()) return true;
-        String pattern = searchText.trim().replace("*", ".*").replace("?", ".");
-        try {
-            String searchableText = (offre.getTitre() + " " + offre.getDescription()).toLowerCase();
-            return searchableText.matches("(?i).*" + pattern + ".*");
-        } catch (Exception e) {
-            return true;
-        }
+        
+        String searchTerm = searchText.trim().toLowerCase();
+        String titre = (offre.getTitre() != null ? offre.getTitre() : "").toLowerCase();
+        
+        return titre.contains(searchTerm);
     }
     
     private boolean matchesContractFilter(OffreEmploi offre, CheckBox cdi, CheckBox cdd, 
@@ -1095,15 +1093,22 @@ public class OffresController {
      * @return true si l'offre correspond ou si aucun filtre n'est sélectionné
      */
     private boolean matchesWorkPreferenceFilter(OffreEmploi offre) {
-        boolean anyFilterSelected = filterRemote.isSelected() || filterHybrid.isSelected() || filterOnSite.isSelected();
+        // Return true if filter checkboxes don't exist
+        if (filterRemote == null && filterHybrid == null && filterOnSite == null) {
+            return true;
+        }
+        
+        boolean anyFilterSelected = (filterRemote != null && filterRemote.isSelected()) || 
+                                   (filterHybrid != null && filterHybrid.isSelected()) || 
+                                   (filterOnSite != null && filterOnSite.isSelected());
         if (!anyFilterSelected) return true;
         
         String workPref = offre.getWorkPreference();
         if (workPref == null) return false;
         
-        return (filterRemote.isSelected() && workPref.equalsIgnoreCase("Remote")) ||
-               (filterHybrid.isSelected() && workPref.equalsIgnoreCase("Hybrid")) ||
-               (filterOnSite.isSelected() && workPref.equalsIgnoreCase("On-Site"));
+        return (filterRemote != null && filterRemote.isSelected() && workPref.equalsIgnoreCase("Remote")) ||
+               (filterHybrid != null && filterHybrid.isSelected() && workPref.equalsIgnoreCase("Hybrid")) ||
+               (filterOnSite != null && filterOnSite.isSelected() && workPref.equalsIgnoreCase("On-Site"));
     }
     
     /**
@@ -1112,15 +1117,22 @@ public class OffresController {
      * @return true si l'offre correspond ou si aucun filtre n'est sélectionné
      */
     private boolean matchesContractTypeFilter(OffreEmploi offre) {
-        boolean anyFilterSelected = filterCDI.isSelected() || filterFreelance.isSelected() || filterStage.isSelected();
+        // Return true if filter checkboxes don't exist
+        if (filterCDI == null && filterFreelance == null && filterStage == null) {
+            return true;
+        }
+        
+        boolean anyFilterSelected = (filterCDI != null && filterCDI.isSelected()) || 
+                                   (filterFreelance != null && filterFreelance.isSelected()) || 
+                                   (filterStage != null && filterStage.isSelected());
         if (!anyFilterSelected) return true;
         
         String contractType = offre.getTypeContrat();
         if (contractType == null) return false;
         
-        return (filterCDI.isSelected() && contractType.equalsIgnoreCase("CDI")) ||
-               (filterFreelance.isSelected() && contractType.equalsIgnoreCase("Freelance")) ||
-               (filterStage.isSelected() && contractType.equalsIgnoreCase("Stage"));
+        return (filterCDI != null && filterCDI.isSelected() && contractType.equalsIgnoreCase("CDI")) ||
+               (filterFreelance != null && filterFreelance.isSelected() && contractType.equalsIgnoreCase("Freelance")) ||
+               (filterStage != null && filterStage.isSelected() && contractType.equalsIgnoreCase("Stage"));
     }
     
     /**
@@ -1130,9 +1142,17 @@ public class OffresController {
      * @return true si l'offre correspond ou si aucun filtre n'est sélectionné
      */
     private boolean matchesTechnologyFilter(OffreEmploi offre) {
-        boolean anyFilterSelected = filterAWS.isSelected() || filterNodeJS.isSelected() || 
-                                   filterPython.isSelected() || filterReact.isSelected() || 
-                                   filterJavaScript.isSelected();
+        // Return true if filter checkboxes don't exist
+        if (filterAWS == null && filterNodeJS == null && filterPython == null && 
+            filterReact == null && filterJavaScript == null) {
+            return true;
+        }
+        
+        boolean anyFilterSelected = (filterAWS != null && filterAWS.isSelected()) || 
+                                   (filterNodeJS != null && filterNodeJS.isSelected()) || 
+                                   (filterPython != null && filterPython.isSelected()) || 
+                                   (filterReact != null && filterReact.isSelected()) || 
+                                   (filterJavaScript != null && filterJavaScript.isSelected());
         if (!anyFilterSelected) return true;
         
         // Get criteria for this offer
@@ -1143,11 +1163,11 @@ public class OffresController {
         String searchText = (offre.getTitre() + " " + offre.getDescription() + " " + 
                            (critere != null ? critere.getCompetencesRequises() : "")).toLowerCase();
         
-        return (filterAWS.isSelected() && searchText.contains("aws")) ||
-               (filterNodeJS.isSelected() && (searchText.contains("node") || searchText.contains("node.js"))) ||
-               (filterPython.isSelected() && searchText.contains("python")) ||
-               (filterReact.isSelected() && searchText.contains("react")) ||
-               (filterJavaScript.isSelected() && (searchText.contains("javascript") || searchText.contains("js")));
+        return (filterAWS != null && filterAWS.isSelected() && searchText.contains("aws")) ||
+               (filterNodeJS != null && filterNodeJS.isSelected() && (searchText.contains("node") || searchText.contains("node.js"))) ||
+               (filterPython != null && filterPython.isSelected() && searchText.contains("python")) ||
+               (filterReact != null && filterReact.isSelected() && searchText.contains("react")) ||
+               (filterJavaScript != null && filterJavaScript.isSelected() && (searchText.contains("javascript") || searchText.contains("js")));
     }
 }
 
