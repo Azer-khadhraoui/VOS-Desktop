@@ -69,6 +69,9 @@ public class OffresController {
     @FXML
     private Label heroSubtitle;
     
+    @FXML
+    private Label countLabel;
+    
     // Filter components
     @FXML
     private CheckBox filterRemote;
@@ -103,11 +106,23 @@ public class OffresController {
     /**
      * Méthode d'initialisation du contrôleur JavaFX.
      * Cette méthode est appelée automatiquement après le chargement du fichier FXML.
-     * Elle charge toutes les offres d'emploi disponibles.
+     * Elle charge toutes les offres d'emploi disponibles et ajoute des listeners.
      */
     @FXML
     public void initialize() {
         loadOffres();
+        
+        // Add search field listener to filter in real-time
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                filterAndUpdateCount();
+            });
+        }
+        
+        // Add filter button listener
+        if (applyFiltersBtn != null) {
+            applyFiltersBtn.setOnAction(e -> applyFilters());
+        }
     }
 
     /**
@@ -125,6 +140,9 @@ public class OffresController {
             VBox card = createCard(offre);
             cardsContainer.getChildren().add(card);
         }
+        
+        // Update count label
+        updateCountLabel(allOffres.size());
     }
 
     /**
@@ -1018,15 +1036,15 @@ public class OffresController {
     }
     
     /**
-     * Applique les filtres sélectionnés aux offres d'emploi.
-     * Cette méthode filtre les offres en fonction des critères sélectionnés dans le panneau de filtres
-     * (localisation, type de contrat, technologies) et met à jour l'affichage des cartes.
+     * Filters offers based on search text and applies all active filters.
+     * Updates the display and count label in real-time.
      */
-    @FXML
-    private void applyFilters() {
+    private void filterAndUpdateCount() {
+        String searchText = searchField.getText();
         cardsContainer.getChildren().clear();
         
         List<OffreEmploi> filteredOffres = allOffres.stream()
+            .filter(offre -> matchesSearchFilter(offre, searchText))
             .filter(this::matchesWorkPreferenceFilter)
             .filter(this::matchesContractTypeFilter)
             .filter(this::matchesTechnologyFilter)
@@ -1037,9 +1055,37 @@ public class OffresController {
             cardsContainer.getChildren().add(card);
         }
         
+        // Update count label
+        updateCountLabel(filteredOffres.size());
+    }
+    
+    /**
+     * Updates the count label to display the number of offers currently shown.
+     * Shows the count in a professional format: "X offre(s)"
+     * 
+     * @param count The number of offers to display
+     */
+    private void updateCountLabel(int count) {
+        if (countLabel != null) {
+            String countText = count + " offre" + (count != 1 ? "s" : "");
+            countLabel.setText(countText);
+            countLabel.setStyle("-fx-text-fill: #007bff; -fx-font-weight: bold; -fx-font-size: 13;");
+        }
+    }
+    
+    /**
+     * Applique les filtres sélectionnés aux offres d'emploi.
+     * Cette méthode filtre les offres en fonction des critères sélectionnés dans le panneau de filtres
+     * (localisation, type de contrat, technologies) et met à jour l'affichage des cartes.
+     */
+    @FXML
+    private void applyFilters() {
+        filterAndUpdateCount();
+        
         // Update hero subtitle with count
         if (heroSubtitle != null) {
-            heroSubtitle.setText("Découvrez " + filteredOffres.size() + " opportunités de carrière");
+            int displayCount = cardsContainer.getChildren().size();
+            heroSubtitle.setText("Découvrez " + displayCount + " opportunités de carrière");
         }
     }
     

@@ -116,6 +116,10 @@
                                    HBox.hgrow="ALWAYS"/>
                     </HBox>
 
+                    <Label fx:id="countLabel"
+                           text="0 offres"
+                           style="-fx-text-fill: #007bff; -fx-font-weight: bold; -fx-font-size: 13; -fx-padding: 8 0 0 0;"/>
+
                 </VBox>
 
                 <!-- ================= CARDS CONTAINER ================= -->
