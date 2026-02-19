@@ -155,6 +155,26 @@
                 </ScrollPane>
                 
             </HBox>
+            
+            <!-- ================= FLOATING FILTER BUTTON ================= -->
+            <Button fx:id="filterButton" 
+                    onAction="#showFilterDialog"
+                    styleClass="filter-fab"
+                    style="-fx-background-color: #3b82f6; -fx-background-radius: 50; -fx-cursor: hand; 
+                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 4);
+                           -fx-padding: 16; -fx-pref-width: 60; -fx-pref-height: 60;"
+                    StackPane.alignment="BOTTOM_RIGHT">
+                <graphic>
+                    <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
+                        <image>
+                            <Image url="@/org/example/images/filter.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+                <StackPane.margin>
+                    <Insets bottom="30" right="30"/>
+                </StackPane.margin>
+            </Button>
 
         </StackPane>
     </center>
