@@ -6,6 +6,7 @@ public class CritereOffre {
     private String niveauExperience;
     private String niveauEtude;
     private String competencesRequises;
+    private String responsibilities;
     private int idOffre;
 
     public int getIdCritere() {
@@ -38,6 +39,14 @@ public class CritereOffre {
 
     public void setCompetencesRequises(String competencesRequises) {
         this.competencesRequises = competencesRequises;
+    }
+
+    public String getResponsibilities() {
+        return responsibilities;
+    }
+
+    public void setResponsibilities(String responsibilities) {
+        this.responsibilities = responsibilities;
     }
 
     public int getIdOffre() {

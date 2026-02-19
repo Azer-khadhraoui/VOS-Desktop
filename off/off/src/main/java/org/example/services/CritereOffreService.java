@@ -23,14 +23,15 @@ public class CritereOffreService {
      */
     public void insertCritere(CritereOffre c) {
 
-        String sql = "INSERT INTO critere_offre (niveau_experience, niveau_etude, competences_requises, id_offre) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO critere_offre (niveau_experience, niveau_etude, competences_requises, responsibilities, id_offre) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, c.getNiveauExperience());
             ps.setString(2, c.getNiveauEtude());
             ps.setString(3, c.getCompetencesRequises());
-            ps.setInt(4, c.getIdOffre());
+            ps.setString(4, c.getResponsibilities());
+            ps.setInt(5, c.getIdOffre());
 
             ps.executeUpdate();
 
@@ -63,6 +64,7 @@ public class CritereOffreService {
                 c.setNiveauExperience(rs.getString("niveau_experience"));
                 c.setNiveauEtude(rs.getString("niveau_etude"));
                 c.setCompetencesRequises(rs.getString("competences_requises"));
+                c.setResponsibilities(rs.getString("responsibilities"));
                 c.setIdOffre(rs.getInt("id_offre"));
 
                 list.add(c);
@@ -99,12 +101,13 @@ public class CritereOffreService {
      * @param c The CritereOffre object containing the new criteria values
      */
     public void updateCritere(int id, CritereOffre c) {
-        String sql = "UPDATE critere_offre SET niveau_experience=?, niveau_etude=?, competences_requises=? WHERE id_critere=?";
+        String sql = "UPDATE critere_offre SET niveau_experience=?, niveau_etude=?, competences_requises=?, responsibilities=? WHERE id_critere=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, c.getNiveauExperience());
             ps.setString(2, c.getNiveauEtude());
             ps.setString(3, c.getCompetencesRequises());
-            ps.setInt(4, id);
+            ps.setString(4, c.getResponsibilities());
+            ps.setInt(5, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

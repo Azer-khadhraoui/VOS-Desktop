@@ -11,6 +11,8 @@ public class OffreEmploi {
     private String statutOffre;
     private Date datePublication;
     private int idUtilisateur;
+    private String workPreference;
+    private String lieu;
 
     public int getIdOffre() {
         return idOffre;
@@ -66,5 +68,21 @@ public class OffreEmploi {
 
     public void setIdUtilisateur(int idUtilisateur) {
         this.idUtilisateur = idUtilisateur;
+    }
+
+    public String getWorkPreference() {
+        return workPreference;
+    }
+
+    public void setWorkPreference(String workPreference) {
+        this.workPreference = workPreference;
+    }
+
+    public String getLieu() {
+        return lieu;
+    }
+
+    public void setLieu(String lieu) {
+        this.lieu = lieu;
     }
 }

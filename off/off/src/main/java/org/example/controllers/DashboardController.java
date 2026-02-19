@@ -26,6 +26,15 @@ import javafx.util.Duration;
 import org.example.services.AIEnhancementService;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import org.example.services.StatisticsService;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import java.util.Map;
+import javafx.geometry.Pos;
+import javafx.scene.layout.Region;
 
 
 
@@ -58,6 +67,8 @@ public class DashboardController {
     @FXML private TableColumn<OffreEmploi, String> colTitre;
     @FXML private TableColumn<OffreEmploi, String> colDescription;
     @FXML private TableColumn<OffreEmploi, String> colTypeContrat;
+    @FXML private TableColumn<OffreEmploi, String> colWorkPreference;
+    @FXML private TableColumn<OffreEmploi, String> colLieu;
     @FXML private TableColumn<OffreEmploi, String> colStatutOffre;
     @FXML private TableColumn<OffreEmploi, Date> colDatePublication;
     @FXML private TableColumn<OffreEmploi, Integer> colIdUtilisateur;
@@ -70,8 +81,17 @@ public class DashboardController {
     @FXML private TableColumn<CritereOffre, Integer> colIdCritere;
     @FXML private TableColumn<CritereOffre, String> colNiveauExperience;
     @FXML private TableColumn<CritereOffre, String> colNiveauEtude;
+    @FXML private TableColumn<CritereOffre, String> colResponsibilities;
     @FXML private TableColumn<CritereOffre, String> colCompetences;
     @FXML private TableColumn<CritereOffre, Integer> colIdOffreCritere;
+
+    // Statistics components
+    @FXML private VBox statisticsContainer;
+    @FXML private HBox statsCardsContainer;
+    @FXML private PieChart statusPieChart;
+    @FXML private PieChart contractTypePieChart;
+    @FXML private PieChart workPrefPieChart;
+    @FXML private BarChart<String, Number> locationBarChart;
 
     @FXML
     private void rafraichirCriteres() {
@@ -84,6 +104,7 @@ public class DashboardController {
     private final ObservableList<OffreEmploi> data = FXCollections.observableArrayList();
     private CritereOffreService critereService = new CritereOffreService();
     private AIEnhancementService aiService = new AIEnhancementService();
+    private StatisticsService statsService = new StatisticsService();
     private Integer currentOffreId = null;
 
     /**
@@ -118,6 +139,8 @@ public class DashboardController {
         colTitre.setCellValueFactory(new PropertyValueFactory<>("titre"));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
         colTypeContrat.setCellValueFactory(new PropertyValueFactory<>("typeContrat"));
+        colWorkPreference.setCellValueFactory(new PropertyValueFactory<>("workPreference"));
+        colLieu.setCellValueFactory(new PropertyValueFactory<>("lieu"));
         colStatutOffre.setCellValueFactory(new PropertyValueFactory<>("statutOffre"));
         colDatePublication.setCellValueFactory(new PropertyValueFactory<>("datePublication"));
         colIdUtilisateur.setCellValueFactory(new PropertyValueFactory<>("idUtilisateur"));
@@ -127,6 +150,7 @@ public class DashboardController {
         colIdCritere.setCellValueFactory(new PropertyValueFactory<>("idCritere"));
         colNiveauExperience.setCellValueFactory(new PropertyValueFactory<>("niveauExperience"));
         colNiveauEtude.setCellValueFactory(new PropertyValueFactory<>("niveauEtude"));
+        colResponsibilities.setCellValueFactory(new PropertyValueFactory<>("responsibilities"));
         colCompetences.setCellValueFactory(new PropertyValueFactory<>("competencesRequises"));
         colIdOffreCritere.setCellValueFactory(new PropertyValueFactory<>("idOffre"));
 
@@ -250,6 +274,13 @@ public class DashboardController {
         );
 
         rafraichirOffres();
+        
+        // Initialize statistics on startup
+        try {
+            refreshStatistics();
+        } catch (Exception e) {
+            System.err.println("Error initializing statistics: " + e.getMessage());
+        }
 
         // Simple search (filters in-memory)
         searchField.textProperty().addListener((obs, oldV, newV) -> applySearch(newV));
@@ -794,15 +825,20 @@ public class DashboardController {
             }
         });
 
-        // Statut
+        // Statut - hide when adding new offer (auto-set to ACTIVE)
         Label statutLbl = new Label("📊 STATUT");
         statutLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
+        statutLbl.setVisible(existing != null);
+        statutLbl.setManaged(existing != null);
+        
         ComboBox<String> statutCombo = new ComboBox<>();
         statutCombo.getItems().addAll("ACTIVE", "INACTIVE", "ARCHIVED");
         statutCombo.setValue("ACTIVE");
         statutCombo.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-background-radius: 8; " +
                            "-fx-border-color: #3d3d5c; -fx-border-radius: 8;");
         statutCombo.setPrefWidth(400);
+        statutCombo.setVisible(existing != null);
+        statutCombo.setManaged(existing != null);
         statutCombo.setCellFactory(lv -> {
             javafx.scene.control.ListCell<String> cell = new javafx.scene.control.ListCell<>() {
                 @Override
@@ -822,6 +858,45 @@ public class DashboardController {
                 setStyle("-fx-text-fill: white;");
             }
         });
+
+        // Work Preference
+        Label workPrefLbl = new Label("🏢 PRÉFÉRENCE DE TRAVAIL");
+        workPrefLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
+        ComboBox<String> workPrefCombo = new ComboBox<>();
+        workPrefCombo.getItems().addAll("On-site", "Remote", "Hybrid");
+        workPrefCombo.setValue("On-site");
+        workPrefCombo.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-background-radius: 8; " +
+                              "-fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+        workPrefCombo.setPrefWidth(400);
+        workPrefCombo.setCellFactory(lv -> {
+            javafx.scene.control.ListCell<String> cell = new javafx.scene.control.ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? "" : item);
+                    setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-padding: 8;");
+                }
+            };
+            return cell;
+        });
+        workPrefCombo.setButtonCell(new javafx.scene.control.ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle("-fx-text-fill: white;");
+            }
+        });
+
+        // Lieu (Location)
+        Label lieuLbl = new Label("📍 LIEU");
+        lieuLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
+        TextField lieuField = new TextField();
+        lieuField.setPromptText("Ex: Paris, Lyon, Remote...");
+        lieuField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
+                          "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
+                          "-fx-border-radius: 8; -fx-font-size: 14px;");
+        lieuField.setPrefWidth(400);
 
         // User ID
         Label userLbl = new Label("👤 ID UTILISATEUR");
@@ -904,6 +979,12 @@ public class DashboardController {
             typeCombo.setValue(existing.getTypeContrat());
             statutCombo.setValue(existing.getStatutOffre());
             userIdCombo.setValue(existing.getIdUtilisateur());
+            if (existing.getWorkPreference() != null) {
+                workPrefCombo.setValue(existing.getWorkPreference());
+            }
+            if (existing.getLieu() != null) {
+                lieuField.setText(existing.getLieu());
+            }
         }
 
         container.getChildren().addAll(
@@ -911,6 +992,8 @@ public class DashboardController {
             titreLbl, titreField, titreError,
             descLbl, descriptionStack, enhanceBox, descError,
             typeLbl, typeCombo,
+            workPrefLbl, workPrefCombo,
+            lieuLbl, lieuField,
             statutLbl, statutCombo,
             userLbl, userIdCombo, userError
         );
@@ -1114,8 +1197,17 @@ public class DashboardController {
                     o.setTitre(titreField.getText().trim());
                     o.setDescription(descriptionArea.getText().trim());
                     o.setTypeContrat(typeCombo.getValue());
-                    o.setStatutOffre(statutCombo.getValue());
+                    
+                    // Auto-set status to ACTIVE when adding new offer
+                    if (existing == null) {
+                        o.setStatutOffre("ACTIVE");
+                    } else {
+                        o.setStatutOffre(statutCombo.getValue());
+                    }
+                    
                     o.setDatePublication(new java.sql.Date(System.currentTimeMillis()));
+                    o.setWorkPreference(workPrefCombo.getValue());
+                    o.setLieu(lieuField.getText().trim());
                     
                     Integer userId = userIdCombo.getValue();
                     if (userId == null) {
@@ -1337,10 +1429,73 @@ public class DashboardController {
             }
         });
 
+        // Responsibilities Field
+        Label respLbl = new Label("📋 RESPONSABILITÉS");
+        respLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
+        TextArea respField = new TextArea();
+        respField.setPromptText("Décrivez les responsabilités du poste...");
+        respField.setPrefRowCount(4);
+        respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                         "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                         "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+        // Error label for responsibilities
+        Label respError = new Label(" ");
+        respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for responsibilities
+        respField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                respError.setText("❌ Les responsabilités sont obligatoires.");
+                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() < 10) {
+                respError.setText("❌ Minimum 10 caractères (" + newVal.trim().length() + "/10)");
+                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() > 500) {
+                respError.setText("❌ Maximum 500 caractères (" + newVal.trim().length() + "/500)");
+                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else {
+                respError.setText("✅ Valide (" + newVal.trim().length() + "/500 caractères)");
+                respError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
+            }
+        });
+        
+        // Add bullet point on Enter for responsibilities
+        respField.setOnKeyPressed(e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                e.consume();
+                int pos = respField.getCaretPosition();
+                String text = respField.getText();
+                String newText = text.substring(0, pos) + "\\n• " + text.substring(pos);
+                respField.setText(newText);
+                respField.positionCaret(pos + 3);
+            }
+        });
+        
+        // Add bullet point at start if empty for responsibilities
+        respField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused && respField.getText().isEmpty()) {
+                respField.setText("• ");
+                respField.positionCaret(2);
+            }
+        });
+
         container.getChildren().addAll(
             titleLabel,
             expLbl, expField, expError,
             etudeLbl, etudeField, etudeError,
+            respLbl, respField, respError,
             compLbl, compField, compError
         );
 
@@ -1427,6 +1582,8 @@ public class DashboardController {
             etudeError.setManaged(false);
             compError.setVisible(false);
             compError.setManaged(false);
+            respError.setVisible(false);
+            respError.setManaged(false);
             
             // Reset field styles
             expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1438,6 +1595,9 @@ public class DashboardController {
             compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                              "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                              "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+            respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                             "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                             "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
             
             boolean hasError = false;
             
@@ -1445,6 +1605,7 @@ public class DashboardController {
             String niveauExp = expField.getText();
             String niveauEtude = etudeField.getText();
             String competences = compField.getText();
+            String responsibilities = respField.getText();
             
             // Validate Niveau Experience - not empty
             if (niveauExp == null || niveauExp.trim().isEmpty()) {
@@ -1527,6 +1688,33 @@ public class DashboardController {
                 hasError = true;
             }
             
+            // Validate Responsibilities - not empty
+            if (responsibilities == null || responsibilities.trim().isEmpty()) {
+                respError.setText("❌ Les responsabilités sont obligatoires.");
+                respError.setVisible(true);
+                respError.setManaged(true);
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (responsibilities.trim().length() < 10) {
+                respError.setText("❌ Les responsabilités doivent contenir au moins 10 caractères.");
+                respError.setVisible(true);
+                respError.setManaged(true);
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (responsibilities.trim().length() > 500) {
+                respError.setText("❌ Les responsabilités ne peuvent pas dépasser 500 caractères.");
+                respError.setVisible(true);
+                respError.setManaged(true);
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            }
+            
             if (hasError) {
                 event.consume();
             }
@@ -1538,6 +1726,7 @@ public class DashboardController {
                 c.setNiveauExperience(expField.getText().trim());
                 c.setNiveauEtude(etudeField.getText().trim());
                 c.setCompetencesRequises(compField.getText().trim());
+                c.setResponsibilities(respField.getText().trim());
                 c.setIdOffre(offreId);
                 return c;
             }
@@ -1701,10 +1890,64 @@ public class DashboardController {
             }
         });
 
+        // Responsibilities Field
+        Label respLbl = new Label("📋 RESPONSABILITÉS");
+        respLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
+        TextArea respField = new TextArea(existing.getResponsibilities() != null ? existing.getResponsibilities() : "");
+        respField.setPrefRowCount(4);
+        respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                         "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                         "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+        // Error label for responsibilities
+        Label respError = new Label(" ");
+        respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+        
+        // Real-time validation for responsibilities
+        respField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                respError.setText("❌ Les responsabilités sont obligatoires.");
+                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() < 10) {
+                respError.setText("❌ Minimum 10 caractères (" + newVal.trim().length() + "/10)");
+                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else if (newVal.trim().length() > 500) {
+                respError.setText("❌ Maximum 500 caractères (" + newVal.trim().length() + "/500)");
+                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+            } else {
+                respError.setText("✅ Valide (" + newVal.trim().length() + "/500 caractères)");
+                respError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
+            }
+        });
+        
+        // Add bullet point on Enter for responsibilities
+        respField.setOnKeyPressed(e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                e.consume();
+                int pos = respField.getCaretPosition();
+                String text = respField.getText();
+                String newText = text.substring(0, pos) + "\n• " + text.substring(pos);
+                respField.setText(newText);
+                respField.positionCaret(pos + 3);
+            }
+        });
+
         container.getChildren().addAll(
             titleLabel,
             expLbl, expField, expError,
             etudeLbl, etudeField, etudeError,
+            respLbl, respField, respError,
             compLbl, compField, compError
         );
 
@@ -1791,6 +2034,8 @@ public class DashboardController {
             etudeError.setManaged(false);
             compError.setVisible(false);
             compError.setManaged(false);
+            respError.setVisible(false);
+            respError.setManaged(false);
             
             // Reset field styles
             expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1802,6 +2047,9 @@ public class DashboardController {
             compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                              "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                              "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
+            respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                             "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                             "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
             
             boolean hasError = false;
             
@@ -1809,6 +2057,7 @@ public class DashboardController {
             String niveauExp = expField.getText();
             String niveauEtude = etudeField.getText();
             String competences = compField.getText();
+            String responsibilities = respField.getText();
             
             // Validate Niveau Experience - not empty
             if (niveauExp == null || niveauExp.trim().isEmpty()) {
@@ -1891,6 +2140,33 @@ public class DashboardController {
                 hasError = true;
             }
             
+            // Validate Responsibilities - not empty
+            if (responsibilities == null || responsibilities.trim().isEmpty()) {
+                respError.setText("❌ Les responsabilités sont obligatoires.");
+                respError.setVisible(true);
+                respError.setManaged(true);
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (responsibilities.trim().length() < 10) {
+                respError.setText("❌ Les responsabilités doivent contenir au moins 10 caractères.");
+                respError.setVisible(true);
+                respError.setManaged(true);
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            } else if (responsibilities.trim().length() > 500) {
+                respError.setText("❌ Les responsabilités ne peuvent pas dépasser 500 caractères.");
+                respError.setVisible(true);
+                respError.setManaged(true);
+                respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
+                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
+                                 "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
+                hasError = true;
+            }
+            
             if (hasError) {
                 event.consume();
             }
@@ -1902,6 +2178,7 @@ public class DashboardController {
                 c.setNiveauExperience(expField.getText().trim());
                 c.setNiveauEtude(etudeField.getText().trim());
                 c.setCompetencesRequises(compField.getText().trim());
+                c.setResponsibilities(respField.getText().trim());
                 c.setIdOffre(existing.getIdOffre());
 
                 return c;
@@ -1939,6 +2216,205 @@ public class DashboardController {
         critereTable.getItems().setAll(
                 critereService.getByOffreId(offreId)
         );
+    }
+
+    /**
+     * Refreshes all statistics data and updates charts and cards.
+     * Called when the statistics tab is opened or when refresh button is clicked.
+     */
+    @FXML
+    private void refreshStatistics() {
+        try {
+            // Update statistics cards
+            updateStatisticsCards();
+            
+            // Update pie charts
+            updateStatusPieChart();
+            updateContractTypePieChart();
+            updateWorkPreferencePieChart();
+            updateLocationBarChart();
+            
+            System.out.println("Statistics refreshed successfully");
+        } catch (Exception e) {
+            System.err.println("Error refreshing statistics: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Updates the statistics cards at the top of the statistics tab.
+     */
+    private void updateStatisticsCards() {
+        statsCardsContainer.getChildren().clear();
+        
+        int totalOffers = statsService.getTotalOffers();
+        int activeOffers = statsService.getActiveOffers();
+        double avgActiveTime = statsService.getAverageActiveTime();
+        int offersLast7Days = statsService.getOffersInLastDays(7);
+        
+        // Card 1: Total Offers
+        statsCardsContainer.getChildren().add(createStatCard(
+            "📋", "Total des Offres", String.valueOf(totalOffers), 
+            "#3b82f6", "Toutes les offres"
+        ));
+        
+        // Card 2: Active Offers
+        statsCardsContainer.getChildren().add(createStatCard(
+            "✅", "Offres Actives", String.valueOf(activeOffers), 
+            "#10b981", "Actuellement ouvertes"
+        ));
+        
+        // Card 3: Average Active Time
+        statsCardsContainer.getChildren().add(createStatCard(
+            "⏱️", "Durée Moyenne", String.format("%.1f jours", avgActiveTime), 
+            "#f59e0b", "Temps actif moyen"
+        ));
+        
+        // Card 4: Recent Offers
+        statsCardsContainer.getChildren().add(createStatCard(
+            "🆕", "Derniers 7 Jours", String.valueOf(offersLast7Days), 
+            "#8b5cf6", "Nouvelles offres"
+        ));
+    }
+
+    /**
+     * Creates a statistics card with icon, title, value, and description.
+     */
+    private VBox createStatCard(String icon, String title, String value, String color, String description) {
+        VBox card = new VBox(12);
+        card.setAlignment(Pos.TOP_LEFT);
+        card.setStyle(
+            "-fx-background-color: white; " +
+            "-fx-padding: 25; " +
+            "-fx-background-radius: 12; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+        );
+        card.setPrefWidth(250);
+        card.setMaxWidth(Region.USE_PREF_SIZE);
+        
+        // Icon and title row
+        HBox header = new HBox(12);
+        header.setAlignment(Pos.CENTER_LEFT);
+        
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle(
+            "-fx-font-size: 32px; " +
+            "-fx-padding: 10; " +
+            "-fx-background-color: " + color + "22; " +
+            "-fx-background-radius: 10;"
+        );
+        
+        VBox textContainer = new VBox(4);
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 600;");
+        
+        Label valueLabel = new Label(value);
+        valueLabel.setStyle(
+            "-fx-font-size: 28px; " +
+            "-fx-font-weight: 700; " +
+            "-fx-text-fill: #1e293b;"
+        );
+        
+        textContainer.getChildren().addAll(titleLabel, valueLabel);
+        
+        Label descLabel = new Label(description);
+        descLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8;");
+        
+        card.getChildren().addAll(textContainer, descLabel);
+        
+        return card;
+    }
+
+    /**
+     * Updates the status distribution pie chart.
+     */
+    private void updateStatusPieChart() {
+        if (statusPieChart == null) return;
+        
+        statusPieChart.getData().clear();
+        Map<String, Integer> statusData = statsService.getOffresByStatus();
+        
+        for (Map.Entry<String, Integer> entry : statusData.entrySet()) {
+            PieChart.Data slice = new PieChart.Data(
+                entry.getKey() + " (" + entry.getValue() + ")", 
+                entry.getValue()
+            );
+            statusPieChart.getData().add(slice);
+        }
+        
+        statusPieChart.setLabelsVisible(true);
+        statusPieChart.setStartAngle(90);
+    }
+
+    /**
+     * Updates the contract type distribution pie chart.
+     */
+    private void updateContractTypePieChart() {
+        if (contractTypePieChart == null) return;
+        
+        contractTypePieChart.getData().clear();
+        Map<String, Integer> contractData = statsService.getOffresByContractType();
+        
+        for (Map.Entry<String, Integer> entry : contractData.entrySet()) {
+            PieChart.Data slice = new PieChart.Data(
+                entry.getKey() + " (" + entry.getValue() + ")", 
+                entry.getValue()
+            );
+            contractTypePieChart.getData().add(slice);
+        }
+        
+        contractTypePieChart.setLabelsVisible(true);
+        contractTypePieChart.setStartAngle(90);
+    }
+
+    /**
+     * Updates the work preference distribution pie chart.
+     */
+    private void updateWorkPreferencePieChart() {
+        if (workPrefPieChart == null) return;
+        
+        workPrefPieChart.getData().clear();
+        Map<String, Integer> workPrefData = statsService.getOffresByWorkPreference();
+        
+        if (workPrefData.isEmpty()) {
+            // Show message when no data
+            PieChart.Data slice = new PieChart.Data("Aucune donnée", 1);
+            workPrefPieChart.getData().add(slice);
+        } else {
+            for (Map.Entry<String, Integer> entry : workPrefData.entrySet()) {
+                PieChart.Data slice = new PieChart.Data(
+                    entry.getKey() + " (" + entry.getValue() + ")", 
+                    entry.getValue()
+                );
+                workPrefPieChart.getData().add(slice);
+            }
+        }
+        
+        workPrefPieChart.setLabelsVisible(true);
+        workPrefPieChart.setStartAngle(90);
+    }
+
+    /**
+     * Updates the top locations bar chart.
+     */
+    private void updateLocationBarChart() {
+        if (locationBarChart == null) return;
+        
+        locationBarChart.getData().clear();
+        Map<String, Integer> locationData = statsService.getOffresByLocation();
+        
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Nombre d'offres");
+        
+        // Get top 5 locations
+        locationData.entrySet().stream()
+            .limit(5)
+            .forEach(entry -> {
+                series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+            });
+        
+        locationBarChart.getData().add(series);
+        locationBarChart.setLegendVisible(false);
     }
 
 

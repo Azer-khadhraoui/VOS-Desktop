@@ -28,8 +28,8 @@ public class OffreEmploiService {
 
         String sql = """
             INSERT INTO offre_emploi
-            (titre, description, type_contrat, statut_offre, date_publication, id_utilisateur)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (titre, description, type_contrat, statut_offre, date_publication, id_utilisateur, work_preference, lieu)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -39,6 +39,8 @@ public class OffreEmploiService {
             ps.setString(4, offre.getStatutOffre());
             ps.setDate(5, offre.getDatePublication());
             ps.setInt(6, offre.getIdUtilisateur());
+            ps.setString(7, offre.getWorkPreference());
+            ps.setString(8, offre.getLieu());
 
             ps.executeUpdate();
             System.out.println("Offre inserted");
@@ -82,7 +84,9 @@ public class OffreEmploiService {
             type_contrat = ?,
             statut_offre = ?,
             date_publication = ?,
-            id_utilisateur = ?
+            id_utilisateur = ?,
+            work_preference = ?,
+            lieu = ?
         WHERE id_offre = ?
     """;
 
@@ -94,7 +98,9 @@ public class OffreEmploiService {
             ps.setString(4, offre.getStatutOffre());
             ps.setDate(5, offre.getDatePublication());
             ps.setInt(6, offre.getIdUtilisateur());
-            ps.setInt(7, idOffre);
+            ps.setString(7, offre.getWorkPreference());
+            ps.setString(8, offre.getLieu());
+            ps.setInt(9, idOffre);
 
             int rows = ps.executeUpdate();
 
@@ -132,6 +138,8 @@ public class OffreEmploiService {
                 offre.setStatutOffre(rs.getString("statut_offre"));
                 offre.setDatePublication(rs.getDate("date_publication"));
                 offre.setIdUtilisateur(rs.getInt("id_utilisateur"));
+                offre.setWorkPreference(rs.getString("work_preference"));
+                offre.setLieu(rs.getString("lieu"));
 
                 offres.add(offre);
             }
