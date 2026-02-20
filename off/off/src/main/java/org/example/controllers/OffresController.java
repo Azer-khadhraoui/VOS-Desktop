@@ -145,13 +145,18 @@ public class OffresController {
 
         allOffres = service.getAllOffres();
 
-        for (OffreEmploi offre : allOffres) {
+        // Filter out archived offers
+        List<OffreEmploi> activeOffres = allOffres.stream()
+            .filter(this::isOffreActive)
+            .collect(java.util.stream.Collectors.toList());
+
+        for (OffreEmploi offre : activeOffres) {
             VBox card = createCard(offre);
             cardsContainer.getChildren().add(card);
         }
         
         // Update count label
-        updateCountLabel(allOffres.size());
+        updateCountLabel(activeOffres.size());
     }
 
     /**
@@ -336,11 +341,13 @@ public class OffresController {
     private void showDetailView(OffreEmploi offre) {
         selectedOffre = offre;
         
-        // Populate sidebar with all jobs
+        // Populate sidebar with all active (non-archived) jobs
         jobsList.getChildren().clear();
         for (OffreEmploi o : allOffres) {
-            VBox sidebarCard = createSidebarCard(o);
-            jobsList.getChildren().add(sidebarCard);
+            if (isOffreActive(o)) {
+                VBox sidebarCard = createSidebarCard(o);
+                jobsList.getChildren().add(sidebarCard);
+            }
         }
         
         // Show detail content
@@ -621,8 +628,10 @@ public class OffresController {
     private void refreshSidebarSelection() {
         jobsList.getChildren().clear();
         for (OffreEmploi o : allOffres) {
-            VBox sidebarCard = createSidebarCard(o);
-            jobsList.getChildren().add(sidebarCard);
+            if (isOffreActive(o)) {
+                VBox sidebarCard = createSidebarCard(o);
+                jobsList.getChildren().add(sidebarCard);
+            }
         }
     }
     
@@ -1005,6 +1014,16 @@ public class OffresController {
         return titre.contains(searchTerm);
     }
     
+    /**
+     * Checks if an offer is active and not archived.
+     * @param offre The offer to check
+     * @return true if the offer is active (not archived), false otherwise
+     */
+    private boolean isOffreActive(OffreEmploi offre) {
+        if (offre == null || offre.getStatutOffre() == null) return true;
+        return !offre.getStatutOffre().equalsIgnoreCase("ARCHIVED");
+    }
+    
     private boolean matchesContractFilter(OffreEmploi offre, CheckBox cdi, CheckBox cdd, 
                                          CheckBox freelance, CheckBox stage, CheckBox alternance) {
         boolean anySelected = cdi.isSelected() || cdd.isSelected() || freelance.isSelected() || 
@@ -1094,6 +1113,7 @@ public class OffresController {
         cardsContainer.getChildren().clear();
         
         List<OffreEmploi> filteredOffres = allOffres.stream()
+            .filter(this::isOffreActive)
             .filter(offre -> matchesSearchFilter(offre, searchText))
             .filter(this::matchesWorkPreferenceFilter)
             .filter(this::matchesContractTypeFilter)
