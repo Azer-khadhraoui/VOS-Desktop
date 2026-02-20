@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.WebcamController"
+      alignment="CENTER"
+      spacing="20"
+      style="-fx-background-color: #667EEA; -fx-padding: 30;">
+
+    <!-- TITRE -->
+    <Label text="📷 Reconnaissance Faciale" 
+           style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 2);"/>
+    
+    <Label fx:id="lblStatus" 
+           text="Positionnez votre visage face à la caméra" 
+           style="-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.9); -fx-font-weight: 500;"/>
+
+    <!-- PREVIEW WEBCAM -->
+    <StackPane style="-fx-background-color: #1a1a2e; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 30, 0, 0, 10);">
+        <ImageView fx:id="webcamPreview" 
+                   fitWidth="640" 
+                   fitHeight="480" 
+                   preserveRatio="true"
+                   style="-fx-effect: dropshadow(gaussian, rgba(102,126,234,0.5), 20, 0, 0, 0);"/>
+        
+        <!-- Overlay pour le cadre de détection -->
+        <StackPane fx:id="faceDetectionOverlay" visible="false">
+            <VBox alignment="CENTER" spacing="10" 
+                  style="-fx-background-color: rgba(76, 175, 80, 0.2); -fx-background-radius: 10; -fx-border-color: #4CAF50; -fx-border-width: 3; -fx-border-radius: 10;">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <Label text="✓ Visage détecté" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;"/>
+            </VBox>
+        </StackPane>
+    </StackPane>
+
+    <!-- BOUTONS -->
+    <HBox spacing="15" alignment="CENTER">
+        <Button fx:id="btnCapture" 
+                text="📸 Capturer et Authentifier" 
+                onAction="#captureAndAuthenticate"
+                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 600; -fx-padding: 15 30; -fx-background-radius: 25; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(33,150,243,0.5), 20, 0, 0, 5);"/>
+        
+        <Button text="❌ Annuler" 
+                onAction="#cancel"
+                style="-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 600; -fx-padding: 15 30; -fx-background-radius: 25; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(244,67,54,0.5), 20, 0, 0, 5);"/>
+    </HBox>
+
+    <!-- INDICATEUR DE CHARGEMENT -->
+    <ProgressIndicator fx:id="progressIndicator" visible="false" prefWidth="60" prefHeight="60"/>
+
+</VBox>
