@@ -97,6 +97,9 @@ public class OffresController {
     private CheckBox filterJavaScript;
     @FXML
     private Button applyFiltersBtn;
+    
+    @FXML
+    private Button filterButton;
 
     private final OffreEmploiService service = new OffreEmploiService();
     private final CritereOffreService critereService = new CritereOffreService();
@@ -111,6 +114,12 @@ public class OffresController {
     @FXML
     public void initialize() {
         loadOffres();
+        
+        // Ensure filter button is visible on grid view
+        if (filterButton != null) {
+            filterButton.setVisible(true);
+            filterButton.setManaged(true);
+        }
         
         // Add search field listener to filter in real-time
         if (searchField != null) {
@@ -498,6 +507,37 @@ public class OffresController {
         if (!criteres.isEmpty()) {
             for (CritereOffre critere : criteres) {
                 
+                // Responsibilities (Responsabilités)
+                if (critere.getResponsibilities() != null && !critere.getResponsibilities().trim().isEmpty()) {
+                    Label respTitle = new Label("Responsabilités");
+                    respTitle.getStyleClass().add("detail-section-title");
+                    respTitle.setStyle("-fx-padding: 20 0 10 0;");
+                    
+                    VBox respContainer = new VBox(10);
+                    String[] responsibilities = critere.getResponsibilities().split(",|;|\n");
+                    for (String resp : responsibilities) {
+                        String cleanResp = resp.trim();
+                        if (!cleanResp.isEmpty()) {
+                            HBox respBox = new HBox(12);
+                            respBox.setAlignment(Pos.TOP_LEFT);
+                            respBox.getStyleClass().add("detail-criteria-item");
+                            
+                            Label respIcon = new Label("→");
+                            respIcon.setStyle("-fx-font-size: 16px; -fx-text-fill: #8364e5; -fx-font-weight: bold;");
+                            
+                            Label respText = new Label(cleanResp);
+                            respText.setWrapText(true);
+                            respText.getStyleClass().add("detail-criteria-text");
+                            HBox.setHgrow(respText, Priority.ALWAYS);
+                            
+                            respBox.getChildren().addAll(respIcon, respText);
+                            respContainer.getChildren().add(respBox);
+                        }
+                    }
+                    
+                    jobDetailPanel.getChildren().addAll(respTitle, respContainer);
+                }
+                
                 // Niveau d'expérience
                 if (critere.getNiveauExperience() != null && !critere.getNiveauExperience().trim().isEmpty()) {
                     Label expTitle = new Label("Niveau d'expérience");
@@ -593,6 +633,12 @@ public class OffresController {
      * pour la vue détaillée.
      */
     private void animateToDetailView() {
+        // Hide filter button on detail view
+        if (filterButton != null) {
+            filterButton.setVisible(false);
+            filterButton.setManaged(false);
+        }
+        
         // Fade out grid view
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), gridView);
         fadeOut.setFromValue(1.0);
@@ -669,6 +715,12 @@ public class OffresController {
      */
     @FXML
     private void backToGrid() {
+        // Show filter button on grid view
+        if (filterButton != null) {
+            filterButton.setVisible(true);
+            filterButton.setManaged(true);
+        }
+        
         // Fade out detail view
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), detailView);
         fadeOut.setFromValue(1.0);
