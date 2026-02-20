@@ -137,6 +137,10 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn<ContratRow, String> colStatus;
     @FXML
+    private TableColumn<ContratRow, String> colVolumeHoraire;
+    @FXML
+    private TableColumn<ContratRow, String> colAvantages;
+    @FXML
     private TableColumn<ContratRow, Double> colSalaire;
     @FXML
     private TableColumn<ContratRow, Integer> colIdRecrutementContrat;
@@ -459,6 +463,8 @@ public class MainController implements Initializable {
         colTypeContrat.setText("📋 Type");
         colDateDebut.setText("📅 Période");
         colStatus.setText("📊 Statut");
+        colVolumeHoraire.setText("⏱️ Volume");
+        colAvantages.setText("🎁 Avantages");
         colSalaire.setText("💰 Salaire");
         colIdRecrutementContrat.setText("👤 Recrutement");
         colActionsContrat.setText("⚙️ Actions");
@@ -467,6 +473,8 @@ public class MainController implements Initializable {
         colTypeContrat.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         colDateDebut.setCellValueFactory(cellData -> cellData.getValue().periodeProperty());
         colStatus.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
+        colVolumeHoraire.setCellValueFactory(cellData -> cellData.getValue().volumeHoraireProperty());
+        colAvantages.setCellValueFactory(cellData -> cellData.getValue().avantagesProperty());
         colSalaire.setCellValueFactory(cellData -> cellData.getValue().salaireProperty().asObject());
         colIdRecrutementContrat.setCellValueFactory(cellData -> cellData.getValue().idRecrutementProperty().asObject());
         
@@ -567,6 +575,64 @@ public class MainController implements Initializable {
             }
         });
         
+        // Style Volume Horaire column
+        colVolumeHoraire.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    setText("⏱️ " + value);
+                    setStyle("-fx-text-fill: #4F46E5; -fx-font-weight: 500;");
+                }
+            }
+        });
+        
+        // Style Avantages column with colored badges
+        colAvantages.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setGraphic(null);
+                } else {
+                    Label badge = new Label(value);
+                    String bgColor = "#F3F4F6";
+                    String textColor = "#6B7280";
+                    String icon = "🎁 ";
+                    
+                    switch (value.toLowerCase()) {
+                        case "aucun":
+                            icon = "✖ ";
+                            bgColor = "#E5E7EB";
+                            textColor = "#6B7280";
+                            break;
+                        case "tickets restaurant":
+                            icon = "🍽️ ";
+                            bgColor = "#FECACA";
+                            textColor = "#991B1B";
+                            break;
+                        case "assurance maladie":
+                            icon = "🏥 ";
+                            bgColor = "#BFDBFE";
+                            textColor = "#1E40AF";
+                            break;
+                        case "transport":
+                            icon = "🚗 ";
+                            bgColor = "#BBF7D0";
+                            textColor = "#065F46";
+                            break;
+                    }
+                    
+                    badge.setText(icon + value);
+                    badge.setStyle("-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor + "; " +
+                            "-fx-padding: 5 10; -fx-background-radius: 12; -fx-font-weight: 500; -fx-font-size: 10px;");
+                    setGraphic(badge);
+                }
+            }
+        });
+        
         // Style Salaire column with currency formatting
         colSalaire.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -580,6 +646,10 @@ public class MainController implements Initializable {
                 }
             }
         });
+        
+        // Set row height for better spacing
+        tableContrats.setFixedCellSize(75);
+        tableContrats.setStyle("-fx-fixed-cell-size: 75px;");
         
         // Configure Actions column with styled buttons
         colActionsContrat.setCellFactory(param -> new TableCell<>() {
@@ -1427,7 +1497,7 @@ public class MainController implements Initializable {
         lblAvantages.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
         
         ComboBox<String> avantages = new ComboBox<>();
-        avantages.setItems(FXCollections.observableArrayList("Tickets Restaurant", "Assurance Maladie", "Transport"));
+        avantages.setItems(FXCollections.observableArrayList("Aucun", "Tickets Restaurant", "Assurance Maladie", "Transport"));
         avantages.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
@@ -2193,7 +2263,7 @@ public class MainController implements Initializable {
         lblAvantages.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
         
         ComboBox<String> avantages = new ComboBox<>();
-        avantages.setItems(FXCollections.observableArrayList("Tickets Restaurant", "Assurance Maladie", "Transport"));
+        avantages.setItems(FXCollections.observableArrayList("Aucun", "Tickets Restaurant", "Assurance Maladie", "Transport"));
         avantages.setValue(contratRow.avantagesProperty().get());
         avantages.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
