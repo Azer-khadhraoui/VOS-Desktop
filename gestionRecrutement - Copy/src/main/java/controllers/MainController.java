@@ -135,6 +135,8 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn<ContratRow, String> colDateDebut;
     @FXML
+    private TableColumn<ContratRow, String> colStatus;
+    @FXML
     private TableColumn<ContratRow, Double> colSalaire;
     @FXML
     private TableColumn<ContratRow, Integer> colIdRecrutementContrat;
@@ -456,6 +458,7 @@ public class MainController implements Initializable {
         colIdContrat.setText("# ID");
         colTypeContrat.setText("📋 Type");
         colDateDebut.setText("📅 Période");
+        colStatus.setText("📊 Statut");
         colSalaire.setText("💰 Salaire");
         colIdRecrutementContrat.setText("👤 Recrutement");
         colActionsContrat.setText("⚙️ Actions");
@@ -463,6 +466,7 @@ public class MainController implements Initializable {
         colIdContrat.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         colTypeContrat.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         colDateDebut.setCellValueFactory(cellData -> cellData.getValue().periodeProperty());
+        colStatus.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
         colSalaire.setCellValueFactory(cellData -> cellData.getValue().salaireProperty().asObject());
         colIdRecrutementContrat.setCellValueFactory(cellData -> cellData.getValue().idRecrutementProperty().asObject());
         
@@ -490,6 +494,45 @@ public class MainController implements Initializable {
                     badge.setText(icon + value);
                     badge.setStyle("-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor + "; " +
                             "-fx-padding: 6 12; -fx-background-radius: 20; -fx-font-weight: 600; -fx-font-size: 12px;");
+                    setGraphic(badge);
+                }
+            }
+        });
+        
+        // Style Status column with colored badges
+        colStatus.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setGraphic(null);
+                } else {
+                    Label badge = new Label(value);
+                    String bgColor = "#F3F4F6";
+                    String textColor = "#111827";
+                    String icon = "";
+                    
+                    switch (value.toLowerCase()) {
+                        case "actif":
+                            icon = "✓ ";
+                            bgColor = "#D1FAE5";
+                            textColor = "#065F46";
+                            break;
+                        case "en attente":
+                            icon = "⏳ ";
+                            bgColor = "#FCD34D";
+                            textColor = "#92400E";
+                            break;
+                        case "terminé":
+                            icon = "✔ ";
+                            bgColor = "#E5E7EB";
+                            textColor = "#6B7280";
+                            break;
+                    }
+                    
+                    badge.setText(icon + value);
+                    badge.setStyle("-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor + "; " +
+                            "-fx-padding: 6 12; -fx-background-radius: 15; -fx-font-weight: 600; -fx-font-size: 11px;");
                     setGraphic(badge);
                 }
             }

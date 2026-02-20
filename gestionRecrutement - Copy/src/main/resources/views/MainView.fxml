@@ -198,6 +198,7 @@
                                         <TableColumn fx:id="colIdContrat" text="ID" prefWidth="60.0"/>
                                         <TableColumn fx:id="colTypeContrat" text="Type" prefWidth="120.0"/>
                                         <TableColumn fx:id="colDateDebut" text="Date Début" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colStatus" text="Statut" prefWidth="110.0"/>
                                         <TableColumn fx:id="colSalaire" text="Salaire" prefWidth="120.0"/>
                                         <TableColumn fx:id="colIdRecrutementContrat" text="ID Recrutement" prefWidth="120.0"/>
                                         <TableColumn fx:id="colActionsContrat" text="Actions" prefWidth="150.0"/>
