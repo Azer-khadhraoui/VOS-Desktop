@@ -1,11 +1,14 @@
 package services;
 
 import entities.Recrutement;
+import entities.RecrutementGroup;
 import utils.MyDB;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceRecrutement {
 
@@ -113,5 +116,42 @@ public class ServiceRecrutement {
         }
 
         return list;
+    }
+
+    // ✅ GET USER NAME BY ID
+    public String getUserNameById(int userId) throws SQLException {
+        String req = "SELECT nom FROM utilisateur WHERE id_utilisateur = ?";
+        try (PreparedStatement ps = conn.prepareStatement(req)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("nom");
+                }
+            }
+        }
+        return "Utilisateur #" + userId;
+    }
+
+    // ✅ GET ALL RECRUITMENTS GROUPED BY USER
+    public List<RecrutementGroup> afficherGroupedByUser() throws SQLException {
+        // First, get all recruitments
+        List<Recrutement> allRecrutements = afficher();
+        
+        // Group by user ID
+        Map<Integer, List<Recrutement>> groupedMap = new HashMap<>();
+        for (Recrutement r : allRecrutements) {
+            groupedMap.computeIfAbsent(r.getId_utilisateur(), k -> new ArrayList<>()).add(r);
+        }
+        
+        // Create RecrutementGroup objects
+        List<RecrutementGroup> groups = new ArrayList<>();
+        for (Map.Entry<Integer, List<Recrutement>> entry : groupedMap.entrySet()) {
+            int userId = entry.getKey();
+            String userName = getUserNameById(userId);
+            RecrutementGroup group = new RecrutementGroup(userId, userName, entry.getValue());
+            groups.add(group);
+        }
+        
+        return groups;
     }
 }

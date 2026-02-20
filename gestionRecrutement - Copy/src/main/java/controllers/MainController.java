@@ -2,6 +2,8 @@ package controllers;
 
 import entities.Contrat;
 import entities.Recrutement;
+import entities.RecrutementTableRow;
+import entities.RecrutementGroup;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -28,6 +30,9 @@ import services.ServiceRecrutement;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.List;
 
@@ -38,21 +43,21 @@ public class MainController implements Initializable {
     // ================================
     @FXML
     private VBox sidebar;
-    
+
     @FXML
     private ImageView sidebarLogo;
-    
+
     @FXML
     private HBox navDashboard;
     @FXML
     private Label navDashboardText;
-    
+
     @FXML
     private TitledPane gestionsPane;
-    
+
     @FXML
     private TitledPane statsPane;
-    
+
     @FXML
     private HBox menuOffres;
     @FXML
@@ -79,7 +84,7 @@ public class MainController implements Initializable {
     private Label lblGestionsSection;
     @FXML
     private Label lblStatistiquesSection;
-    
+
     @FXML
     private HBox navLogout;
     @FXML
@@ -149,22 +154,24 @@ public class MainController implements Initializable {
 
     // Recrutements Table
     @FXML
-    private TableView<RecrutementRow> tableRecrutements;
+    private TableView<RecrutementTableRow> tableRecrutements;
     @FXML
-    private TableColumn<RecrutementRow, Integer> colIdRecrutement;
+    private TableColumn<RecrutementTableRow, String> colUserName;
     @FXML
-    private TableColumn<RecrutementRow, String> colDateDecision;
+    private TableColumn<RecrutementTableRow, Integer> colRecrutementCount;
     @FXML
-    private TableColumn<RecrutementRow, String> colDecisionFinale;
+    private TableColumn<RecrutementTableRow, String> colDecisionDate;
     @FXML
-    private TableColumn<RecrutementRow, Integer> colIdEntretien;
+    private TableColumn<RecrutementTableRow, String> colDecisionFinale;
     @FXML
-    private TableColumn<RecrutementRow, Integer> colIdUtilisateur;
+    private TableColumn<RecrutementTableRow, Integer> colIdEntretien;
     @FXML
-    private TableColumn<RecrutementRow, Void> colActionsRecrutement;
+    private TableColumn<RecrutementTableRow, Void> colActions;
 
     private ObservableList<ContratRow> contratData = FXCollections.observableArrayList();
-    private ObservableList<RecrutementRow> recrutementData = FXCollections.observableArrayList();
+    private ObservableList<RecrutementTableRow> recrutementData = FXCollections.observableArrayList();
+    private List<RecrutementGroup> recrutementGroups;
+    private Map<RecrutementGroup, Integer> groupHeaderIndexMap = new HashMap<>();
 
     // Services
     private ServiceContrat serviceContrat = new ServiceContrat();
@@ -172,8 +179,7 @@ public class MainController implements Initializable {
 
     // Modal states
     private ContratRow selectedContratRow = null;
-    private RecrutementRow selectedRecrutementRow = null;
-    
+
     // Sidebar state
     private boolean sidebarExpanded = false;
     private Timeline sidebarAnimation = null;
@@ -186,32 +192,33 @@ public class MainController implements Initializable {
 
         // Initialize sidebar animations
         initializeSidebar();
-        
+
         // Setup navigation click handlers
         setupNavigation();
     }
 
     private void initializeSidebar() {
-        if (sidebar == null) return;
-        
+        if (sidebar == null)
+            return;
+
         // Hide section titles initially (collapsed state)
-        Label[] sectionLabels = {lblDashboardSection, lblGestionsSection, lblStatistiquesSection};
+        Label[] sectionLabels = { lblDashboardSection, lblGestionsSection, lblStatistiquesSection };
         for (Label label : sectionLabels) {
             if (label != null) {
                 label.setVisible(false);
                 label.setManaged(false);
             }
         }
-        
+
         // Hide nav item labels initially
-        Label[] labels = {navDashboardText, navLogoutText};
+        Label[] labels = { navDashboardText, navLogoutText };
         for (Label label : labels) {
             if (label != null) {
                 label.setVisible(false);
                 label.setManaged(false);
             }
         }
-        
+
         // Hide all submenu labels (sidebar-nav-label)
         sidebar.lookupAll(".sidebar-nav-label").forEach(node -> {
             if (node instanceof Label) {
@@ -219,10 +226,12 @@ public class MainController implements Initializable {
                 node.setManaged(false);
             }
         });
-        
+
         // Hide TitledPane titles initially (only show icons when collapsed)
-        if (gestionsPane != null) gestionsPane.setText("");
-        if (statsPane != null) statsPane.setText("");
+        if (gestionsPane != null)
+            gestionsPane.setText("");
+        if (statsPane != null)
+            statsPane.setText("");
     }
 
     private void setupNavigation() {
@@ -230,12 +239,12 @@ public class MainController implements Initializable {
         if (navDashboard != null) {
             navDashboard.setOnMouseClicked(e -> showPageDashboard());
         }
-        
+
         // Logout
         if (navLogout != null) {
             navLogout.setOnMouseClicked(e -> handleLogout());
         }
-        
+
         // Gestions submenu items
         if (menuRecrutement != null) {
             menuRecrutement.setOnMouseClicked(e -> showPageRecrutement());
@@ -249,7 +258,7 @@ public class MainController implements Initializable {
         if (menuAdministration != null) {
             menuAdministration.setOnMouseClicked(e -> showPageAdministration());
         }
-        
+
         // Statistiques submenu items
         if (menuCandidats != null) {
             menuCandidats.setOnMouseClicked(e -> showPageCandidats());
@@ -275,7 +284,7 @@ public class MainController implements Initializable {
             // Change logo to slogan version
             if (sidebarLogo != null) {
                 sidebarLogo.setImage(new Image(getClass().getResource("/images/VOSwhiteslogan.png").toExternalForm()));
-                
+
                 // Scale animation: grow the logo
                 ScaleTransition scaleUp = new ScaleTransition(Duration.millis(300), sidebarLogo);
                 scaleUp.setFromX(1.0);
@@ -294,7 +303,7 @@ public class MainController implements Initializable {
         // Change logo back to simple version
         if (sidebarLogo != null) {
             sidebarLogo.setImage(new Image(getClass().getResource("/images/VOSwhite.png").toExternalForm()));
-            
+
             // Scale animation: shrink the logo
             ScaleTransition scaleDown = new ScaleTransition(Duration.millis(300), sidebarLogo);
             scaleDown.setFromX(1.4);
@@ -308,23 +317,21 @@ public class MainController implements Initializable {
 
     private void expandSidebar() {
         sidebarExpanded = true;
-        
+
         // Stop any running animation
         if (sidebarAnimation != null) {
             sidebarAnimation.stop();
         }
-        
+
         // Animate width expansion: 60px -> 240px
         sidebarAnimation = new Timeline(
-            new KeyFrame(Duration.millis(300),
-                new KeyValue(sidebar.prefWidthProperty(), 240.0, Interpolator.EASE_OUT),
-                new KeyValue(sidebar.minWidthProperty(), 240.0, Interpolator.EASE_OUT)
-            )
-        );
+                new KeyFrame(Duration.millis(300),
+                        new KeyValue(sidebar.prefWidthProperty(), 240.0, Interpolator.EASE_OUT),
+                        new KeyValue(sidebar.minWidthProperty(), 240.0, Interpolator.EASE_OUT)));
         sidebarAnimation.play();
-        
+
         // Show section titles
-        Label[] sectionLabels = {lblDashboardSection, lblGestionsSection, lblStatistiquesSection};
+        Label[] sectionLabels = { lblDashboardSection, lblGestionsSection, lblStatistiquesSection };
         for (Label label : sectionLabels) {
             if (label != null) {
                 label.setVisible(true);
@@ -336,9 +343,9 @@ public class MainController implements Initializable {
                 fadeIn.play();
             }
         }
-        
+
         // Fade in nav item labels
-        Label[] labels = {navDashboardText, navLogoutText};
+        Label[] labels = { navDashboardText, navLogoutText };
         for (Label label : labels) {
             if (label != null) {
                 label.setVisible(true);
@@ -350,7 +357,7 @@ public class MainController implements Initializable {
                 fadeIn.play();
             }
         }
-        
+
         // Show all sidebar-nav-label (submenu labels) across all nodes
         if (sidebar != null) {
             sidebar.lookupAll(".sidebar-nav-label").forEach(node -> {
@@ -365,20 +372,22 @@ public class MainController implements Initializable {
                 }
             });
         }
-        
+
         // Show TitledPane titles
-        if (gestionsPane != null) gestionsPane.setText("Gestions");
-        if (statsPane != null) statsPane.setText("Statistiques");
+        if (gestionsPane != null)
+            gestionsPane.setText("Gestions");
+        if (statsPane != null)
+            statsPane.setText("Statistiques");
     }
 
     private void collapseSidebar() {
         sidebarExpanded = false;
-        
+
         // Stop any running animation
         if (sidebarAnimation != null) {
             sidebarAnimation.stop();
         }
-        
+
         // Close TitledPane menus
         if (gestionsPane != null) {
             gestionsPane.setExpanded(false);
@@ -386,9 +395,9 @@ public class MainController implements Initializable {
         if (statsPane != null) {
             statsPane.setExpanded(false);
         }
-        
+
         // Hide section titles
-        Label[] sectionLabels = {lblDashboardSection, lblGestionsSection, lblStatistiquesSection};
+        Label[] sectionLabels = { lblDashboardSection, lblGestionsSection, lblStatistiquesSection };
         for (Label label : sectionLabels) {
             if (label != null) {
                 FadeTransition fadeOut = new FadeTransition(Duration.millis(150), label);
@@ -401,9 +410,9 @@ public class MainController implements Initializable {
                 fadeOut.play();
             }
         }
-        
+
         // Fade out nav item labels
-        Label[] labels = {navDashboardText, navLogoutText};
+        Label[] labels = { navDashboardText, navLogoutText };
         for (Label label : labels) {
             if (label != null) {
                 FadeTransition fadeOut = new FadeTransition(Duration.millis(150), label);
@@ -416,7 +425,7 @@ public class MainController implements Initializable {
                 fadeOut.play();
             }
         }
-        
+
         // Hide all sidebar-nav-label (submenu labels) across all nodes
         if (sidebar != null) {
             sidebar.lookupAll(".sidebar-nav-label").forEach(node -> {
@@ -432,25 +441,26 @@ public class MainController implements Initializable {
                 }
             });
         }
-        
+
         // Hide TitledPane titles (show only icons)
-        if (gestionsPane != null) gestionsPane.setText("");
-        if (statsPane != null) statsPane.setText("");
-        
+        if (gestionsPane != null)
+            gestionsPane.setText("");
+        if (statsPane != null)
+            statsPane.setText("");
+
         // Animate width collapse: 240px -> 60px
         sidebarAnimation = new Timeline(
-            new KeyFrame(Duration.millis(300),
-                new KeyValue(sidebar.prefWidthProperty(), 60.0, Interpolator.EASE_IN),
-                new KeyValue(sidebar.minWidthProperty(), 60.0, Interpolator.EASE_IN)
-            )
-        );
+                new KeyFrame(Duration.millis(300),
+                        new KeyValue(sidebar.prefWidthProperty(), 60.0, Interpolator.EASE_IN),
+                        new KeyValue(sidebar.minWidthProperty(), 60.0, Interpolator.EASE_IN)));
         sidebarAnimation.play();
     }
 
     private void setNavItemActive(HBox activeItem) {
         // Remove active class from all items
-        if (navDashboard != null) navDashboard.getStyleClass().remove("sidebar-nav-item-active");
-        
+        if (navDashboard != null)
+            navDashboard.getStyleClass().remove("sidebar-nav-item-active");
+
         // Add active class to current item
         if (activeItem != null && !activeItem.getStyleClass().contains("sidebar-nav-item-active")) {
             activeItem.getStyleClass().add("sidebar-nav-item-active");
@@ -468,7 +478,7 @@ public class MainController implements Initializable {
         colSalaire.setText("💰 Salaire");
         colIdRecrutementContrat.setText("👤 Recrutement");
         colActionsContrat.setText("⚙️ Actions");
-        
+
         colIdContrat.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         colTypeContrat.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         colDateDebut.setCellValueFactory(cellData -> cellData.getValue().periodeProperty());
@@ -477,7 +487,7 @@ public class MainController implements Initializable {
         colAvantages.setCellValueFactory(cellData -> cellData.getValue().avantagesProperty());
         colSalaire.setCellValueFactory(cellData -> cellData.getValue().salaireProperty().asObject());
         colIdRecrutementContrat.setCellValueFactory(cellData -> cellData.getValue().idRecrutementProperty().asObject());
-        
+
         // Style Type column with badge icons
         colTypeContrat.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -490,15 +500,35 @@ public class MainController implements Initializable {
                     String icon = "";
                     String bgColor = "#E0E7FF";
                     String textColor = "#4F46E5";
-                    
+
                     switch (value.toLowerCase()) {
-                        case "cdi": icon = "💼 "; bgColor = "#DBEAFE"; textColor = "#0369A1"; break;
-                        case "cdd": icon = "📝 "; bgColor = "#FEF3C7"; textColor = "#92400E"; break;
-                        case "stage": icon = "🎓 "; bgColor = "#D1FAE5"; textColor = "#065F46"; break;
-                        case "freelance": icon = "🚀 "; bgColor = "#FCD34D"; textColor = "#78350F"; break;
-                        case "alternance": icon = "🔄 "; bgColor = "#F3E8FF"; textColor = "#6B21A8"; break;
+                        case "cdi":
+                            icon = "💼 ";
+                            bgColor = "#DBEAFE";
+                            textColor = "#0369A1";
+                            break;
+                        case "cdd":
+                            icon = "📝 ";
+                            bgColor = "#FEF3C7";
+                            textColor = "#92400E";
+                            break;
+                        case "stage":
+                            icon = "🎓 ";
+                            bgColor = "#D1FAE5";
+                            textColor = "#065F46";
+                            break;
+                        case "freelance":
+                            icon = "🚀 ";
+                            bgColor = "#FCD34D";
+                            textColor = "#78350F";
+                            break;
+                        case "alternance":
+                            icon = "🔄 ";
+                            bgColor = "#F3E8FF";
+                            textColor = "#6B21A8";
+                            break;
                     }
-                    
+
                     badge.setText(icon + value);
                     badge.setStyle("-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor + "; " +
                             "-fx-padding: 6 12; -fx-background-radius: 20; -fx-font-weight: 600; -fx-font-size: 12px;");
@@ -506,7 +536,7 @@ public class MainController implements Initializable {
                 }
             }
         });
-        
+
         // Style Période column with dates info
         colDateDebut.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -519,23 +549,23 @@ public class MainController implements Initializable {
                     VBox container = new VBox();
                     container.setSpacing(4);
                     container.setStyle("-fx-padding: 5;");
-                    
+
                     // Période (gros et bold)
                     Label periode = new Label(value);
                     periode.setStyle("-fx-font-weight: 600; -fx-font-size: 12px; -fx-text-fill: #1F2937;");
-                    
+
                     // Dates (petit et gris)
                     String dateDebut = row.dateDebutProperty().get();
                     String dateFin = row.dateFinProperty().get();
                     Label dates = new Label(dateDebut + " → " + dateFin);
                     dates.setStyle("-fx-font-size: 10px; -fx-text-fill: #9CA3AF; -fx-font-style: italic;");
-                    
+
                     container.getChildren().addAll(periode, dates);
                     setGraphic(container);
                 }
             }
         });
-        
+
         // Style Status column with colored badges
         colStatus.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -548,7 +578,7 @@ public class MainController implements Initializable {
                     String bgColor = "#F3F4F6";
                     String textColor = "#111827";
                     String icon = "";
-                    
+
                     switch (value.toLowerCase()) {
                         case "actif":
                             icon = "✓ ";
@@ -566,7 +596,7 @@ public class MainController implements Initializable {
                             textColor = "#6B7280";
                             break;
                     }
-                    
+
                     badge.setText(icon + value);
                     badge.setStyle("-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor + "; " +
                             "-fx-padding: 6 12; -fx-background-radius: 15; -fx-font-weight: 600; -fx-font-size: 11px;");
@@ -574,7 +604,7 @@ public class MainController implements Initializable {
                 }
             }
         });
-        
+
         // Style Volume Horaire column
         colVolumeHoraire.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -588,7 +618,7 @@ public class MainController implements Initializable {
                 }
             }
         });
-        
+
         // Style Avantages column with colored badges
         colAvantages.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -601,7 +631,7 @@ public class MainController implements Initializable {
                     String bgColor = "#F3F4F6";
                     String textColor = "#6B7280";
                     String icon = "🎁 ";
-                    
+
                     switch (value.toLowerCase()) {
                         case "aucun":
                             icon = "✖ ";
@@ -624,7 +654,7 @@ public class MainController implements Initializable {
                             textColor = "#065F46";
                             break;
                     }
-                    
+
                     badge.setText(icon + value);
                     badge.setStyle("-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor + "; " +
                             "-fx-padding: 5 10; -fx-background-radius: 12; -fx-font-weight: 500; -fx-font-size: 10px;");
@@ -632,7 +662,7 @@ public class MainController implements Initializable {
                 }
             }
         });
-        
+
         // Style Salaire column with currency formatting
         colSalaire.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -646,11 +676,11 @@ public class MainController implements Initializable {
                 }
             }
         });
-        
+
         // Set row height for better spacing
         tableContrats.setFixedCellSize(75);
         tableContrats.setStyle("-fx-fixed-cell-size: 75px;");
-        
+
         // Configure Actions column with styled buttons
         colActionsContrat.setCellFactory(param -> new TableCell<>() {
             private final Button btnEdit = new Button();
@@ -663,32 +693,32 @@ public class MainController implements Initializable {
                 editIcon.setFitHeight(16);
                 editIcon.setFitWidth(16);
                 editIcon.setPreserveRatio(true);
-                
+
                 ImageView deleteIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/delete.png")));
                 deleteIcon.setFitHeight(16);
                 deleteIcon.setFitWidth(16);
                 deleteIcon.setPreserveRatio(true);
-                
+
                 btnEdit.setGraphic(editIcon);
                 btnDelete.setGraphic(deleteIcon);
-                
+
                 // Style for both buttons - transparent with icons only
                 String buttonStyle = "-fx-padding: 4 4; -fx-cursor: hand; " +
                         "-fx-background-color: transparent; " +
                         "-fx-border-color: transparent; -fx-border-width: 0;";
-                
+
                 btnEdit.setStyle(buttonStyle);
                 btnDelete.setStyle(buttonStyle);
-                
+
                 // Add tooltips
                 Tooltip editTooltip = new Tooltip("Modifier le contrat");
                 editTooltip.setStyle("-fx-font-size: 11px;");
                 Tooltip.install(btnEdit, editTooltip);
-                
+
                 Tooltip deleteTooltip = new Tooltip("Supprimer le contrat");
                 deleteTooltip.setStyle("-fx-font-size: 11px;");
                 Tooltip.install(btnDelete, deleteTooltip);
-                
+
                 // Shared background container with transparency
                 hbox.setStyle("-fx-background-color: rgba(150, 171, 241, 0.52); " +
                         "-fx-padding: 4 4; -fx-border-radius: 4; -fx-background-radius: 4;");
@@ -712,7 +742,7 @@ public class MainController implements Initializable {
                 setGraphic(empty ? null : hbox);
             }
         });
-        
+
         // Add row styling with hover effect
         tableContrats.setRowFactory(param -> new TableRow<>() {
             @Override
@@ -722,16 +752,17 @@ public class MainController implements Initializable {
                     setStyle("");
                 } else {
                     setStyle("-fx-padding: 8px; -fx-background-radius: 4;");
-                    setOnMouseEntered(e -> setStyle("-fx-padding: 8px; -fx-background-radius: 4; -fx-background-color: #F9FAFB;"));
+                    setOnMouseEntered(e -> setStyle(
+                            "-fx-padding: 8px; -fx-background-radius: 4; -fx-background-color: #F9FAFB;"));
                     setOnMouseExited(e -> setStyle("-fx-padding: 8px; -fx-background-radius: 4;"));
                 }
             }
         });
-        
+
         // Add sample data
         loadSampleContratData();
         tableContrats.setItems(contratData);
-        
+
         // Handle empty table
         if (contratData.isEmpty()) {
             tableContrats.setPlaceholder(createEmptyPlaceholder("Aucun contrat trouvé", "📋"));
@@ -739,184 +770,312 @@ public class MainController implements Initializable {
     }
 
     private void initializeRecrutementTable() {
-        // Add icons and text to column headers
-        colIdRecrutement.setText("# ID");
-        colDateDecision.setText("📅 Date Décision");
-        colDecisionFinale.setText("✓ Décision");
-        colIdEntretien.setText("🎤 Entretien");
-        colIdUtilisateur.setText("👤 Utilisateur");
-        colActionsRecrutement.setText("⚙️ Actions");
-        
-        colIdRecrutement.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
-        colDateDecision.setCellValueFactory(cellData -> cellData.getValue().dateDecisionProperty());
-        colDecisionFinale.setCellValueFactory(cellData -> cellData.getValue().decisionProperty());
-        colIdEntretien.setCellValueFactory(cellData -> cellData.getValue().idEntretienProperty().asObject());
-        colIdUtilisateur.setCellValueFactory(cellData -> cellData.getValue().idUtilisateurProperty().asObject());
-        
-        // Style Decision column with badge colors and icons
+        // ===== USER NAME COLUMN (Name + Count + Expansion Button) =====
+        colUserName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getUserName()));
+        colUserName.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (!row.isGroupHeader()) {
+                    // Detail row - show indentation
+                    Label detailLabel = new Label("  └─ Détail");
+                    detailLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6B7280;");
+                    setGraphic(detailLabel);
+                    return;
+                }
+
+                // Group header row
+                HBox hbox = new HBox(12);
+                hbox.setAlignment(Pos.CENTER_LEFT);
+
+                // Expand/Collapse button
+                Button expandBtn = new Button(row.isExpanded() ? "▼" : "▶");
+                expandBtn.setStyle("-fx-padding: 4 8; -fx-font-size: 12px; -fx-cursor: hand; " +
+                        "-fx-background-color: #F3F4F6; -fx-border-color: #E5E7EB; -fx-border-width: 1;");
+                expandBtn.setPrefWidth(35);
+
+                expandBtn.setOnAction(event -> {
+                    // Toggle the GROUP's expanded state (not the row's separate property)
+                    RecrutementGroup grp = row.getParentGroup();
+                    grp.setExpanded(!grp.isExpanded());
+                    expandBtn.setText(grp.isExpanded() ? "▼" : "▶");
+                    refreshTableWithGroupState(grp);
+                });
+
+                // User icon and name
+                Label userIcon = new Label("👤");
+                userIcon.setStyle("-fx-font-size: 16px;");
+                Label userName = new Label(item + " (#" + row.getUserId() + ")");
+                userName.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #111827;");
+
+                hbox.getChildren().addAll(expandBtn, userIcon, userName);
+                setGraphic(hbox);
+
+                // Style the row as a header
+                getTableRow().setStyle("-fx-background-color: #F9FAFB; -fx-font-weight: 600;");
+            }
+        });
+
+        // ===== RECRUTEMENT COUNT COLUMN =====
+        colRecrutementCount.setCellValueFactory(
+                data -> new SimpleIntegerProperty(data.getValue().getRecrutementCount()).asObject());
+        colRecrutementCount.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (!row.isGroupHeader() || item == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                HBox hbox = new HBox(8);
+                hbox.setAlignment(Pos.CENTER_LEFT);
+                Label icon = new Label("📊");
+                icon.setStyle("-fx-font-size: 14px;");
+                Label count = new Label(item + " recrutement" + (item > 1 ? "s" : ""));
+                count.setStyle("-fx-font-size: 12px; -fx-text-fill: #374151; -fx-padding: 4 8; " +
+                        "-fx-background-color: #E5E7EB; -fx-background-radius: 4;");
+                hbox.getChildren().addAll(icon, count);
+                setGraphic(hbox);
+            }
+        });
+
+        // ===== DECISION DATE COLUMN =====
+        colDecisionDate.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecisionDate()));
+        colDecisionDate.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null || item == null
+                        || item.isEmpty()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (row.isGroupHeader()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                HBox hbox = new HBox(8);
+                hbox.setAlignment(Pos.CENTER_LEFT);
+                Label badge = new Label("📅 " + item);
+                badge.setStyle("-fx-background-color: #FCD34D; -fx-text-fill: #78350F; " +
+                        "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-size: 11px;");
+                hbox.getChildren().add(badge);
+                setGraphic(hbox);
+            }
+        });
+
+        // ===== DECISION FINALE COLUMN =====
+        colDecisionFinale.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecision()));
         colDecisionFinale.setCellFactory(param -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
+                if (empty || getTableRow() == null || getTableRow().getItem() == null || item == null
+                        || item.isEmpty()) {
                     setGraphic(null);
-                } else {
-                    Label badge = new Label(item);
-                    String icon = "";
-                    String bgColor = "#F3F4F6";
-                    String textColor = "#6B7280";
-                    
-                    // Color badge according to decision with icons
-                    switch (item.toLowerCase()) {
-                        case "accepté":
-                            icon = "✓ ";
-                            bgColor = "#D1FAE5";
-                            textColor = "#059669";
-                            break;
-                        case "refusé":
-                            icon = "✕ ";
-                            bgColor = "#FEE2E2";
-                            textColor = "#DC2626";
-                            break;
-                        case "en attente":
-                            icon = "⏳ ";
-                            bgColor = "#FEF3C7";
-                            textColor = "#92400E";
-                            break;
-                    }
-                    
-                    badge.setText(icon + item);
-                    badge.setStyle("-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor + "; " +
-                            "-fx-padding: 6 12; -fx-background-radius: 20; -fx-font-weight: 600; -fx-font-size: 12px;");
-                    setGraphic(badge);
+                    return;
                 }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (row.isGroupHeader()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                Label badge = new Label(item);
+
+                switch (item.toLowerCase()) {
+                    case "accepté":
+                        badge.setStyle("-fx-background-color: #D1FAE5; -fx-text-fill: #059669; " +
+                                "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-weight: 600; -fx-font-size: 11px;");
+                        break;
+                    case "refusé":
+                        badge.setStyle("-fx-background-color: #FEE2E2; -fx-text-fill: #DC2626; " +
+                                "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-weight: 600; -fx-font-size: 11px;");
+                        break;
+                    case "en attente":
+                        badge.setStyle("-fx-background-color: #FEF3C7; -fx-text-fill: #92400E; " +
+                                "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-weight: 600; -fx-font-size: 11px;");
+                        break;
+                    default:
+                        badge.setStyle("-fx-background-color: #F3F4F6; -fx-text-fill: #6B7280; " +
+                                "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-weight: 600; -fx-font-size: 11px;");
+                }
+
+                setGraphic(badge);
             }
         });
-        
-        // Style ID columns
+
+        // ===== INTERVIEW ID COLUMN =====
+        colIdEntretien
+                .setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getInterviewId()).asObject());
         colIdEntretien.setCellFactory(param -> new TableCell<>() {
             @Override
-            protected void updateItem(Integer value, boolean empty) {
-                super.updateItem(value, empty);
-                if (empty || value == null) {
-                    setText(null);
-                } else {
-                    setText("🎤 #" + value);
-                    setStyle("-fx-text-fill: #6366F1;");
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null || item == null || item == 0) {
+                    setGraphic(null);
+                    return;
                 }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (row.isGroupHeader()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                HBox hbox = new HBox(8);
+                hbox.setAlignment(Pos.CENTER_LEFT);
+                Label badge = new Label("🔗 " + item);
+                badge.setStyle("-fx-background-color: #BFDBFE; -fx-text-fill: #1E40AF; " +
+                        "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-size: 11px;");
+                hbox.getChildren().add(badge);
+                setGraphic(hbox);
             }
         });
-        
-        colIdUtilisateur.setCellFactory(param -> new TableCell<>() {
-            @Override
-            protected void updateItem(Integer value, boolean empty) {
-                super.updateItem(value, empty);
-                if (empty || value == null) {
-                    setText(null);
-                } else {
-                    setText("👤 #" + value);
-                    setStyle("-fx-text-fill: #8B5CF6;");
-                }
-            }
-        });
-        
-        // Configure Actions column with styled buttons
-        colActionsRecrutement.setCellFactory(param -> new TableCell<>() {
-            private final Button btnEdit = new Button();
-            private final Button btnDelete = new Button();
+
+        // ===== ACTIONS COLUMN =====
+        colActions.setCellFactory(param -> new TableCell<>() {
+            private final Button btnEdit = new Button("✏️");
+            private final Button btnDelete = new Button("🗑️");
             private final HBox hbox = new HBox(8, btnEdit, btnDelete);
 
             {
-                // Create image views for buttons
-                ImageView editIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/Edit.png")));
-                editIcon.setFitHeight(16);
-                editIcon.setFitWidth(16);
-                editIcon.setPreserveRatio(true);
-                
-                ImageView deleteIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/delete.png")));
-                deleteIcon.setFitHeight(16);
-                deleteIcon.setFitWidth(16);
-                deleteIcon.setPreserveRatio(true);
-                
-                btnEdit.setGraphic(editIcon);
-                btnDelete.setGraphic(deleteIcon);
-                
-                // Style for both buttons - transparent with icons only
-                String buttonStyle = "-fx-padding: 4 4; -fx-cursor: hand; " +
-                        "-fx-background-color: transparent; " +
-                        "-fx-border-color: transparent; -fx-border-width: 0;";
-                
-                btnEdit.setStyle(buttonStyle);
-                btnDelete.setStyle(buttonStyle);
-                
-                // Add tooltips
-                Tooltip editTooltip = new Tooltip("Modifier le recrutement");
-                editTooltip.setStyle("-fx-font-size: 11px;");
-                Tooltip.install(btnEdit, editTooltip);
-                
-                Tooltip deleteTooltip = new Tooltip("Supprimer le recrutement");
-                deleteTooltip.setStyle("-fx-font-size: 11px;");
-                Tooltip.install(btnDelete, deleteTooltip);
-                
-                // Shared background container with transparency
-                hbox.setStyle("-fx-background-color: rgba(150, 171, 241, 0.52); " +
-                        "-fx-padding: 4 4; -fx-border-radius: 4; -fx-background-radius: 4;");
-                hbox.setAlignment(Pos.CENTER);
-                hbox.setPrefWidth(70);
+                btnEdit.getStyleClass().add("btn-action");
+                btnDelete.getStyleClass().add("btn-delete");
+                hbox.setAlignment(Pos.CENTER_LEFT);
 
                 btnEdit.setOnAction(event -> {
-                    RecrutementRow recrutement = getTableView().getItems().get(getIndex());
-                    editRecrutement(recrutement);
+                    if (getTableRow() != null && getTableRow().getItem() != null) {
+                        RecrutementTableRow row = getTableRow().getItem();
+                        if (!row.isGroupHeader()) {
+                            Recrutement rec = row.getParentGroup().getRecrutements().stream()
+                                    .filter(r -> r.getId_recrutement() == row.getRecruitmentId())
+                                    .findFirst()
+                                    .orElse(null);
+                            if (rec != null) {
+                                editRecrutement(rec);
+                            }
+                        }
+                    }
                 });
 
                 btnDelete.setOnAction(event -> {
-                    RecrutementRow recrutement = getTableView().getItems().get(getIndex());
-                    deleteRecrutement(recrutement);
+                    if (getTableRow() != null && getTableRow().getItem() != null) {
+                        RecrutementTableRow row = getTableRow().getItem();
+                        if (!row.isGroupHeader()) {
+                            Recrutement rec = row.getParentGroup().getRecrutements().stream()
+                                    .filter(r -> r.getId_recrutement() == row.getRecruitmentId())
+                                    .findFirst()
+                                    .orElse(null);
+                            if (rec != null) {
+                                deleteRecrutement(rec);
+                            }
+                        }
+                    }
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : hbox);
-            }
-        });
-        
-        // Add row styling with hover effect
-        tableRecrutements.setRowFactory(param -> new TableRow<>() {
-            @Override
-            protected void updateItem(RecrutementRow item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setStyle("");
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (row.isGroupHeader()) {
+                    setGraphic(null);
                 } else {
-                    setStyle("-fx-padding: 8px; -fx-background-radius: 4;");
-                    setOnMouseEntered(e -> setStyle("-fx-padding: 8px; -fx-background-radius: 4; -fx-background-color: #F9FAFB;"));
-                    setOnMouseExited(e -> setStyle("-fx-padding: 8px; -fx-background-radius: 4;"));
+                    setGraphic(hbox);
                 }
             }
         });
-        
+
+        // Set row styling
+        tableRecrutements.setRowFactory(param -> new TableRow<>() {
+            @Override
+            protected void updateItem(RecrutementTableRow item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setStyle("");
+                    return;
+                }
+
+                if (item.isGroupHeader()) {
+                    setStyle("-fx-background-color: #F9FAFB; -fx-font-weight: 600; -fx-padding: 8;");
+                } else {
+                    setStyle("-fx-background-color: #FFFFFF; -fx-padding: 4;");
+                }
+            }
+        });
+
         // Add sample data
         loadSampleRecrutementData();
-        tableRecrutements.setItems(recrutementData);
-        
+
         // Handle empty table
         if (recrutementData.isEmpty()) {
             tableRecrutements.setPlaceholder(createEmptyPlaceholder("Aucun recrutement trouvé", "📋"));
         }
     }
-    
+
+    private void refreshTableWithGroupState(RecrutementGroup changedGroup) {
+        // Scan the live list for the header's CURRENT index (the stored map
+        // goes stale after rows are inserted/removed above this group).
+        int headerIndex = -1;
+        for (int i = 0; i < recrutementData.size(); i++) {
+            RecrutementTableRow r = recrutementData.get(i);
+            if (r.isGroupHeader() && r.getParentGroup() == changedGroup) {
+                headerIndex = i;
+                break;
+            }
+        }
+        if (headerIndex < 0)
+            return; // group not found — nothing to do
+
+        if (changedGroup.isExpanded()) {
+            // Insert detail rows directly after the header
+            int insertPosition = headerIndex + 1;
+            for (Recrutement recrutement : changedGroup.getRecrutements()) {
+                RecrutementTableRow detailRow = new RecrutementTableRow(changedGroup, recrutement);
+                recrutementData.add(insertPosition, detailRow);
+                insertPosition++;
+            }
+        } else {
+            // Remove all detail rows that belong to this group
+            recrutementData.removeIf(r -> !r.isGroupHeader() && r.getParentGroup() == changedGroup);
+        }
+
+        tableRecrutements.refresh();
+    }
+
     private VBox createEmptyPlaceholder(String message, String icon) {
         VBox placeholder = new VBox();
         placeholder.setStyle("-fx-alignment: CENTER; -fx-spacing: 15; -fx-padding: 40;");
-        
+
         Label iconLabel = new Label(icon);
         iconLabel.setStyle("-fx-font-size: 48px;");
-        
+
         Label messageLabel = new Label(message);
         messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #6B7280; -fx-font-weight: 500;");
-        
+
         placeholder.getChildren().addAll(iconLabel, messageLabel);
         return placeholder;
     }
@@ -927,7 +1086,7 @@ public class MainController implements Initializable {
             for (Contrat c : serviceContrat.afficher()) {
                 String dateFinStr = (c.getDate_fin() != null) ? c.getDate_fin().toString() : "";
                 String periode = calculatePeriode(c.getDate_debut().toString(), dateFinStr);
-                
+
                 // Calculate auto status based on dates
                 String autoStatus = "En attente";
                 if (c.getDate_fin() != null) {
@@ -935,8 +1094,10 @@ public class MainController implements Initializable {
                     java.time.LocalDate dateFin = c.getDate_fin().toLocalDate();
                     autoStatus = calculateAutoStatus(dateDebut, dateFin);
                 }
-                
-                contratData.add(new ContratRow(c.getId_contrat(), c.getType_contrat(), c.getDate_debut().toString(), dateFinStr, c.getSalaire(), autoStatus, c.getVolume_horaire(), c.getAvantages(), c.getId_recrutement(), periode));
+
+                contratData.add(new ContratRow(c.getId_contrat(), c.getType_contrat(), c.getDate_debut().toString(),
+                        dateFinStr, c.getSalaire(), autoStatus, c.getVolume_horaire(), c.getAvantages(),
+                        c.getId_recrutement(), periode));
             }
         } catch (SQLException e) {
             showError("Erreur lors du chargement des contrats: " + e.getMessage());
@@ -946,9 +1107,19 @@ public class MainController implements Initializable {
     private void loadSampleRecrutementData() {
         try {
             recrutementData.clear();
-            for (Recrutement r : serviceRecrutement.afficher()) {
-                recrutementData.add(new RecrutementRow(r.getId_recrutement(), r.getDate_decision().toString(), r.getDecision_finale(), r.getId_entretien(), r.getId_utilisateur()));
+            groupHeaderIndexMap.clear();
+            recrutementGroups = serviceRecrutement.afficherGroupedByUser();
+
+            int index = 0;
+            for (RecrutementGroup group : recrutementGroups) {
+                // Add group header
+                RecrutementTableRow headerRow = new RecrutementTableRow(group);
+                recrutementData.add(headerRow);
+                groupHeaderIndexMap.put(group, index);
+                index++;
             }
+
+            tableRecrutements.setItems(recrutementData);
         } catch (SQLException e) {
             showError("Erreur lors du chargement des recrutements: " + e.getMessage());
         }
@@ -958,13 +1129,13 @@ public class MainController implements Initializable {
         if (dateDebutStr == null || dateDebutStr.isEmpty() || dateFinStr == null || dateFinStr.isEmpty()) {
             return "";
         }
-        
+
         try {
             java.time.LocalDate dateDebut = java.time.LocalDate.parse(dateDebutStr);
             java.time.LocalDate dateFin = java.time.LocalDate.parse(dateFinStr);
-            
+
             long months = java.time.temporal.ChronoUnit.MONTHS.between(dateDebut, dateFin);
-            
+
             if (months < 12) {
                 return months + " mois";
             } else if (months % 12 == 0) {
@@ -984,34 +1155,65 @@ public class MainController implements Initializable {
         if (dateDebut == null || dateFin == null) {
             return "En attente";
         }
-        
+
         java.time.LocalDate today = java.time.LocalDate.now();
-        
+
         // Si date_fin < aujourd'hui, alors statut = "Terminé"
         if (dateFin.isBefore(today)) {
             return "Terminé";
         }
-        
-        // Si date_debut <= aujourd'hui et aujourd'hui < date_fin, alors statut = "Actif"
+
+        // Si date_debut <= aujourd'hui et aujourd'hui < date_fin, alors statut =
+        // "Actif"
         if (!dateDebut.isAfter(today) && dateFin.isAfter(today)) {
             return "Actif";
         }
-        
+
         // Sinon statut = "En attente"
         return "En attente";
     }
 
     private void hideAllPages() {
-        if (pageRecrutement != null) { pageRecrutement.setVisible(false); pageRecrutement.setManaged(false); }
-        if (pageDashboard != null) { pageDashboard.setVisible(false); pageDashboard.setManaged(false); }
-        if (pageOffres != null) { pageOffres.setVisible(false); pageOffres.setManaged(false); }
-        if (pageEntretiens != null) { pageEntretiens.setVisible(false); pageEntretiens.setManaged(false); }
-        if (pageAdministration != null) { pageAdministration.setVisible(false); pageAdministration.setManaged(false); }
-        if (pageCandidats != null) { pageCandidats.setVisible(false); pageCandidats.setManaged(false); }
-        if (pageStatEntretiens != null) { pageStatEntretiens.setVisible(false); pageStatEntretiens.setManaged(false); }
-        if (pageStatOffres != null) { pageStatOffres.setVisible(false); pageStatOffres.setManaged(false); }
-        if (pageStatRecrutements != null) { pageStatRecrutements.setVisible(false); pageStatRecrutements.setManaged(false); }
-        if (pageUtilisateurs != null) { pageUtilisateurs.setVisible(false); pageUtilisateurs.setManaged(false); }
+        if (pageRecrutement != null) {
+            pageRecrutement.setVisible(false);
+            pageRecrutement.setManaged(false);
+        }
+        if (pageDashboard != null) {
+            pageDashboard.setVisible(false);
+            pageDashboard.setManaged(false);
+        }
+        if (pageOffres != null) {
+            pageOffres.setVisible(false);
+            pageOffres.setManaged(false);
+        }
+        if (pageEntretiens != null) {
+            pageEntretiens.setVisible(false);
+            pageEntretiens.setManaged(false);
+        }
+        if (pageAdministration != null) {
+            pageAdministration.setVisible(false);
+            pageAdministration.setManaged(false);
+        }
+        if (pageCandidats != null) {
+            pageCandidats.setVisible(false);
+            pageCandidats.setManaged(false);
+        }
+        if (pageStatEntretiens != null) {
+            pageStatEntretiens.setVisible(false);
+            pageStatEntretiens.setManaged(false);
+        }
+        if (pageStatOffres != null) {
+            pageStatOffres.setVisible(false);
+            pageStatOffres.setManaged(false);
+        }
+        if (pageStatRecrutements != null) {
+            pageStatRecrutements.setVisible(false);
+            pageStatRecrutements.setManaged(false);
+        }
+        if (pageUtilisateurs != null) {
+            pageUtilisateurs.setVisible(false);
+            pageUtilisateurs.setManaged(false);
+        }
     }
 
     private void showPageDashboard() {
@@ -1153,31 +1355,31 @@ public class MainController implements Initializable {
         Stage modalStage = new Stage();
         modalStage.initModality(Modality.APPLICATION_MODAL);
         modalStage.setTitle("Ajouter un Contrat");
-        
+
         // Modal Content
         VBox modalContent = new VBox();
         modalContent.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1a1a2e, #16213e); " +
                 "-fx-background-radius: 20; -fx-padding: 30;");
         modalContent.setSpacing(15);
-        
+
         // Header
         Label title = new Label("Nouveau Contrat");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;");
-        
+
         Label subtitle = new Label("Créer un nouveau contrat");
         subtitle.setStyle("-fx-font-size: 12px; -fx-text-fill: #9CA3AF;");
-        
+
         VBox header = new VBox(title, subtitle);
         header.setStyle("-fx-spacing: 5;");
-        
+
         // Form Fields
         VBox formFields = new VBox();
         formFields.setSpacing(12);
-        
+
         // Type
         Label lblType = new Label("TYPE DE CONTRAT");
         lblType.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+
         ComboBox<String> typeCombo = new ComboBox<>();
         typeCombo.setItems(FXCollections.observableArrayList("CDI", "CDD", "Stage", "Freelance", "Alternance"));
         typeCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
@@ -1200,33 +1402,35 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label typeError = new Label("");
         typeError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         typeCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
                 typeError.setText("✓ Format valide");
-                typeError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                typeError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 typeCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             } else {
                 typeError.setText("Ce champ est obligatoire");
-                typeError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                typeError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 typeCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox typeBox = new VBox(lblType, typeCombo, typeError);
         typeBox.setSpacing(3);
-        
+
         // Date Début
         Label lblDate = new Label("DATE DÉBUT");
         lblDate.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+
         DatePicker dateDebut = new DatePicker();
         dateDebut.setValue(java.time.LocalDate.now());
         dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
@@ -1240,55 +1444,60 @@ public class MainController implements Initializable {
                 setDisable(empty || date.isBefore(java.time.LocalDate.now()));
             }
         });
-        
+
         Label dateError = new Label("");
         dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         dateDebut.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 if (newVal.isBefore(java.time.LocalDate.now())) {
                     dateError.setText("La date doit être aujourd'hui ou après");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                 } else {
                     dateError.setText("✓ Format valide");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                 }
             } else {
                 dateError.setText("Ce champ est obligatoire");
-                dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                dateError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox dateBox = new VBox(lblDate, dateDebut, dateError);
         dateBox.setSpacing(3);
-        
+
         // Salaire
         Label lblSalaire = new Label("SALAIRE");
-        lblSalaire.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblSalaire
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         TextField salaire = new TextField();
         salaire.setPromptText("Entrez le salaire");
         salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
         salaire.setPrefWidth(300);
-        
+
         Label salaireError = new Label("");
         salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         salaire.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.isEmpty()) {
                 salaireError.setText("Ce champ est obligatoire");
-                salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                salaireError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
@@ -1297,34 +1506,38 @@ public class MainController implements Initializable {
                     double val = Double.parseDouble(newVal);
                     if (val <= 0) {
                         salaireError.setText("Le salaire doit être positif");
-                        salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                        salaireError.setStyle(
+                                "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                         salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                                 "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
                     } else {
                         salaireError.setText("✓ Format valide");
-                        salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                        salaireError.setStyle(
+                                "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                         salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                                 "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
                     }
                 } catch (NumberFormatException ex) {
                     salaireError.setText("Format invalide (nombre positif requis)");
-                    salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    salaireError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
                 }
             }
         });
-        
+
         VBox salaireBox = new VBox(lblSalaire, salaire, salaireError);
         salaireBox.setSpacing(3);
-        
+
         // Recrutement
         Label lblRecrutement = new Label("RECRUTEMENT");
-        lblRecrutement.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblRecrutement
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<String> recrutementCombo = new ComboBox<>();
         recrutementCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
@@ -1346,80 +1559,87 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label recrutementError = new Label("");
         recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         try {
             List<Recrutement> recrutements = serviceRecrutement.afficher();
             ObservableList<String> items = FXCollections.observableArrayList();
             for (Recrutement r : recrutements) {
                 if ("Accepté".equalsIgnoreCase(r.getDecision_finale())) {
-                    items.add(r.getId_recrutement() + " - " + r.getDecision_finale() + " (" + r.getDate_decision() + ")");
+                    items.add(
+                            r.getId_recrutement() + " - " + r.getDecision_finale() + " (" + r.getDate_decision() + ")");
                 }
             }
             recrutementCombo.setItems(items);
         } catch (SQLException e) {
             showAlert("Erreur", "Erreur lors du chargement des recrutements: " + e.getMessage());
         }
-        
+
         recrutementCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
                 recrutementError.setText("✓ Sélection valide");
-                recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                recrutementError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 recrutementCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             } else {
                 recrutementError.setText("Ce champ est obligatoire");
-                recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                recrutementError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 recrutementCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox recrutementBox = new VBox(lblRecrutement, recrutementCombo, recrutementError);
         recrutementBox.setSpacing(3);
-        
+
         // Date Fin
         Label lblDateFin = new Label("DATE FIN");
-        lblDateFin.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblDateFin
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         DatePicker dateFin = new DatePicker();
         dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
         dateFin.setPrefWidth(300);
-        
+
         Label dateFinError = new Label("");
         dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         dateFin.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && dateDebut.getValue() != null) {
                 if (newVal.isAfter(dateDebut.getValue())) {
                     dateFinError.setText("✓ Format valide");
-                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFinError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                 } else {
                     dateFinError.setText("La date fin doit être strictement après la date début");
-                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFinError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                 }
             }
         });
-        
+
         VBox dateFinBox = new VBox(lblDateFin, dateFin, dateFinError);
         dateFinBox.setSpacing(3);
-        
+
         // Status (Auto-calculé)
         Label lblStatus = new Label("STATUT (Automatique)");
-        lblStatus.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblStatus
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<String> statusCombo = new ComboBox<>();
         statusCombo.setItems(FXCollections.observableArrayList("En attente", "Actif", "Terminé"));
         statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
@@ -1443,13 +1663,13 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label statusError = new Label("(Rempli automatiquement selon les dates)");
         statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #667eea; -fx-padding: 2 0; -fx-font-style: italic;");
-        
+
         VBox statusBox = new VBox(lblStatus, statusCombo, statusError);
         statusBox.setSpacing(3);
-        
+
         // Set default status and add listeners to dateDebut and dateFin
         statusCombo.setValue("En attente");
         dateDebut.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -1464,40 +1684,44 @@ public class MainController implements Initializable {
                 statusCombo.setValue(autoStatus);
             }
         });
-        
+
         // Volume Horaire
         Label lblVolumeHoraire = new Label("VOLUME HORAIRE");
-        lblVolumeHoraire.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblVolumeHoraire
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         TextField volumeHoraire = new TextField();
         volumeHoraire.setPromptText("Ex: 35h");
         volumeHoraire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
         volumeHoraire.setPrefWidth(300);
-        
+
         Label volumeHoraireError = new Label("");
         volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         volumeHoraire.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
                 volumeHoraireError.setText("✓ Format valide");
-                volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                volumeHoraireError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 volumeHoraire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
             }
         });
-        
+
         VBox volumeHoraireBox = new VBox(lblVolumeHoraire, volumeHoraire, volumeHoraireError);
         volumeHoraireBox.setSpacing(3);
-        
+
         // Avantages
         Label lblAvantages = new Label("AVANTAGES");
-        lblAvantages.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblAvantages
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<String> avantages = new ComboBox<>();
-        avantages.setItems(FXCollections.observableArrayList("Aucun", "Tickets Restaurant", "Assurance Maladie", "Transport"));
+        avantages.setItems(
+                FXCollections.observableArrayList("Aucun", "Tickets Restaurant", "Assurance Maladie", "Transport"));
         avantages.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
@@ -1518,114 +1742,124 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         VBox avantagesBox = new VBox(lblAvantages, avantages);
         avantagesBox.setSpacing(3);
-        
-        formFields.getChildren().addAll(typeBox, dateBox, dateFinBox, salaireBox, statusBox, volumeHoraireBox, avantagesBox, recrutementBox);
-        
+
+        formFields.getChildren().addAll(typeBox, dateBox, dateFinBox, salaireBox, statusBox, volumeHoraireBox,
+                avantagesBox, recrutementBox);
+
         // Buttons
         HBox buttonBox = new HBox();
         buttonBox.setSpacing(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setStyle("-fx-padding: 20 0 0 0;");
-        
+
         Button btnCancel = new Button("Annuler");
         btnCancel.setStyle("-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-font-size: 13px; " +
                 "-fx-font-weight: 600; -fx-padding: 12 30; -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(156,163,175,0.3); -fx-border-radius: 10; -fx-cursor: hand;");
         btnCancel.setOnAction(e -> modalStage.close());
-        
+
         Button btnSave = new Button("✨ Enregistrer");
         btnSave.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #667eea, #f093fb); " +
                 "-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12 30; " +
                 "-fx-background-radius: 10; -fx-cursor: hand; " +
                 "-fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 15, 0, 0, 5);");
-        
+
         btnSave.setOnAction(e -> {
             try {
                 // Validation
                 if (typeCombo.getValue() == null || typeCombo.getValue().isEmpty()) {
                     typeError.setText("Ce champ est obligatoire");
-                    typeError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    typeError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (dateDebut.getValue() == null) {
                     dateError.setText("Ce champ est obligatoire");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (dateDebut.getValue().isBefore(java.time.LocalDate.now())) {
                     dateError.setText("La date doit être aujourd'hui ou après");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                     return;
                 }
-                
+
                 if (salaire.getText().isEmpty()) {
                     salaireError.setText("Ce champ est obligatoire");
-                    salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    salaireError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 try {
                     double salaireVal = Double.parseDouble(salaire.getText());
                     if (salaireVal <= 0) {
                         salaireError.setText("Le salaire doit être positif");
-                        salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                        salaireError.setStyle(
+                                "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                         return;
                     }
                 } catch (NumberFormatException ex) {
                     salaireError.setText("Format invalide (nombre positif requis)");
-                    salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    salaireError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (dateFin.getValue() == null) {
                     dateFinError.setText("Ce champ est obligatoire");
-                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFinError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (!dateFin.getValue().isAfter(dateDebut.getValue())) {
                     dateFinError.setText("La date fin doit être strictement après la date début");
-                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFinError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                     return;
                 }
-                
+
                 if (volumeHoraire.getText().isEmpty()) {
                     volumeHoraireError.setText("Ce champ est obligatoire");
-                    volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    volumeHoraireError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (recrutementCombo.getValue() == null || recrutementCombo.getValue().isEmpty()) {
                     recrutementError.setText("Ce champ est obligatoire");
-                    recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    recrutementError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 String selectedRecrutement = recrutementCombo.getValue();
                 int idRecrutement = Integer.parseInt(selectedRecrutement.split(" - ")[0]);
-                
+
                 Contrat c = new Contrat(
-                    typeCombo.getValue(),
-                    Date.valueOf(dateDebut.getValue()),
-                    Date.valueOf(dateFin.getValue()),
-                    Double.parseDouble(salaire.getText()),
-                    statusCombo.getValue(),
-                    volumeHoraire.getText(),
-                    avantages.getValue(),
-                    idRecrutement
-                );
-                
+                        typeCombo.getValue(),
+                        Date.valueOf(dateDebut.getValue()),
+                        Date.valueOf(dateFin.getValue()),
+                        Double.parseDouble(salaire.getText()),
+                        statusCombo.getValue(),
+                        volumeHoraire.getText(),
+                        avantages.getValue(),
+                        idRecrutement);
+
                 serviceContrat.ajouter(c);
                 loadSampleContratData();
                 tableContrats.setItems(contratData);
@@ -1637,18 +1871,18 @@ public class MainController implements Initializable {
                 showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
             }
         });
-        
+
         buttonBox.getChildren().addAll(btnCancel, btnSave);
-        
+
         modalContent.getChildren().addAll(header, formFields, buttonBox);
-        
+
         ScrollPane scrollPane = new ScrollPane(modalContent);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         scrollPane.setFitToWidth(true);
-        
+
         Scene scene = new Scene(scrollPane, 400, 550);
         scene.setFill(Color.TRANSPARENT);
-        
+
         modalStage.setScene(scene);
         modalStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/VOS.jpg")));
         modalStage.showAndWait();
@@ -1660,63 +1894,67 @@ public class MainController implements Initializable {
         Stage modalStage = new Stage();
         modalStage.initModality(Modality.APPLICATION_MODAL);
         modalStage.setTitle("Ajouter un Recrutement");
-        
+
         // Modal Content
         VBox modalContent = new VBox();
         modalContent.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1a1a2e, #16213e); " +
                 "-fx-background-radius: 20; -fx-padding: 30;");
         modalContent.setSpacing(15);
-        
+
         // Header
         Label title = new Label("Nouveau Recrutement");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;");
-        
+
         Label subtitle = new Label("Créer un nouveau recrutement");
         subtitle.setStyle("-fx-font-size: 12px; -fx-text-fill: #9CA3AF;");
-        
+
         VBox header = new VBox(title, subtitle);
         header.setStyle("-fx-spacing: 5;");
-        
+
         // Form Fields
         VBox formFields = new VBox();
         formFields.setSpacing(12);
-        
+
         // Date Décision
         Label lblDateDecision = new Label("DATE DÉCISION");
-        lblDateDecision.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblDateDecision
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         DatePicker dateDecision = new DatePicker();
         dateDecision.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
         dateDecision.setPrefWidth(300);
-        
+
         Label dateError = new Label("");
         dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         dateDecision.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 dateError.setText("✓ Format valide");
-                dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                dateError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 dateDecision.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             } else {
                 dateError.setText("Ce champ est obligatoire");
-                dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                dateError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 dateDecision.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox dateBox = new VBox(lblDateDecision, dateDecision, dateError);
         dateBox.setSpacing(3);
-        
+
         // Décision
         Label lblDecision = new Label("DÉCISION");
-        lblDecision.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblDecision
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<String> decisionCombo = new ComboBox<>();
         decisionCombo.setItems(FXCollections.observableArrayList("Accepté", "Refusé", "En attente"));
         decisionCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
@@ -1739,36 +1977,40 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label decisionError = new Label("");
         decisionError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         decisionCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
                 decisionError.setText("✓ Sélection valide");
-                decisionError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                decisionError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 decisionCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             } else {
                 decisionError.setText("Ce champ est obligatoire");
-                decisionError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                decisionError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 decisionCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox decisionBox = new VBox(lblDecision, decisionCombo, decisionError);
         decisionBox.setSpacing(3);
-        
+
         // ID Entretien
         Label lblIdEntretien = new Label("ID ENTRETIEN");
-        lblIdEntretien.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblIdEntretien
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<Integer> idEntretien = new ComboBox<>();
         try {
-            ObservableList<Integer> entretienIds = FXCollections.observableArrayList(serviceRecrutement.getAvailableEntretienIds());
+            ObservableList<Integer> entretienIds = FXCollections
+                    .observableArrayList(serviceRecrutement.getAvailableEntretienIds());
             idEntretien.setItems(entretienIds);
         } catch (SQLException ex) {
             System.err.println("Erreur lors du chargement des ID Entretien: " + ex.getMessage());
@@ -1793,36 +2035,40 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label entretienError = new Label("");
         entretienError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         idEntretien.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 entretienError.setText("✓ Sélection valide");
-                entretienError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                entretienError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 idEntretien.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             } else {
                 entretienError.setText("Ce champ est obligatoire");
-                entretienError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                entretienError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 idEntretien.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox entretienBox = new VBox(lblIdEntretien, idEntretien, entretienError);
         entretienBox.setSpacing(3);
-        
+
         // ID Utilisateur
         Label lblIdUtilisateur = new Label("ID UTILISATEUR");
-        lblIdUtilisateur.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblIdUtilisateur
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<Integer> idUtilisateur = new ComboBox<>();
         try {
-            ObservableList<Integer> utilisateurIds = FXCollections.observableArrayList(serviceRecrutement.getAvailableUtilisateurIds());
+            ObservableList<Integer> utilisateurIds = FXCollections
+                    .observableArrayList(serviceRecrutement.getAvailableUtilisateurIds());
             idUtilisateur.setItems(utilisateurIds);
         } catch (SQLException ex) {
             System.err.println("Erreur lors du chargement des ID Utilisateur: " + ex.getMessage());
@@ -1847,83 +2093,88 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label utilisateurError = new Label("");
         utilisateurError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         idUtilisateur.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 utilisateurError.setText("✓ Sélection valide");
-                utilisateurError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                utilisateurError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 idUtilisateur.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             } else {
                 utilisateurError.setText("Ce champ est obligatoire");
-                utilisateurError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                utilisateurError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 idUtilisateur.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox utilisateurBox = new VBox(lblIdUtilisateur, idUtilisateur, utilisateurError);
         utilisateurBox.setSpacing(3);
-        
+
         formFields.getChildren().addAll(dateBox, decisionBox, entretienBox, utilisateurBox);
-        
+
         // Buttons
         HBox buttonBox = new HBox();
         buttonBox.setSpacing(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setStyle("-fx-padding: 20 0 0 0;");
-        
+
         Button btnCancel = new Button("Annuler");
         btnCancel.setStyle("-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-font-size: 13px; " +
                 "-fx-font-weight: 600; -fx-padding: 12 30; -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(156,163,175,0.3); -fx-border-radius: 10; -fx-cursor: hand;");
         btnCancel.setOnAction(e -> modalStage.close());
-        
+
         Button btnSave = new Button("✨ Enregistrer");
         btnSave.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #667eea, #f093fb); " +
                 "-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12 30; " +
                 "-fx-background-radius: 10; -fx-cursor: hand; " +
                 "-fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 15, 0, 0, 5);");
-        
+
         btnSave.setOnAction(e -> {
             try {
                 // Validation
                 if (dateDecision.getValue() == null) {
                     dateError.setText("Ce champ est obligatoire");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (decisionCombo.getValue() == null || decisionCombo.getValue().isEmpty()) {
                     decisionError.setText("Ce champ est obligatoire");
-                    decisionError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    decisionError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (idEntretien.getValue() == null) {
                     entretienError.setText("Ce champ est obligatoire");
-                    entretienError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    entretienError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (idUtilisateur.getValue() == null) {
                     utilisateurError.setText("Ce champ est obligatoire");
-                    utilisateurError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    utilisateurError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 Recrutement r = new Recrutement(
-                    Date.valueOf(dateDecision.getValue()),
-                    decisionCombo.getValue(),
-                    idEntretien.getValue(),
-                    idUtilisateur.getValue()
-                );
-                
+                        Date.valueOf(dateDecision.getValue()),
+                        decisionCombo.getValue(),
+                        idEntretien.getValue(),
+                        idUtilisateur.getValue());
+
                 serviceRecrutement.ajouter(r);
                 loadSampleRecrutementData();
                 tableRecrutements.setItems(recrutementData);
@@ -1933,18 +2184,18 @@ public class MainController implements Initializable {
                 showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
             }
         });
-        
+
         buttonBox.getChildren().addAll(btnCancel, btnSave);
-        
+
         modalContent.getChildren().addAll(header, formFields, buttonBox);
-        
+
         ScrollPane scrollPane = new ScrollPane(modalContent);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         scrollPane.setFitToWidth(true);
-        
+
         Scene scene = new Scene(scrollPane, 400, 620);
         scene.setFill(Color.TRANSPARENT);
-        
+
         modalStage.setScene(scene);
         modalStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/VOS.jpg")));
         modalStage.showAndWait();
@@ -1955,31 +2206,31 @@ public class MainController implements Initializable {
         Stage modalStage = new Stage();
         modalStage.initModality(Modality.APPLICATION_MODAL);
         modalStage.setTitle("Modifier Contrat");
-        
+
         // Modal Content
         VBox modalContent = new VBox();
         modalContent.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1a1a2e, #16213e); " +
                 "-fx-background-radius: 20; -fx-padding: 30;");
         modalContent.setSpacing(15);
-        
+
         // Header
         Label title = new Label("Modifier Contrat");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;");
-        
+
         Label subtitle = new Label("Modifier les données du contrat");
         subtitle.setStyle("-fx-font-size: 12px; -fx-text-fill: #9CA3AF;");
-        
+
         VBox header = new VBox(title, subtitle);
         header.setStyle("-fx-spacing: 5;");
-        
+
         // Form Fields
         VBox formFields = new VBox();
         formFields.setSpacing(12);
-        
+
         // Type
         Label lblType = new Label("TYPE DE CONTRAT");
         lblType.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+
         ComboBox<String> typeCombo = new ComboBox<>();
         typeCombo.setItems(FXCollections.observableArrayList("CDI", "CDD", "Stage", "Freelance", "Alternance"));
         typeCombo.setValue(contratRow.typeProperty().get());
@@ -2003,33 +2254,35 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label typeError = new Label("");
         typeError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         typeCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
                 typeError.setText("✓ Format valide");
-                typeError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                typeError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 typeCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             } else {
                 typeError.setText("Ce champ est obligatoire");
-                typeError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                typeError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 typeCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox typeBox = new VBox(lblType, typeCombo, typeError);
         typeBox.setSpacing(3);
-        
+
         // Date Début
         Label lblDate = new Label("DATE DÉBUT");
         lblDate.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+
         DatePicker dateDebut = new DatePicker();
         if (contratRow.dateDebutProperty().get() != null && !contratRow.dateDebutProperty().get().isEmpty()) {
             dateDebut.setValue(java.time.LocalDate.parse(contratRow.dateDebutProperty().get()));
@@ -2047,55 +2300,60 @@ public class MainController implements Initializable {
                 setDisable(empty || date.isBefore(java.time.LocalDate.now()));
             }
         });
-        
+
         Label dateError = new Label("");
         dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         dateDebut.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 if (newVal.isBefore(java.time.LocalDate.now())) {
                     dateError.setText("La date doit être aujourd'hui ou après");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                 } else {
                     dateError.setText("✓ Format valide");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                 }
             } else {
                 dateError.setText("Ce champ est obligatoire");
-                dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                dateError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox dateBox = new VBox(lblDate, dateDebut, dateError);
         dateBox.setSpacing(3);
-        
+
         // Salaire
         Label lblSalaire = new Label("SALAIRE");
-        lblSalaire.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblSalaire
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         TextField salaire = new TextField();
         salaire.setText(String.valueOf(contratRow.salaireProperty().get()));
         salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
         salaire.setPrefWidth(300);
-        
+
         Label salaireError = new Label("");
         salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         salaire.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.isEmpty()) {
                 salaireError.setText("Ce champ est obligatoire");
-                salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                salaireError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
@@ -2104,34 +2362,38 @@ public class MainController implements Initializable {
                     double val = Double.parseDouble(newVal);
                     if (val <= 0) {
                         salaireError.setText("Le salaire doit être positif");
-                        salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                        salaireError.setStyle(
+                                "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                         salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                                 "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                                 "-fx-font-size: 13px; -fx-text-fill: white;");
                     } else {
                         salaireError.setText("✓ Format valide");
-                        salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                        salaireError.setStyle(
+                                "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                         salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                                 "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                                 "-fx-font-size: 13px; -fx-text-fill: white;");
                     }
                 } catch (NumberFormatException ex) {
                     salaireError.setText("Format invalide (nombre positif requis)");
-                    salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    salaireError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     salaire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                 }
             }
         });
-        
+
         VBox salaireBox = new VBox(lblSalaire, salaire, salaireError);
         salaireBox.setSpacing(3);
-        
+
         // Date Fin
         Label lblDateFin = new Label("DATE FIN");
-        lblDateFin.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblDateFin
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         DatePicker dateFin = new DatePicker();
         if (contratRow.dateFinProperty().get() != null && !contratRow.dateFinProperty().get().isEmpty()) {
             dateFin.setValue(java.time.LocalDate.parse(contratRow.dateFinProperty().get()));
@@ -2140,21 +2402,23 @@ public class MainController implements Initializable {
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
         dateFin.setPrefWidth(300);
-        
+
         Label dateFinError = new Label("");
         dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         dateFin.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && dateDebut.getValue() != null) {
                 if (newVal.isAfter(dateDebut.getValue())) {
                     dateFinError.setText("✓ Format valide");
-                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFinError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                 } else {
                     dateFinError.setText("La date fin doit être strictement après la date début");
-                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFinError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
@@ -2166,14 +2430,15 @@ public class MainController implements Initializable {
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox dateFinBox = new VBox(lblDateFin, dateFin, dateFinError);
         dateFinBox.setSpacing(3);
-        
+
         // Status (Auto-calculé)
         Label lblStatus = new Label("STATUT (Automatique)");
-        lblStatus.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblStatus
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<String> statusCombo = new ComboBox<>();
         statusCombo.setItems(FXCollections.observableArrayList("En attente", "Actif", "Terminé"));
         statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
@@ -2197,13 +2462,13 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label statusError = new Label("(Rempli automatiquement selon les dates)");
         statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #667eea; -fx-padding: 2 0; -fx-font-style: italic;");
-        
+
         VBox statusBox = new VBox(lblStatus, statusCombo, statusError);
         statusBox.setSpacing(3);
-        
+
         // Set initial auto status and add listeners to dateDebut and dateFin
         if (dateDebut.getValue() != null && dateFin.getValue() != null) {
             String autoStatus = calculateAutoStatus(dateDebut.getValue(), dateFin.getValue());
@@ -2211,7 +2476,7 @@ public class MainController implements Initializable {
         } else {
             statusCombo.setValue("En attente");
         }
-        
+
         dateDebut.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && dateFin.getValue() != null) {
                 String autoStatus = calculateAutoStatus(newVal, dateFin.getValue());
@@ -2224,11 +2489,12 @@ public class MainController implements Initializable {
                 statusCombo.setValue(autoStatus);
             }
         });
-        
+
         // Volume Horaire
         Label lblVolumeHoraire = new Label("VOLUME HORAIRE");
-        lblVolumeHoraire.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblVolumeHoraire
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         TextField volumeHoraire = new TextField();
         volumeHoraire.setText(contratRow.volumeHoraireProperty().get());
         volumeHoraire.setPromptText("Ex: 35h");
@@ -2236,14 +2502,15 @@ public class MainController implements Initializable {
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
         volumeHoraire.setPrefWidth(300);
-        
+
         Label volumeHoraireError = new Label("");
         volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         volumeHoraire.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
                 volumeHoraireError.setText("✓ Format valide");
-                volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                volumeHoraireError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 volumeHoraire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
@@ -2254,16 +2521,18 @@ public class MainController implements Initializable {
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox volumeHoraireBox = new VBox(lblVolumeHoraire, volumeHoraire, volumeHoraireError);
         volumeHoraireBox.setSpacing(3);
-        
+
         // Avantages
         Label lblAvantages = new Label("AVANTAGES");
-        lblAvantages.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblAvantages
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<String> avantages = new ComboBox<>();
-        avantages.setItems(FXCollections.observableArrayList("Aucun", "Tickets Restaurant", "Assurance Maladie", "Transport"));
+        avantages.setItems(
+                FXCollections.observableArrayList("Aucun", "Tickets Restaurant", "Assurance Maladie", "Transport"));
         avantages.setValue(contratRow.avantagesProperty().get());
         avantages.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
@@ -2285,14 +2554,15 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         VBox avantagesBox = new VBox(lblAvantages, avantages);
         avantagesBox.setSpacing(3);
-        
+
         // Recrutement
         Label lblRecrutement = new Label("RECRUTEMENT");
-        lblRecrutement.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblRecrutement
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<String> recrutementCombo = new ComboBox<>();
         recrutementCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
@@ -2314,19 +2584,20 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         Label recrutementError = new Label("");
         recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
+
         int currentRecrutementId = contratRow.idRecrutementProperty().get();
         String currentSelection = "";
-        
+
         try {
             List<Recrutement> recrutements = serviceRecrutement.afficher();
             ObservableList<String> recrutementItems = FXCollections.observableArrayList();
             for (Recrutement r : recrutements) {
                 if ("Accepté".equalsIgnoreCase(r.getDecision_finale())) {
-                    String item = r.getId_recrutement() + " - " + r.getDecision_finale() + " (" + r.getDate_decision() + ")";
+                    String item = r.getId_recrutement() + " - " + r.getDecision_finale() + " (" + r.getDate_decision()
+                            + ")";
                     recrutementItems.add(item);
                     if (r.getId_recrutement() == currentRecrutementId) {
                         currentSelection = item;
@@ -2340,119 +2611,129 @@ public class MainController implements Initializable {
         } catch (SQLException e) {
             showAlert("Erreur", "Erreur lors du chargement des recrutements: " + e.getMessage());
         }
-        
+
         recrutementCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
                 recrutementError.setText("✓ Sélection valide");
-                recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                recrutementError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
                 recrutementCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             } else {
                 recrutementError.setText("Ce champ est obligatoire");
-                recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                recrutementError.setStyle(
+                        "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                 recrutementCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                         "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                         "-fx-font-size: 13px; -fx-text-fill: white;");
             }
         });
-        
+
         VBox recrutementBox = new VBox(lblRecrutement, recrutementCombo, recrutementError);
         recrutementBox.setSpacing(3);
-        
-        formFields.getChildren().addAll(typeBox, dateBox, salaireBox, dateFinBox, statusBox, volumeHoraireBox, avantagesBox, recrutementBox);
-        
+
+        formFields.getChildren().addAll(typeBox, dateBox, salaireBox, dateFinBox, statusBox, volumeHoraireBox,
+                avantagesBox, recrutementBox);
+
         // Buttons
         HBox buttonBox = new HBox();
         buttonBox.setSpacing(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setStyle("-fx-padding: 20 0 0 0;");
-        
+
         Button btnCancel = new Button("Annuler");
         btnCancel.setStyle("-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-font-size: 13px; " +
                 "-fx-font-weight: 600; -fx-padding: 12 30; -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(156,163,175,0.3); -fx-border-radius: 10; -fx-cursor: hand;");
         btnCancel.setOnAction(e -> modalStage.close());
-        
+
         Button btnSave = new Button("✨ Enregistrer");
         btnSave.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #667eea, #f093fb); " +
                 "-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12 30; " +
                 "-fx-background-radius: 10; -fx-cursor: hand; " +
                 "-fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 15, 0, 0, 5);");
-        
+
         btnSave.setOnAction(e -> {
             try {
                 // Validation
                 if (typeCombo.getValue() == null || typeCombo.getValue().isEmpty()) {
                     typeError.setText("Ce champ est obligatoire");
-                    typeError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    typeError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (dateDebut.getValue() == null) {
                     dateError.setText("Ce champ est obligatoire");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (dateDebut.getValue().isBefore(java.time.LocalDate.now())) {
                     dateError.setText("La date doit être aujourd'hui ou après");
-                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                     return;
                 }
-                
+
                 if (salaire.getText().isEmpty()) {
                     salaireError.setText("Ce champ est obligatoire");
-                    salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    salaireError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 try {
                     double salaireVal = Double.parseDouble(salaire.getText());
                     if (salaireVal <= 0) {
                         salaireError.setText("Le salaire doit être positif");
-                        salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                        salaireError.setStyle(
+                                "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                         return;
                     }
                 } catch (NumberFormatException ex) {
                     salaireError.setText("Format invalide (nombre positif requis)");
-                    salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    salaireError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 if (dateFin.getValue() != null && !dateFin.getValue().isAfter(dateDebut.getValue())) {
                     dateFinError.setText("La date fin doit être strictement après la date début");
-                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFinError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
                     return;
                 }
-                
+
                 if (recrutementCombo.getValue() == null || recrutementCombo.getValue().isEmpty()) {
                     recrutementError.setText("Ce champ est obligatoire");
-                    recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    recrutementError.setStyle(
+                            "-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
-                
+
                 String selectedRecrutement = recrutementCombo.getValue();
                 int idRecrutement = Integer.parseInt(selectedRecrutement.split(" - ")[0]);
-                
+
                 Contrat c = new Contrat(
-                    contratRow.idProperty().get(),
-                    typeCombo.getValue(),
-                    Date.valueOf(dateDebut.getValue()),
-                    Date.valueOf(dateFin.getValue()),
-                    Double.parseDouble(salaire.getText()),
-                    statusCombo.getValue(),
-                    volumeHoraire.getText(),
-                    avantages.getValue(),
-                    idRecrutement
-                );
-                
+                        contratRow.idProperty().get(),
+                        typeCombo.getValue(),
+                        Date.valueOf(dateDebut.getValue()),
+                        Date.valueOf(dateFin.getValue()),
+                        Double.parseDouble(salaire.getText()),
+                        statusCombo.getValue(),
+                        volumeHoraire.getText(),
+                        avantages.getValue(),
+                        idRecrutement);
+
                 serviceContrat.modifier(c);
                 loadSampleContratData();
                 tableContrats.setItems(contratData);
@@ -2464,18 +2745,18 @@ public class MainController implements Initializable {
                 showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
             }
         });
-        
+
         buttonBox.getChildren().addAll(btnCancel, btnSave);
-        
+
         modalContent.getChildren().addAll(header, formFields, buttonBox);
-        
+
         ScrollPane scrollPane = new ScrollPane(modalContent);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         scrollPane.setFitToWidth(true);
-        
+
         Scene scene = new Scene(scrollPane, 400, 500);
         scene.setFill(Color.TRANSPARENT);
-        
+
         modalStage.setScene(scene);
         modalStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/VOS.jpg")));
         modalStage.showAndWait();
@@ -2502,53 +2783,55 @@ public class MainController implements Initializable {
         });
     }
 
-    private void editRecrutement(RecrutementRow recrutementRow) {
+    private void editRecrutement(Recrutement recrutement) {
         // Create custom modal dialog
         Stage modalStage = new Stage();
         modalStage.initModality(Modality.APPLICATION_MODAL);
         modalStage.setTitle("Modifier Recrutement");
-        
+
         // Modal Content
         VBox modalContent = new VBox();
         modalContent.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1a1a2e, #16213e); " +
                 "-fx-background-radius: 20; -fx-padding: 30;");
         modalContent.setSpacing(15);
-        
+
         // Header
         Label title = new Label("Modifier Recrutement");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;");
-        
+
         Label subtitle = new Label("Modifier les données du recrutement");
         subtitle.setStyle("-fx-font-size: 12px; -fx-text-fill: #9CA3AF;");
-        
+
         VBox header = new VBox(title, subtitle);
         header.setStyle("-fx-spacing: 5;");
-        
+
         // Form Fields
         VBox formFields = new VBox();
         formFields.setSpacing(12);
-        
+
         // Date Décision
         Label lblDateDecision = new Label("DATE DÉCISION");
-        lblDateDecision.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblDateDecision
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         DatePicker dateDecision = new DatePicker();
-        dateDecision.setValue(java.time.LocalDate.parse(recrutementRow.dateDecisionProperty().get()));
+        dateDecision.setValue(recrutement.getDate_decision().toLocalDate());
         dateDecision.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
         dateDecision.setPrefWidth(300);
-        
+
         VBox dateBox = new VBox(lblDateDecision, dateDecision);
         dateBox.setSpacing(5);
-        
+
         // Décision
         Label lblDecision = new Label("DÉCISION");
-        lblDecision.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblDecision
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<String> decisionCombo = new ComboBox<>();
         decisionCombo.setItems(FXCollections.observableArrayList("Accepté", "Refusé", "En attente"));
-        decisionCombo.setValue(recrutementRow.decisionProperty().get());
+        decisionCombo.setValue(recrutement.getDecision_finale());
         decisionCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
@@ -2569,18 +2852,20 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         VBox decisionBox = new VBox(lblDecision, decisionCombo);
         decisionBox.setSpacing(5);
-        
+
         // ID Entretien
         Label lblIdEntretien = new Label("ID ENTRETIEN");
-        lblIdEntretien.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblIdEntretien
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<Integer> idEntretien = new ComboBox<>();
-        int currentIdEntretien = recrutementRow.idEntretienProperty().get();
+        int currentIdEntretien = recrutement.getId_entretien();
         try {
-            ObservableList<Integer> entretienIds = FXCollections.observableArrayList(serviceRecrutement.getAvailableEntretienIds());
+            ObservableList<Integer> entretienIds = FXCollections
+                    .observableArrayList(serviceRecrutement.getAvailableEntretienIds());
             idEntretien.setItems(entretienIds);
             idEntretien.setValue(currentIdEntretien);
         } catch (SQLException ex) {
@@ -2606,18 +2891,20 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         VBox entretienBox = new VBox(lblIdEntretien, idEntretien);
         entretienBox.setSpacing(5);
-        
+
         // ID Utilisateur
         Label lblIdUtilisateur = new Label("ID UTILISATEUR");
-        lblIdUtilisateur.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
-        
+        lblIdUtilisateur
+                .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+
         ComboBox<Integer> idUtilisateur = new ComboBox<>();
-        int currentIdUtilisateur = recrutementRow.idUtilisateurProperty().get();
+        int currentIdUtilisateur = recrutement.getId_utilisateur();
         try {
-            ObservableList<Integer> utilisateurIds = FXCollections.observableArrayList(serviceRecrutement.getAvailableUtilisateurIds());
+            ObservableList<Integer> utilisateurIds = FXCollections
+                    .observableArrayList(serviceRecrutement.getAvailableUtilisateurIds());
             idUtilisateur.setItems(utilisateurIds);
             idUtilisateur.setValue(currentIdUtilisateur);
         } catch (SQLException ex) {
@@ -2643,46 +2930,45 @@ public class MainController implements Initializable {
                 setStyle("-fx-text-fill: white;");
             }
         });
-        
+
         VBox utilisateurBox = new VBox(lblIdUtilisateur, idUtilisateur);
         utilisateurBox.setSpacing(5);
-        
+
         formFields.getChildren().addAll(dateBox, decisionBox, entretienBox, utilisateurBox);
-        
+
         // Buttons
         HBox buttonBox = new HBox();
         buttonBox.setSpacing(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setStyle("-fx-padding: 20 0 0 0;");
-        
+
         Button btnCancel = new Button("Annuler");
         btnCancel.setStyle("-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-font-size: 13px; " +
                 "-fx-font-weight: 600; -fx-padding: 12 30; -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(156,163,175,0.3); -fx-border-radius: 10; -fx-cursor: hand;");
         btnCancel.setOnAction(e -> modalStage.close());
-        
+
         Button btnSave = new Button("✨ Enregistrer");
         btnSave.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #667eea, #f093fb); " +
                 "-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12 30; " +
                 "-fx-background-radius: 10; -fx-cursor: hand; " +
                 "-fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 15, 0, 0, 5);");
-        
+
         btnSave.setOnAction(e -> {
             try {
-                if (dateDecision.getValue() == null || decisionCombo.getValue() == null || 
-                    idEntretien.getValue() == null || idUtilisateur.getValue() == null) {
+                if (dateDecision.getValue() == null || decisionCombo.getValue() == null ||
+                        idEntretien.getValue() == null || idUtilisateur.getValue() == null) {
                     showAlert("Erreur", "Veuillez remplir tous les champs");
                     return;
                 }
-                
+
                 Recrutement r = new Recrutement(
-                    recrutementRow.idProperty().get(),
-                    Date.valueOf(dateDecision.getValue()),
-                    decisionCombo.getValue(),
-                    idEntretien.getValue(),
-                    idUtilisateur.getValue()
-                );
-                
+                        recrutement.getId_recrutement(),
+                        Date.valueOf(dateDecision.getValue()),
+                        decisionCombo.getValue(),
+                        idEntretien.getValue(),
+                        idUtilisateur.getValue());
+
                 serviceRecrutement.modifier(r);
                 loadSampleRecrutementData();
                 tableRecrutements.setItems(recrutementData);
@@ -2692,33 +2978,33 @@ public class MainController implements Initializable {
                 showAlert("Erreur", "Erreur SQL: " + ex.getMessage());
             }
         });
-        
+
         buttonBox.getChildren().addAll(btnCancel, btnSave);
-        
+
         modalContent.getChildren().addAll(header, formFields, buttonBox);
-        
+
         ScrollPane scrollPane = new ScrollPane(modalContent);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         scrollPane.setFitToWidth(true);
-        
+
         Scene scene = new Scene(scrollPane, 400, 500);
         scene.setFill(Color.TRANSPARENT);
-        
+
         modalStage.setScene(scene);
         modalStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/VOS.jpg")));
         modalStage.showAndWait();
     }
 
-    private void deleteRecrutement(RecrutementRow recrutementRow) {
+    private void deleteRecrutement(Recrutement recrutement) {
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
         confirmDialog.setTitle("Confirmer la suppression");
-        confirmDialog.setHeaderText("Supprimer le recrutement #" + recrutementRow.idProperty().get());
+        confirmDialog.setHeaderText("Supprimer le recrutement #" + recrutement.getId_recrutement());
         confirmDialog.setContentText("Êtes-vous sûr de vouloir supprimer ce recrutement?");
 
         confirmDialog.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
                 try {
-                    serviceRecrutement.supprimer(recrutementRow.idProperty().get());
+                    serviceRecrutement.supprimer(recrutement.getId_recrutement());
                     loadSampleRecrutementData();
                     tableRecrutements.setItems(recrutementData);
                     showAlert("Succès", "Recrutement supprimé avec succès!");
@@ -2732,9 +3018,12 @@ public class MainController implements Initializable {
 
     private void updateNavButtonStyle(Button activeButton) {
         // Reset all old buttons if they exist
-        if (btnNavEntretiens != null) btnNavEntretiens.setStyle("");
-        if (btnNavDashboard != null) btnNavDashboard.setStyle("");
-        if (btnNavStats != null) btnNavStats.setStyle("");
+        if (btnNavEntretiens != null)
+            btnNavEntretiens.setStyle("");
+        if (btnNavDashboard != null)
+            btnNavDashboard.setStyle("");
+        if (btnNavStats != null)
+            btnNavStats.setStyle("");
 
         // Style active button if not null
         if (activeButton != null) {
@@ -2771,7 +3060,8 @@ public class MainController implements Initializable {
         private final SimpleStringProperty avantages;
         private final SimpleIntegerProperty idRecrutement;
 
-        public ContratRow(Integer id, String type, String dateDebut, String dateFin, Double salaire, String status, String volumeHoraire, String avantages, Integer idRecrutement, String periode) {
+        public ContratRow(Integer id, String type, String dateDebut, String dateFin, Double salaire, String status,
+                String volumeHoraire, String avantages, Integer idRecrutement, String periode) {
             this.id = new SimpleIntegerProperty(id);
             this.type = new SimpleStringProperty(type);
             this.dateDebut = new SimpleStringProperty(dateDebut);
@@ -2784,37 +3074,45 @@ public class MainController implements Initializable {
             this.idRecrutement = new SimpleIntegerProperty(idRecrutement);
         }
 
-        public SimpleIntegerProperty idProperty() { return id; }
-        public SimpleStringProperty typeProperty() { return type; }
-        public SimpleStringProperty dateDebutProperty() { return dateDebut; }
-        public SimpleStringProperty dateFinProperty() { return dateFin; }
-        public SimpleStringProperty periodeProperty() { return periode; }
-        public SimpleDoubleProperty salaireProperty() { return salaire; }
-        public SimpleStringProperty statusProperty() { return status; }
-        public SimpleStringProperty volumeHoraireProperty() { return volumeHoraire; }
-        public SimpleStringProperty avantagesProperty() { return avantages; }
-        public SimpleIntegerProperty idRecrutementProperty() { return idRecrutement; }
-    }
-
-    public static class RecrutementRow {
-        private final SimpleIntegerProperty id;
-        private final SimpleStringProperty dateDecision;
-        private final SimpleStringProperty decision;
-        private final SimpleIntegerProperty idEntretien;
-        private final SimpleIntegerProperty idUtilisateur;
-
-        public RecrutementRow(Integer id, String dateDecision, String decision, Integer idEntretien, Integer idUtilisateur) {
-            this.id = new SimpleIntegerProperty(id);
-            this.dateDecision = new SimpleStringProperty(dateDecision);
-            this.decision = new SimpleStringProperty(decision);
-            this.idEntretien = new SimpleIntegerProperty(idEntretien);
-            this.idUtilisateur = new SimpleIntegerProperty(idUtilisateur);
+        public SimpleIntegerProperty idProperty() {
+            return id;
         }
 
-        public SimpleIntegerProperty idProperty() { return id; }
-        public SimpleStringProperty dateDecisionProperty() { return dateDecision; }
-        public SimpleStringProperty decisionProperty() { return decision; }
-        public SimpleIntegerProperty idEntretienProperty() { return idEntretien; }
-        public SimpleIntegerProperty idUtilisateurProperty() { return idUtilisateur; }
+        public SimpleStringProperty typeProperty() {
+            return type;
+        }
+
+        public SimpleStringProperty dateDebutProperty() {
+            return dateDebut;
+        }
+
+        public SimpleStringProperty dateFinProperty() {
+            return dateFin;
+        }
+
+        public SimpleStringProperty periodeProperty() {
+            return periode;
+        }
+
+        public SimpleDoubleProperty salaireProperty() {
+            return salaire;
+        }
+
+        public SimpleStringProperty statusProperty() {
+            return status;
+        }
+
+        public SimpleStringProperty volumeHoraireProperty() {
+            return volumeHoraire;
+        }
+
+        public SimpleStringProperty avantagesProperty() {
+            return avantages;
+        }
+
+        public SimpleIntegerProperty idRecrutementProperty() {
+            return idRecrutement;
+        }
     }
+
 }

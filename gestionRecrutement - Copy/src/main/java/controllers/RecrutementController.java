@@ -1,8 +1,11 @@
 package controllers;
 
 import entities.Recrutement;
+import entities.RecrutementGroup;
+import entities.RecrutementTableRow;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,25 +20,28 @@ import services.ServiceRecrutement;
 import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class RecrutementController implements Initializable {
 
     // Table et colonnes
     @FXML
-    private TableView<Recrutement> tableRecrutements;
+    private TableView<RecrutementTableRow> tableRecrutements;
     @FXML
-    private TableColumn<Recrutement, Integer> colId;
+    private TableColumn<RecrutementTableRow, String> colUserName;
     @FXML
-    private TableColumn<Recrutement, String> colDateDecision;
+    private TableColumn<RecrutementTableRow, Integer> colRecrutementCount;
     @FXML
-    private TableColumn<Recrutement, String> colDecisionFinale;
+    private TableColumn<RecrutementTableRow, String> colDecisionDate;
     @FXML
-    private TableColumn<Recrutement, Integer> colIdEntretien;
+    private TableColumn<RecrutementTableRow, String> colDecisionFinale;
     @FXML
-    private TableColumn<Recrutement, Integer> colIdUtilisateur;
+    private TableColumn<RecrutementTableRow, Integer> colIdEntretien;
     @FXML
-    private TableColumn<Recrutement, Void> colActions;
+    private TableColumn<RecrutementTableRow, Void> colActions;
 
     // Sidebar
     @FXML
@@ -69,7 +75,10 @@ public class RecrutementController implements Initializable {
 
     // Service
     private ServiceRecrutement serviceRecrutement = new ServiceRecrutement();
-    private ObservableList<Recrutement> recrutementsList = FXCollections.observableArrayList();
+    private ObservableList<RecrutementTableRow> tableRowsList = FXCollections.observableArrayList();
+    private List<RecrutementGroup> groupsList;
+    private Map<RecrutementGroup, Integer> groupHeaderIndexMap = new HashMap<>();
+
     private Recrutement selectedRecrutement = null;
     private Recrutement recrutementToDelete = null;
 
@@ -80,125 +89,196 @@ public class RecrutementController implements Initializable {
         cbDecisionFinale.setItems(FXCollections.observableArrayList(
                 "Accepté", "Refusé", "En attente"));
 
-        // Configurer les colonnes avec custom cell rendering
+        // Configurer les colonnes
+        setupTableColumns();
 
-        // Colonne ID avec icône
-        colId.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getId_recrutement()).asObject());
-        colId.setCellFactory(param -> new TableCell<>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    HBox hbox = new HBox(10);
-                    hbox.setAlignment(Pos.CENTER_LEFT);
-                    Label icon = new Label("👤");
-                    icon.setStyle("-fx-font-size: 18px;");
-                    Label text = new Label("#" + item);
-                    text.setStyle("-fx-font-size: 14px; -fx-font-weight: 500; -fx-text-fill: #111827;");
-                    hbox.getChildren().addAll(icon, text);
-                    setGraphic(hbox);
-                }
-            }
-        });
+        // Charger les données groupées
+        loadGroupedRecrutements();
 
-        // Colonne Date avec badge orange
-        colDateDecision
-                .setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDate_decision().toString()));
-        colDateDecision.setCellFactory(param -> new TableCell<>() {
+        // Recherche
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> filterRecrutements(newValue));
+    }
+
+    private void setupTableColumns() {
+        // ===== USER NAME COLUMN (Name + Count + Expansion Button) =====
+        colUserName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getUserName()));
+        colUserName.setCellFactory(param -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
                     setGraphic(null);
-                } else {
-                    HBox hbox = new HBox();
-                    hbox.setAlignment(Pos.CENTER_LEFT);
-                    Label badge = new Label("📅 " + item);
-                    badge.getStyleClass().addAll("badge", "badge-orange");
-                    hbox.getChildren().add(badge);
-                    setGraphic(hbox);
+                    return;
                 }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (!row.isGroupHeader()) {
+                    // Detail row - show indentation
+                    Label detailLabel = new Label("  └─ Détail");
+                    detailLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6B7280;");
+                    setGraphic(detailLabel);
+                    return;
+                }
+
+                // Group header row
+                HBox hbox = new HBox(12);
+                hbox.setAlignment(Pos.CENTER_LEFT);
+
+                // Expand/Collapse button
+                Button expandBtn = new Button(row.getParentGroup().isExpanded() ? "▼" : "▶");
+                expandBtn.setStyle("-fx-padding: 4 8; -fx-font-size: 12px; -fx-cursor: hand; " +
+                        "-fx-background-color: #F3F4F6; -fx-border-color: #E5E7EB; -fx-border-width: 1;");
+                expandBtn.setPrefWidth(35);
+
+                expandBtn.setOnAction(event -> {
+                    // Defer list mutation to next JavaFX pulse so we don't
+                    // modify the ObservableList while the cell is still rendering.
+                    Platform.runLater(() -> refreshTableWithGroupState(row.getParentGroup()));
+                });
+
+                // User icon and name
+                Label userIcon = new Label("👤");
+                userIcon.setStyle("-fx-font-size: 16px;");
+                Label userName = new Label(item + " (#" + row.getUserId() + ")");
+                userName.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #111827;");
+
+                hbox.getChildren().addAll(expandBtn, userIcon, userName);
+                setGraphic(hbox);
+
+                // Style the row as a header
+                getTableRow().setStyle("-fx-background-color: #F9FAFB; -fx-font-weight: 600;");
             }
         });
 
-        // Colonne Décision avec badge coloré selon le statut
-        colDecisionFinale.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecision_finale()));
+        // ===== RECRUTEMENT COUNT COLUMN =====
+        colRecrutementCount.setCellValueFactory(
+                data -> new SimpleIntegerProperty(data.getValue().getRecrutementCount()).asObject());
+        colRecrutementCount.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (!row.isGroupHeader() || item == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                HBox hbox = new HBox(8);
+                hbox.setAlignment(Pos.CENTER_LEFT);
+                Label icon = new Label("📊");
+                icon.setStyle("-fx-font-size: 14px;");
+                Label count = new Label(item + " recrutement" + (item > 1 ? "s" : ""));
+                count.setStyle("-fx-font-size: 12px; -fx-text-fill: #374151; -fx-padding: 4 8; " +
+                        "-fx-background-color: #E5E7EB; -fx-background-radius: 4;");
+                hbox.getChildren().addAll(icon, count);
+                setGraphic(hbox);
+            }
+        });
+
+        // ===== DECISION DATE COLUMN =====
+        colDecisionDate.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecisionDate()));
+        colDecisionDate.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null || item == null
+                        || item.isEmpty()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (row.isGroupHeader()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                HBox hbox = new HBox(8);
+                hbox.setAlignment(Pos.CENTER_LEFT);
+                Label badge = new Label("📅 " + item);
+                badge.setStyle("-fx-background-color: #FCD34D; -fx-text-fill: #78350F; " +
+                        "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-size: 11px;");
+                hbox.getChildren().add(badge);
+                setGraphic(hbox);
+            }
+        });
+
+        // ===== DECISION FINALE COLUMN =====
+        colDecisionFinale.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecision()));
         colDecisionFinale.setCellFactory(param -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
+                if (empty || getTableRow() == null || getTableRow().getItem() == null || item == null
+                        || item.isEmpty()) {
                     setGraphic(null);
-                } else {
-                    Label badge = new Label(item);
-                    
-                    // Color badge according to decision
-                    switch (item.toLowerCase()) {
-                        case "accepté":
-                            badge.setStyle("-fx-background-color: #D1FAE5; -fx-text-fill: #059669; "
-                                    + "-fx-padding: 6 12; -fx-background-radius: 20; -fx-font-weight: 600;");
-                            break;
-                        case "refusé":
-                            badge.setStyle("-fx-background-color: #FEE2E2; -fx-text-fill: #DC2626; "
-                                    + "-fx-padding: 6 12; -fx-background-radius: 20; -fx-font-weight: 600;");
-                            break;
-                        case "en attente":
-                            badge.setStyle("-fx-background-color: #FEF3C7; -fx-text-fill: #92400E; "
-                                    + "-fx-padding: 6 12; -fx-background-radius: 20; -fx-font-weight: 600;");
-                            break;
-                        default:
-                            badge.setStyle("-fx-background-color: #F3F4F6; -fx-text-fill: #6B7280; "
-                                    + "-fx-padding: 6 12; -fx-background-radius: 20; -fx-font-weight: 600;");
-                    }
-                    
-                    setGraphic(badge);
+                    return;
                 }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (row.isGroupHeader()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                Label badge = new Label(item);
+
+                switch (item.toLowerCase()) {
+                    case "accepté":
+                        badge.setStyle("-fx-background-color: #D1FAE5; -fx-text-fill: #059669; " +
+                                "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-weight: 600; -fx-font-size: 11px;");
+                        break;
+                    case "refusé":
+                        badge.setStyle("-fx-background-color: #FEE2E2; -fx-text-fill: #DC2626; " +
+                                "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-weight: 600; -fx-font-size: 11px;");
+                        break;
+                    case "en attente":
+                        badge.setStyle("-fx-background-color: #FEF3C7; -fx-text-fill: #92400E; " +
+                                "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-weight: 600; -fx-font-size: 11px;");
+                        break;
+                    default:
+                        badge.setStyle("-fx-background-color: #F3F4F6; -fx-text-fill: #6B7280; " +
+                                "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-weight: 600; -fx-font-size: 11px;");
+                }
+
+                setGraphic(badge);
             }
         });
 
-        // Colonne ID Entretien avec badge bleu
+        // ===== INTERVIEW ID COLUMN =====
         colIdEntretien
-                .setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getId_entretien()).asObject());
+                .setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getInterviewId()).asObject());
         colIdEntretien.setCellFactory(param -> new TableCell<>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
+                if (empty || getTableRow() == null || getTableRow().getItem() == null || item == null || item == 0) {
                     setGraphic(null);
-                } else {
-                    HBox hbox = new HBox();
-                    hbox.setAlignment(Pos.CENTER_LEFT);
-                    Label badge = new Label("🔗 " + item);
-                    badge.getStyleClass().addAll("badge", "badge-blue");
-                    hbox.getChildren().add(badge);
-                    setGraphic(hbox);
+                    return;
                 }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (row.isGroupHeader()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                HBox hbox = new HBox(8);
+                hbox.setAlignment(Pos.CENTER_LEFT);
+                Label badge = new Label("🔗 " + item);
+                badge.setStyle("-fx-background-color: #BFDBFE; -fx-text-fill: #1E40AF; " +
+                        "-fx-padding: 4 8; -fx-background-radius: 4; -fx-font-size: 11px;");
+                hbox.getChildren().add(badge);
+                setGraphic(hbox);
             }
         });
 
-        // Colonne ID Utilisateur avec badge gris
-        colIdUtilisateur
-                .setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getId_utilisateur()).asObject());
-        colIdUtilisateur.setCellFactory(param -> new TableCell<>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    HBox hbox = new HBox();
-                    hbox.setAlignment(Pos.CENTER_LEFT);
-                    Label badge = new Label("👤 " + item);
-                    badge.getStyleClass().addAll("badge", "badge-gray");
-                    hbox.getChildren().add(badge);
-                    setGraphic(hbox);
-                }
-            }
-        });
-
-        // Configurer la colonne Actions avec boutons modernes
+        // ===== ACTIONS COLUMN =====
         colActions.setCellFactory(param -> new TableCell<>() {
             private final Button btnEdit = new Button("✏️");
             private final Button btnDelete = new Button("🗑️");
@@ -210,57 +290,163 @@ public class RecrutementController implements Initializable {
                 hbox.setAlignment(Pos.CENTER_LEFT);
 
                 btnEdit.setOnAction(event -> {
-                    Recrutement recrutement = getTableView().getItems().get(getIndex());
-                    editRecrutement(recrutement);
+                    if (getTableRow() != null && getTableRow().getItem() != null) {
+                        RecrutementTableRow row = getTableRow().getItem();
+                        if (!row.isGroupHeader()) {
+                            // Find the original Recrutement object
+                            Recrutement rec = row.getParentGroup().getRecrutements().stream()
+                                    .filter(r -> r.getId_recrutement() == row.getRecruitmentId())
+                                    .findFirst()
+                                    .orElse(null);
+                            if (rec != null) {
+                                editRecrutement(rec);
+                            }
+                        }
+                    }
                 });
 
                 btnDelete.setOnAction(event -> {
-                    Recrutement recrutement = getTableView().getItems().get(getIndex());
-                    showDeleteModal(recrutement);
+                    if (getTableRow() != null && getTableRow().getItem() != null) {
+                        RecrutementTableRow row = getTableRow().getItem();
+                        if (!row.isGroupHeader()) {
+                            Recrutement rec = row.getParentGroup().getRecrutements().stream()
+                                    .filter(r -> r.getId_recrutement() == row.getRecruitmentId())
+                                    .findFirst()
+                                    .orElse(null);
+                            if (rec != null) {
+                                showDeleteModal(rec);
+                            }
+                        }
+                    }
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : hbox);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                RecrutementTableRow row = getTableRow().getItem();
+                if (row.isGroupHeader()) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(hbox);
+                }
             }
         });
 
-        // Charger les données
-        loadRecrutements();
+        // Set row styling
+        tableRecrutements.setRowFactory(param -> new TableRow<>() {
+            @Override
+            protected void updateItem(RecrutementTableRow item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setStyle("");
+                    return;
+                }
 
-        // Recherche
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> filterRecrutements(newValue));
+                if (item.isGroupHeader()) {
+                    setStyle("-fx-background-color: #F9FAFB; -fx-font-weight: 600; -fx-padding: 8;");
+                } else {
+                    setStyle("-fx-background-color: #FFFFFF; -fx-padding: 4;");
+                }
+            }
+        });
+    }
+
+    private void loadGroupedRecrutements() {
+        try {
+            groupsList = serviceRecrutement.afficherGroupedByUser();
+            refreshTableDisplay();
+        } catch (SQLException e) {
+            showError("Erreur lors du chargement des recrutements: " + e.getMessage());
+        }
+    }
+
+    private void refreshTableDisplay() {
+        tableRowsList.clear();
+        groupHeaderIndexMap.clear();
+
+        int index = 0;
+        for (RecrutementGroup group : groupsList) {
+            // Add group header
+            RecrutementTableRow headerRow = new RecrutementTableRow(group);
+            tableRowsList.add(headerRow);
+            groupHeaderIndexMap.put(group, index);
+            index++;
+
+            // Add detail rows if expanded
+            if (group.isExpanded()) {
+                for (Recrutement recrutement : group.getRecrutements()) {
+                    RecrutementTableRow detailRow = new RecrutementTableRow(group, recrutement);
+                    tableRowsList.add(detailRow);
+                    index++;
+                }
+            }
+        }
+
+        tableRecrutements.setItems(tableRowsList);
+        // Force all cells to call updateItem() again so expand buttons
+        // redraw with the correct ▼/▶ state after a list rebuild.
+        tableRecrutements.refresh();
+    }
+
+    private void refreshTableWithGroupState(RecrutementGroup changedGroup) {
+        boolean nowExpanded = changedGroup.isExpanded(); // already toggled? No — toggle first:
+        changedGroup.setExpanded(!nowExpanded);
+        boolean expanding = changedGroup.isExpanded();
+
+        if (expanding) {
+            // Find the index of this group's header row in the list
+            int headerIndex = -1;
+            for (int i = 0; i < tableRowsList.size(); i++) {
+                RecrutementTableRow r = tableRowsList.get(i);
+                if (r.isGroupHeader() && r.getParentGroup() == changedGroup) {
+                    headerIndex = i;
+                    break;
+                }
+            }
+            if (headerIndex >= 0) {
+                // Insert detail rows directly after the header — JavaFX sees
+                // precise add events and renders them immediately.
+                int insertAt = headerIndex + 1;
+                for (Recrutement rec : changedGroup.getRecrutements()) {
+                    tableRowsList.add(insertAt++, new RecrutementTableRow(changedGroup, rec));
+                }
+            }
+        } else {
+            // Remove only the detail rows that belong to this group
+            tableRowsList.removeIf(r -> !r.isGroupHeader() && r.getParentGroup() == changedGroup);
+        }
+
+        // Refresh so the header cell redraws its button icon (▶ ↔ ▼)
+        tableRecrutements.refresh();
     }
 
     private void setupSidebarHover() {
-        if (sidebarVBox == null) return;
-        
+        if (sidebarVBox == null)
+            return;
+
         sidebarVBox.setOnMouseEntered(event -> expandSidebar());
         sidebarVBox.setOnMouseExited(event -> collapseSidebar());
     }
 
     private void expandSidebar() {
-        // Show all nav labels
         sidebarVBox.lookupAll(".nav-label").forEach(node -> {
             node.setVisible(true);
             node.setManaged(true);
         });
-
-        // Show logo subtitle
         sidebarVBox.lookupAll(".logo-subtitle").forEach(node -> {
             node.setVisible(true);
             node.setManaged(true);
         });
-
-        // Show help section
         sidebarVBox.lookupAll(".help-section").forEach(node -> {
             node.setVisible(true);
             node.setManaged(true);
         });
-
-        // Show user profile
         sidebarVBox.lookupAll(".user-profile-sidebar").forEach(node -> {
             node.setVisible(true);
             node.setManaged(true);
@@ -268,56 +454,76 @@ public class RecrutementController implements Initializable {
     }
 
     private void collapseSidebar() {
-        // Hide all nav labels
         sidebarVBox.lookupAll(".nav-label").forEach(node -> {
             node.setVisible(false);
             node.setManaged(false);
         });
-
-        // Hide logo subtitle
         sidebarVBox.lookupAll(".logo-subtitle").forEach(node -> {
             node.setVisible(false);
             node.setManaged(false);
         });
-
-        // Hide help section
         sidebarVBox.lookupAll(".help-section").forEach(node -> {
             node.setVisible(false);
             node.setManaged(false);
         });
-
-        // Hide user profile
         sidebarVBox.lookupAll(".user-profile-sidebar").forEach(node -> {
             node.setVisible(false);
             node.setManaged(false);
         });
     }
 
-    private void loadRecrutements() {
-        try {
-            recrutementsList.clear();
-            recrutementsList.addAll(serviceRecrutement.afficher());
-            tableRecrutements.setItems(recrutementsList);
-        } catch (SQLException e) {
-            showError("Erreur lors du chargement des recrutements: " + e.getMessage());
-        }
-    }
-
     private void filterRecrutements(String searchText) {
         if (searchText == null || searchText.isEmpty()) {
-            tableRecrutements.setItems(recrutementsList);
+            refreshTableDisplay();
             return;
         }
 
-        ObservableList<Recrutement> filteredList = FXCollections.observableArrayList();
-        for (Recrutement recrutement : recrutementsList) {
-            if (recrutement.getDecision_finale().toLowerCase().contains(searchText.toLowerCase()) ||
-                    String.valueOf(recrutement.getId_recrutement()).contains(searchText) ||
-                    String.valueOf(recrutement.getId_entretien()).contains(searchText)) {
-                filteredList.add(recrutement);
+        tableRowsList.clear();
+        groupHeaderIndexMap.clear();
+
+        int index = 0;
+        for (RecrutementGroup group : groupsList) {
+            boolean groupMatches = group.getUserName().toLowerCase().contains(searchText.toLowerCase()) ||
+                    String.valueOf(group.getUserId()).contains(searchText);
+
+            List<Recrutement> matchingRecrutements = new java.util.ArrayList<>();
+            for (Recrutement r : group.getRecrutements()) {
+                if (r.getDecision_finale().toLowerCase().contains(searchText.toLowerCase()) ||
+                        String.valueOf(r.getId_recrutement()).contains(searchText) ||
+                        String.valueOf(r.getId_entretien()).contains(searchText)) {
+                    matchingRecrutements.add(r);
+                }
+            }
+
+            if (groupMatches || !matchingRecrutements.isEmpty()) {
+                // Add group header
+                RecrutementTableRow headerRow = new RecrutementTableRow(group);
+                if (!matchingRecrutements.isEmpty() || groupMatches) {
+                    headerRow.setExpanded(true);
+                }
+                tableRowsList.add(headerRow);
+                groupHeaderIndexMap.put(group, index);
+                index++;
+
+                // Add matching detail rows
+                if (!matchingRecrutements.isEmpty()) {
+                    for (Recrutement recrutement : matchingRecrutements) {
+                        RecrutementTableRow detailRow = new RecrutementTableRow(group, recrutement);
+                        tableRowsList.add(detailRow);
+                        index++;
+                    }
+                } else if (groupMatches) {
+                    // If only group matches, show all its recruitments
+                    for (Recrutement r : group.getRecrutements()) {
+                        RecrutementTableRow detailRow = new RecrutementTableRow(group, r);
+                        tableRowsList.add(detailRow);
+                        index++;
+                    }
+                }
             }
         }
-        tableRecrutements.setItems(filteredList);
+
+        tableRecrutements.setItems(tableRowsList);
     }
 
     @FXML
@@ -344,7 +550,6 @@ public class RecrutementController implements Initializable {
 
     @FXML
     private void saveRecrutement() {
-        // Validation
         if (dpDateDecision.getValue() == null || cbDecisionFinale.getValue() == null ||
                 tfIdEntretien.getText().isEmpty() || tfIdUtilisateur.getText().isEmpty()) {
             showMessage("Veuillez remplir tous les champs", true);
@@ -358,12 +563,10 @@ public class RecrutementController implements Initializable {
             int idUtilisateur = Integer.parseInt(tfIdUtilisateur.getText());
 
             if (selectedRecrutement == null) {
-                // Ajouter
                 Recrutement newRecrutement = new Recrutement(dateDecision, decisionFinale, idEntretien, idUtilisateur);
                 serviceRecrutement.ajouter(newRecrutement);
                 showMessage("Recrutement ajouté avec succès!", false);
             } else {
-                // Modifier
                 selectedRecrutement.setDate_decision(dateDecision);
                 selectedRecrutement.setDecision_finale(decisionFinale);
                 selectedRecrutement.setId_entretien(idEntretien);
@@ -372,7 +575,7 @@ public class RecrutementController implements Initializable {
                 showMessage("Recrutement modifié avec succès!", false);
             }
 
-            loadRecrutements();
+            loadGroupedRecrutements();
             closeModal();
         } catch (NumberFormatException e) {
             showMessage("Erreur: Vérifiez le format des nombres", true);
@@ -409,7 +612,7 @@ public class RecrutementController implements Initializable {
         if (recrutementToDelete != null) {
             try {
                 serviceRecrutement.supprimer(recrutementToDelete.getId_recrutement());
-                loadRecrutements();
+                loadGroupedRecrutements();
                 closeDeleteModal();
             } catch (SQLException e) {
                 showError("Erreur lors de la suppression: " + e.getMessage());

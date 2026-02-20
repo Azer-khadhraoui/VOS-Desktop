@@ -162,12 +162,12 @@
                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                                     </columnResizePolicy>
                                     <columns>
-                                        <TableColumn fx:id="colIdRecrutement" text="ID" prefWidth="60.0"/>
-                                        <TableColumn fx:id="colDateDecision" text="Date Décision" prefWidth="120.0"/>
-                                        <TableColumn fx:id="colDecisionFinale" text="Décision" prefWidth="150.0"/>
-                                        <TableColumn fx:id="colIdEntretien" text="ID Entretien" prefWidth="120.0"/>
-                                        <TableColumn fx:id="colIdUtilisateur" text="ID Utilisateur" prefWidth="120.0"/>
-                                        <TableColumn fx:id="colActionsRecrutement" text="Actions" prefWidth="150.0"/>
+                                        <TableColumn fx:id="colUserName" text="👤 Utilisateur" prefWidth="200.0"/>
+                                        <TableColumn fx:id="colRecrutementCount" text="📊 Nombre de Recrutements" prefWidth="160.0"/>
+                                        <TableColumn fx:id="colDecisionDate" text="📅 Date Décision" prefWidth="140.0"/>
+                                        <TableColumn fx:id="colDecisionFinale" text="✅ Décision" prefWidth="140.0"/>
+                                        <TableColumn fx:id="colIdEntretien" text="🔗 Entretien" prefWidth="120.0"/>
+                                        <TableColumn fx:id="colActions" text="⚙️ Actions" prefWidth="140.0"/>
                                     </columns>
                                 </TableView>
                             </VBox>
