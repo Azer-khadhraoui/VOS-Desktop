@@ -295,7 +295,7 @@ public class ContratController implements Initializable {
 
             if (selectedContrat == null) {
                 // Ajouter
-                Contrat newContrat = new Contrat(type, dateDebut, salaire, idRecrutement);
+                Contrat newContrat = new Contrat(type, dateDebut, null, salaire, "Actif", "", "", idRecrutement);
                 serviceContrat.ajouter(newContrat);
                 showMessage("Contrat ajouté avec succès!", false);
             } else {

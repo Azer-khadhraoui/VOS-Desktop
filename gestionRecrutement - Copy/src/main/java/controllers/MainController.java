@@ -783,7 +783,8 @@ public class MainController implements Initializable {
         try {
             contratData.clear();
             for (Contrat c : serviceContrat.afficher()) {
-                contratData.add(new ContratRow(c.getId_contrat(), c.getType_contrat(), c.getDate_debut().toString(), c.getSalaire(), c.getId_recrutement()));
+                String dateFinStr = (c.getDate_fin() != null) ? c.getDate_fin().toString() : "";
+                contratData.add(new ContratRow(c.getId_contrat(), c.getType_contrat(), c.getDate_debut().toString(), dateFinStr, c.getSalaire(), c.getStatus(), c.getVolume_horaire(), c.getAvantages(), c.getId_recrutement()));
             }
         } catch (SQLException e) {
             showError("Erreur lors du chargement des contrats: " + e.getMessage());
@@ -1028,21 +1029,37 @@ public class MainController implements Initializable {
         lblDate.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
         
         DatePicker dateDebut = new DatePicker();
+        dateDebut.setValue(java.time.LocalDate.now());
         dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
         dateDebut.setPrefWidth(300);
+        dateDebut.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(java.time.LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+            }
+        });
         
         Label dateError = new Label("");
         dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
         
         dateDebut.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                dateError.setText("✓ Format valide");
-                dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
-                dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
-                        "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
-                        "-fx-font-size: 13px; -fx-text-fill: white;");
+                if (newVal.isBefore(java.time.LocalDate.now())) {
+                    dateError.setText("La date doit être aujourd'hui ou après");
+                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                } else {
+                    dateError.setText("✓ Format valide");
+                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                }
             } else {
                 dateError.setText("Ce champ est obligatoire");
                 dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
@@ -1166,7 +1183,147 @@ public class MainController implements Initializable {
         VBox recrutementBox = new VBox(lblRecrutement, recrutementCombo, recrutementError);
         recrutementBox.setSpacing(3);
         
-        formFields.getChildren().addAll(typeBox, dateBox, salaireBox, recrutementBox);
+        // Date Fin
+        Label lblDateFin = new Label("DATE FIN");
+        lblDateFin.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+        
+        DatePicker dateFin = new DatePicker();
+        dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                "-fx-font-size: 13px; -fx-text-fill: white;");
+        dateFin.setPrefWidth(300);
+        
+        Label dateFinError = new Label("");
+        dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
+        
+        dateFin.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && dateDebut.getValue() != null) {
+                if (newVal.isAfter(dateDebut.getValue())) {
+                    dateFinError.setText("✓ Format valide");
+                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                } else {
+                    dateFinError.setText("La date fin doit être strictement après la date début");
+                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                }
+            }
+        });
+        
+        VBox dateFinBox = new VBox(lblDateFin, dateFin, dateFinError);
+        dateFinBox.setSpacing(3);
+        
+        // Status
+        Label lblStatus = new Label("STATUT");
+        lblStatus.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+        
+        ComboBox<String> statusCombo = new ComboBox<>();
+        statusCombo.setItems(FXCollections.observableArrayList("Actif", "Terminé", "En attente", "Annulé"));
+        statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
+        statusCombo.setPrefWidth(300);
+        statusCombo.setCellFactory(param -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle(empty ? "" : "-fx-text-fill: white; -fx-background-color: rgba(26,26,46,0.95);");
+            }
+        });
+        statusCombo.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle("-fx-text-fill: white;");
+            }
+        });
+        
+        Label statusError = new Label("");
+        statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
+        
+        statusCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.isEmpty()) {
+                statusError.setText("✓ Sélection valide");
+                statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                        "-fx-font-size: 13px; -fx-text-fill: white;");
+            } else {
+                statusError.setText("Ce champ est obligatoire");
+                statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                        "-fx-font-size: 13px; -fx-text-fill: white;");
+            }
+        });
+        
+        VBox statusBox = new VBox(lblStatus, statusCombo, statusError);
+        statusBox.setSpacing(3);
+        
+        // Volume Horaire
+        Label lblVolumeHoraire = new Label("VOLUME HORAIRE");
+        lblVolumeHoraire.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+        
+        TextField volumeHoraire = new TextField();
+        volumeHoraire.setPromptText("Ex: 35h");
+        volumeHoraire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
+        volumeHoraire.setPrefWidth(300);
+        
+        Label volumeHoraireError = new Label("");
+        volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
+        
+        volumeHoraire.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.isEmpty()) {
+                volumeHoraireError.setText("✓ Format valide");
+                volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                volumeHoraire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                        "-fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;");
+            }
+        });
+        
+        VBox volumeHoraireBox = new VBox(lblVolumeHoraire, volumeHoraire, volumeHoraireError);
+        volumeHoraireBox.setSpacing(3);
+        
+        // Avantages
+        Label lblAvantages = new Label("AVANTAGES");
+        lblAvantages.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+        
+        ComboBox<String> avantages = new ComboBox<>();
+        avantages.setItems(FXCollections.observableArrayList("Tickets Restaurant", "Assurance Maladie", "Transport"));
+        avantages.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
+        avantages.setPrefWidth(300);
+        avantages.setCellFactory(param -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle(empty ? "" : "-fx-text-fill: white; -fx-background-color: rgba(26,26,46,0.95);");
+            }
+        });
+        avantages.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle("-fx-text-fill: white;");
+            }
+        });
+        
+        VBox avantagesBox = new VBox(lblAvantages, avantages);
+        avantagesBox.setSpacing(3);
+        
+        formFields.getChildren().addAll(typeBox, dateBox, dateFinBox, salaireBox, statusBox, volumeHoraireBox, avantagesBox, recrutementBox);
         
         // Buttons
         HBox buttonBox = new HBox();
@@ -1201,6 +1358,15 @@ public class MainController implements Initializable {
                     return;
                 }
                 
+                if (dateDebut.getValue().isBefore(java.time.LocalDate.now())) {
+                    dateError.setText("La date doit être aujourd'hui ou après");
+                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                    return;
+                }
+                
                 if (salaire.getText().isEmpty()) {
                     salaireError.setText("Ce champ est obligatoire");
                     salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
@@ -1220,6 +1386,33 @@ public class MainController implements Initializable {
                     return;
                 }
                 
+                if (dateFin.getValue() == null) {
+                    dateFinError.setText("Ce champ est obligatoire");
+                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    return;
+                }
+                
+                if (!dateFin.getValue().isAfter(dateDebut.getValue())) {
+                    dateFinError.setText("La date fin doit être strictement après la date début");
+                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                    return;
+                }
+                
+                if (statusCombo.getValue() == null || statusCombo.getValue().isEmpty()) {
+                    statusError.setText("Ce champ est obligatoire");
+                    statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    return;
+                }
+                
+                if (volumeHoraire.getText().isEmpty()) {
+                    volumeHoraireError.setText("Ce champ est obligatoire");
+                    volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    return;
+                }
+                
                 if (recrutementCombo.getValue() == null || recrutementCombo.getValue().isEmpty()) {
                     recrutementError.setText("Ce champ est obligatoire");
                     recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
@@ -1232,7 +1425,11 @@ public class MainController implements Initializable {
                 Contrat c = new Contrat(
                     typeCombo.getValue(),
                     Date.valueOf(dateDebut.getValue()),
+                    Date.valueOf(dateFin.getValue()),
                     Double.parseDouble(salaire.getText()),
+                    statusCombo.getValue(),
+                    volumeHoraire.getText(),
+                    avantages.getValue(),
                     idRecrutement
                 );
                 
@@ -1641,22 +1838,41 @@ public class MainController implements Initializable {
         lblDate.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
         
         DatePicker dateDebut = new DatePicker();
-        dateDebut.setValue(java.time.LocalDate.parse(contratRow.dateDebutProperty().get()));
+        if (contratRow.dateDebutProperty().get() != null && !contratRow.dateDebutProperty().get().isEmpty()) {
+            dateDebut.setValue(java.time.LocalDate.parse(contratRow.dateDebutProperty().get()));
+        } else {
+            dateDebut.setValue(java.time.LocalDate.now());
+        }
         dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
         dateDebut.setPrefWidth(300);
+        dateDebut.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(java.time.LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+            }
+        });
         
         Label dateError = new Label("");
         dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
         
         dateDebut.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                dateError.setText("✓ Format valide");
-                dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
-                dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
-                        "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
-                        "-fx-font-size: 13px; -fx-text-fill: white;");
+                if (newVal.isBefore(java.time.LocalDate.now())) {
+                    dateError.setText("La date doit être aujourd'hui ou après");
+                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                } else {
+                    dateError.setText("✓ Format valide");
+                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                }
             } else {
                 dateError.setText("Ce champ est obligatoire");
                 dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
@@ -1718,6 +1934,162 @@ public class MainController implements Initializable {
         
         VBox salaireBox = new VBox(lblSalaire, salaire, salaireError);
         salaireBox.setSpacing(3);
+        
+        // Date Fin
+        Label lblDateFin = new Label("DATE FIN");
+        lblDateFin.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+        
+        DatePicker dateFin = new DatePicker();
+        if (contratRow.dateFinProperty().get() != null && !contratRow.dateFinProperty().get().isEmpty()) {
+            dateFin.setValue(java.time.LocalDate.parse(contratRow.dateFinProperty().get()));
+        }
+        dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                "-fx-font-size: 13px; -fx-text-fill: white;");
+        dateFin.setPrefWidth(300);
+        
+        Label dateFinError = new Label("");
+        dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
+        
+        dateFin.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && dateDebut.getValue() != null) {
+                if (newVal.isAfter(dateDebut.getValue())) {
+                    dateFinError.setText("✓ Format valide");
+                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                } else {
+                    dateFinError.setText("La date fin doit être strictement après la date début");
+                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                }
+            } else {
+                dateFinError.setText("");
+                dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                        "-fx-font-size: 13px; -fx-text-fill: white;");
+            }
+        });
+        
+        VBox dateFinBox = new VBox(lblDateFin, dateFin, dateFinError);
+        dateFinBox.setSpacing(3);
+        
+        // Status
+        Label lblStatus = new Label("STATUT");
+        lblStatus.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+        
+        ComboBox<String> statusCombo = new ComboBox<>();
+        statusCombo.setItems(FXCollections.observableArrayList("Actif", "Terminé", "En attente", "Annulé"));
+        statusCombo.setValue(contratRow.statusProperty().get());
+        statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
+        statusCombo.setPrefWidth(300);
+        statusCombo.setCellFactory(param -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle(empty ? "" : "-fx-text-fill: white; -fx-background-color: rgba(26,26,46,0.95);");
+            }
+        });
+        statusCombo.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle("-fx-text-fill: white;");
+            }
+        });
+        
+        Label statusError = new Label("");
+        statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
+        
+        statusCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.isEmpty()) {
+                statusError.setText("✓ Sélection valide");
+                statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                        "-fx-font-size: 13px; -fx-text-fill: white;");
+            } else {
+                statusError.setText("Ce champ est obligatoire");
+                statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                        "-fx-font-size: 13px; -fx-text-fill: white;");
+            }
+        });
+        
+        VBox statusBox = new VBox(lblStatus, statusCombo, statusError);
+        statusBox.setSpacing(3);
+        
+        // Volume Horaire
+        Label lblVolumeHoraire = new Label("VOLUME HORAIRE");
+        lblVolumeHoraire.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+        
+        TextField volumeHoraire = new TextField();
+        volumeHoraire.setText(contratRow.volumeHoraireProperty().get());
+        volumeHoraire.setPromptText("Ex: 35h");
+        volumeHoraire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                "-fx-font-size: 13px; -fx-text-fill: white;");
+        volumeHoraire.setPrefWidth(300);
+        
+        Label volumeHoraireError = new Label("");
+        volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
+        
+        volumeHoraire.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.isEmpty()) {
+                volumeHoraireError.setText("✓ Format valide");
+                volumeHoraireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
+                volumeHoraire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                        "-fx-font-size: 13px; -fx-text-fill: white;");
+            } else {
+                volumeHoraireError.setText("");
+                volumeHoraire.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                        "-fx-font-size: 13px; -fx-text-fill: white;");
+            }
+        });
+        
+        VBox volumeHoraireBox = new VBox(lblVolumeHoraire, volumeHoraire, volumeHoraireError);
+        volumeHoraireBox.setSpacing(3);
+        
+        // Avantages
+        Label lblAvantages = new Label("AVANTAGES");
+        lblAvantages.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
+        
+        ComboBox<String> avantages = new ComboBox<>();
+        avantages.setItems(FXCollections.observableArrayList("Tickets Restaurant", "Assurance Maladie", "Transport"));
+        avantages.setValue(contratRow.avantagesProperty().get());
+        avantages.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
+        avantages.setPrefWidth(300);
+        avantages.setCellFactory(param -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle(empty ? "" : "-fx-text-fill: white; -fx-background-color: rgba(26,26,46,0.95);");
+            }
+        });
+        avantages.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle("-fx-text-fill: white;");
+            }
+        });
+        
+        VBox avantagesBox = new VBox(lblAvantages, avantages);
+        avantagesBox.setSpacing(3);
         
         // Recrutement
         Label lblRecrutement = new Label("RECRUTEMENT");
@@ -1790,7 +2162,7 @@ public class MainController implements Initializable {
         VBox recrutementBox = new VBox(lblRecrutement, recrutementCombo, recrutementError);
         recrutementBox.setSpacing(3);
         
-        formFields.getChildren().addAll(typeBox, dateBox, salaireBox, recrutementBox);
+        formFields.getChildren().addAll(typeBox, dateBox, salaireBox, dateFinBox, statusBox, volumeHoraireBox, avantagesBox, recrutementBox);
         
         // Buttons
         HBox buttonBox = new HBox();
@@ -1825,6 +2197,15 @@ public class MainController implements Initializable {
                     return;
                 }
                 
+                if (dateDebut.getValue().isBefore(java.time.LocalDate.now())) {
+                    dateError.setText("La date doit être aujourd'hui ou après");
+                    dateError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateDebut.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                    return;
+                }
+                
                 if (salaire.getText().isEmpty()) {
                     salaireError.setText("Ce champ est obligatoire");
                     salaireError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
@@ -1844,6 +2225,15 @@ public class MainController implements Initializable {
                     return;
                 }
                 
+                if (dateFin.getValue() != null && !dateFin.getValue().isAfter(dateDebut.getValue())) {
+                    dateFinError.setText("La date fin doit être strictement après la date début");
+                    dateFinError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
+                    dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
+                            "-fx-font-size: 13px; -fx-text-fill: white;");
+                    return;
+                }
+                
                 if (recrutementCombo.getValue() == null || recrutementCombo.getValue().isEmpty()) {
                     recrutementError.setText("Ce champ est obligatoire");
                     recrutementError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
@@ -1857,7 +2247,11 @@ public class MainController implements Initializable {
                     contratRow.idProperty().get(),
                     typeCombo.getValue(),
                     Date.valueOf(dateDebut.getValue()),
+                    Date.valueOf(dateFin.getValue()),
                     Double.parseDouble(salaire.getText()),
+                    statusCombo.getValue(),
+                    volumeHoraire.getText(),
+                    avantages.getValue(),
                     idRecrutement
                 );
                 
@@ -2171,21 +2565,33 @@ public class MainController implements Initializable {
         private final SimpleIntegerProperty id;
         private final SimpleStringProperty type;
         private final SimpleStringProperty dateDebut;
+        private final SimpleStringProperty dateFin;
         private final SimpleDoubleProperty salaire;
+        private final SimpleStringProperty status;
+        private final SimpleStringProperty volumeHoraire;
+        private final SimpleStringProperty avantages;
         private final SimpleIntegerProperty idRecrutement;
 
-        public ContratRow(Integer id, String type, String dateDebut, Double salaire, Integer idRecrutement) {
+        public ContratRow(Integer id, String type, String dateDebut, String dateFin, Double salaire, String status, String volumeHoraire, String avantages, Integer idRecrutement) {
             this.id = new SimpleIntegerProperty(id);
             this.type = new SimpleStringProperty(type);
             this.dateDebut = new SimpleStringProperty(dateDebut);
+            this.dateFin = new SimpleStringProperty(dateFin);
             this.salaire = new SimpleDoubleProperty(salaire);
+            this.status = new SimpleStringProperty(status);
+            this.volumeHoraire = new SimpleStringProperty(volumeHoraire);
+            this.avantages = new SimpleStringProperty(avantages);
             this.idRecrutement = new SimpleIntegerProperty(idRecrutement);
         }
 
         public SimpleIntegerProperty idProperty() { return id; }
         public SimpleStringProperty typeProperty() { return type; }
         public SimpleStringProperty dateDebutProperty() { return dateDebut; }
+        public SimpleStringProperty dateFinProperty() { return dateFin; }
         public SimpleDoubleProperty salaireProperty() { return salaire; }
+        public SimpleStringProperty statusProperty() { return status; }
+        public SimpleStringProperty volumeHoraireProperty() { return volumeHoraire; }
+        public SimpleStringProperty avantagesProperty() { return avantages; }
         public SimpleIntegerProperty idRecrutementProperty() { return idRecrutement; }
     }
 

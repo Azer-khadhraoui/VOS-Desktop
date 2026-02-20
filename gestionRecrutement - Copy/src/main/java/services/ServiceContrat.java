@@ -79,7 +79,11 @@ public class ServiceContrat {
                     rs.getInt("id_contrat"),
                     rs.getString("type_contrat"),
                     rs.getDate("date_debut"),
+                    rs.getDate("date_fin"),
                     rs.getDouble("salaire"),
+                    rs.getString("status"),
+                    rs.getString("volume_horaire"),
+                    rs.getString("avantages"),
                     rs.getInt("id_recrutement")
             );
 
@@ -104,7 +108,11 @@ public class ServiceContrat {
                     rs.getInt("id_contrat"),
                     rs.getString("type_contrat"),
                     rs.getDate("date_debut"),
+                    rs.getDate("date_fin"),
                     rs.getDouble("salaire"),
+                    rs.getString("status"),
+                    rs.getString("volume_horaire"),
+                    rs.getString("avantages"),
                     rs.getInt("id_recrutement")
             );
         }
