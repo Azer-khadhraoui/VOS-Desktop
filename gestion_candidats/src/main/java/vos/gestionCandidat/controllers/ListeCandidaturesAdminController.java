@@ -1,5 +1,15 @@
 package vos.gestionCandidat.controllers;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,25 +21,23 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.services.CandidatureService;
-
-import vos.gestionCandidat.entities.PreferenceCandidature;
-
-import java.io.*;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
 
 public class ListeCandidaturesAdminController implements Initializable {
 
@@ -62,6 +70,9 @@ public class ListeCandidaturesAdminController implements Initializable {
     @FXML private Label navOffresText;
     @FXML private Label navStatsText;
     @FXML private Label navLogoutText;
+
+    @FXML private Button btnVoirPreferences;  // Ajouter cette ligne après les autres @FXML
+
 
 
     private final CandidatureService service = new CandidatureService();
@@ -436,4 +447,28 @@ public class ListeCandidaturesAdminController implements Initializable {
             fade.play();
         }
     }
+
+    @FXML
+private void allerAuxPreferencesAdmin(ActionEvent event) {
+    try {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/admin/ListePreferencesAdmin.fxml"));
+        Parent root = loader.load();
+
+        ListePreferencesAdminController ctrl = loader.getController();
+        ctrl.rafraichir();
+
+        Stage stage = new Stage();
+        stage.setTitle("Liste des Préférences");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(new Scene(root, 1200, 700));
+        stage.showAndWait();
+
+        rafraichir();  // Rafraîchir la liste des candidatures après retour
+
+    } catch (IOException e) {
+        afficherAlerte(Alert.AlertType.ERROR, "Erreur", 
+                "Impossible d'ouvrir la liste des préférences : " + e.getMessage());
+    }
+}
 }

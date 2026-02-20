@@ -1,20 +1,24 @@
 package vos.gestionCandidat.controllers;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.stage.Stage;
-
-import vos.gestionCandidat.entities.Candidature;
-import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.CandidatureService;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
-
 import java.net.URL;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.ResourceBundle;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import vos.gestionCandidat.entities.Candidature;
+import vos.gestionCandidat.entities.PreferenceCandidature;
+import vos.gestionCandidat.services.PreferenceCandidatureService;
 
 public class FormPreferenceUtilisateurController implements Initializable {
 
@@ -282,7 +286,7 @@ public class FormPreferenceUtilisateurController implements Initializable {
         p.setTypeContratSouhaite(typeContratSouhaite.getValue());
         p.setPretentionSalariale(Double.parseDouble(pretentionSalariale.getText().trim()));
         p.setDateDisponibilite(date);
-        p.setIdCandidature(candidatureActuelle.getIdCandidature());
+        p.setIdUtilisateur((candidatureActuelle.getIdUtilisateur()));
 
         return p;
     }

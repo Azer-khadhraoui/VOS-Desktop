@@ -1,49 +1,45 @@
 package vos.gestionCandidat.controllers;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import java.nio.file.*;
-import java.nio.file.StandardCopyOption;
-
-
-import vos.gestionCandidat.entities.Candidature;
-import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.CandidatureService;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.time.ZoneId;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
+import javafx.stage.Stage;
+import vos.gestionCandidat.entities.Candidature;
+import vos.gestionCandidat.services.CandidatureService;
 
 public class FormCandidatureUtilisateurController implements Initializable {
 
     /* ===================== FXML INJECTIONS ===================== */
-
     @FXML
     private Label formTitle;
     @FXML
@@ -84,7 +80,6 @@ public class FormCandidatureUtilisateurController implements Initializable {
     private Label errCv;
 
     /* ===================== STATE ===================== */
-
     private final CandidatureService service = new CandidatureService();
     private Candidature candidatureEnEdition = null;
     private ListeCandidaturesUtilisateurController parentController;
@@ -93,7 +88,6 @@ public class FormCandidatureUtilisateurController implements Initializable {
     private File fichierLettreSelectionnee = null;
 
     /* ===================== INITIALISE ===================== */
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         SpinnerValueFactory<Integer> svf = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 0);
@@ -105,13 +99,13 @@ public class FormCandidatureUtilisateurController implements Initializable {
     /**
      * Initialisation depuis le contrôleur parent.
      *
-     * @param candidature   null = ajout, objet = édition
-     * @param parent        référence pour rafraîchir la liste après sauvegarde
+     * @param candidature null = ajout, objet = édition
+     * @param parent référence pour rafraîchir la liste après sauvegarde
      * @param idUtilisateur ID de l'utilisateur connecté
      */
     public void initData(Candidature candidature,
-                         ListeCandidaturesUtilisateurController parent,
-                         int idUtilisateur) {
+            ListeCandidaturesUtilisateurController parent,
+            int idUtilisateur) {
 
         this.parentController = parent;
         this.idUtilisateurCourant = idUtilisateur;
@@ -173,7 +167,6 @@ public class FormCandidatureUtilisateurController implements Initializable {
     private int idOffreTemporaire = 1;
 
     /* ===================== ACTIONS FXML ===================== */
-
     @FXML
     private void retour(ActionEvent event) {
         fermerFenetre();
@@ -203,7 +196,6 @@ public class FormCandidatureUtilisateurController implements Initializable {
     }
 
     /* ===================== VALIDATION ===================== */
-
     private boolean validerFormulaire() {
         boolean valide = true;
 
@@ -252,6 +244,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
 
         return valide;
     }
+
     /* ===================== CONSTRUCTION ENTITÉ ===================== */
 
     private Candidature construireCandidature() {
@@ -292,7 +285,6 @@ public class FormCandidatureUtilisateurController implements Initializable {
     }
 
     /* ===================== UTILITAIRES ===================== */
-
     private File ouvrirSelecteurFichier(String titre) {
         FileChooser fc = new FileChooser();
         fc.setTitle(titre);
@@ -303,15 +295,11 @@ public class FormCandidatureUtilisateurController implements Initializable {
         return fc.showOpenDialog(stage);
     }
 
-
-
     private void cacherErreur() {
         errorLabel.setText("");
         errorLabel.setVisible(false);
         errorLabel.setManaged(false);
     }
-
-
 
     private void fermerFenetre() {
         Stage stage = (Stage) btnSoumettre.getScene().getWindow();
@@ -319,16 +307,18 @@ public class FormCandidatureUtilisateurController implements Initializable {
     }
 
     private String extractFileName(String path) {
-        if (path == null || path.isBlank())
+        if (path == null || path.isBlank()) {
             return "Aucun fichier";
+        }
         File f = new File(path);
         return f.getName();
     }
 
     @FXML
     private void soumettreForm(ActionEvent event) {
-        if (!validerFormulaire())
+        if (!validerFormulaire()) {
             return;
+        }
 
         Candidature c = construireCandidature();
         int idCandidatureCreee = -1;
@@ -338,13 +328,13 @@ public class FormCandidatureUtilisateurController implements Initializable {
             // Récupérer l'ID de la candidature créée
             List<Candidature> candidates = service.getAll().stream()
                     .filter(cand -> cand.getIdUtilisateur() == idUtilisateurCourant
-                            && cand.getIdOffre() == idOffreTemporaire
-                            && cand.getStatut().equals("En attente"))
+                    && cand.getIdOffre() == idOffreTemporaire
+                    && cand.getStatut().equals("En attente"))
                     .collect(Collectors.toList());
             if (!candidates.isEmpty()) {
                 idCandidatureCreee = candidates.get(candidates.size() - 1).getIdCandidature();
             }
-            afficherSucces("Candidature soumise avec succès ! Nous reviendrons vers vous sous peu.");
+            afficherSuccesAvecPreferences("Candidature soumise !\\n\\nVous pouvez maintenant gérer vos préférences.");
         } else {
             c.setIdCandidature(candidatureEnEdition.getIdCandidature());
             idCandidatureCreee = candidatureEnEdition.getIdCandidature();
@@ -352,131 +342,17 @@ public class FormCandidatureUtilisateurController implements Initializable {
             afficherSucces("Candidature modifiée avec succès !");
         }
 
-        if (parentController != null)
+        if (parentController != null) {
             parentController.rafraichir();
-
-        // Proposer d'ajouter les préférences
-        if (idCandidatureCreee > 0 && candidatureEnEdition == null) {
-            proposerAjouterPreferences(idCandidatureCreee, c);
-            fermerFenetre();
-        } else {
-            fermerFenetre();
         }
+        fermerFenetre();
+
     }
-
-    /**
-     * Propose à l'utilisateur d'ajouter ses préférences après création de la
-     * candidature
-     */
-    private void proposerAjouterPreferences(int idCandidature, Candidature candidature) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("🎉 Candidature soumise !");
-        alert.setHeaderText(null);
-        alert.setContentText("Souhaitez-vous ajouter vos préférences maintenant ?");
-
-        ButtonType btnOui = new ButtonType("⭐ Oui, ajouter mes préférences");
-        ButtonType btnNon = new ButtonType("Plus tard", ButtonBar.ButtonData.CANCEL_CLOSE);
-        alert.getButtonTypes().setAll(btnOui, btnNon);
-
-        // ── Style sombre cohérent avec le formulaire ──
-        DialogPane dp = alert.getDialogPane();
-        dp.setStyle(
-                "-fx-background-color: #1a1a2e;" +
-                        "-fx-border-color: #3d3d5c;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-border-radius: 16;" +
-                        "-fx-background-radius: 16;"
-        );
-
-        // Titre personnalisé
-        Label titre = new Label("🎉  Candidature soumise avec succès !");
-        titre.setStyle(
-                "-fx-font-size: 18px;" +
-                        "-fx-font-weight: 800;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-padding: 0 0 8 0;"
-        );
-
-        Label sousTitre = new Label("Complétez votre dossier en ajoutant vos préférences de poste,\ndisponibilité et prétention salariale.");
-        sousTitre.setStyle(
-                "-fx-font-size: 13px;" +
-                        "-fx-text-fill: #94a3b8;" +
-                        "-fx-padding: 0 0 6 0;"
-        );
-
-        javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(10, titre, sousTitre);
-        content.setStyle("-fx-padding: 10 6 0 6;");
-        dp.setContent(content);
-        dp.setHeader(null);
-        dp.setGraphic(null);
-
-        // Style des boutons
-        dp.lookupButton(btnOui).setStyle(
-                "-fx-background-color: linear-gradient(to right, #a855f7 0%, #ec4899 100%);" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-weight: 700;" +
-                        "-fx-font-size: 13px;" +
-                        "-fx-padding: 12 24;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-cursor: hand;"
-        );
-        dp.lookupButton(btnNon).setStyle(
-                "-fx-background-color: #2d2d48;" +
-                        "-fx-text-fill: #94a3b8;" +
-                        "-fx-font-weight: 600;" +
-                        "-fx-font-size: 13px;" +
-                        "-fx-padding: 12 24;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-border-color: #3d3d5c;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-border-radius: 10;"
-        );
-
-        // ButtonBar fond sombre
-        dp.lookup(".button-bar").setStyle("-fx-background-color: #1a1a2e; -fx-padding: 16 20 20 20;");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == btnOui) {
-            Candidature cand = new Candidature();
-            cand.setIdCandidature(idCandidature);
-            cand.setIdOffre(candidature.getIdOffre());
-            cand.setIdUtilisateur(idUtilisateurCourant);
-            ouvrirPreferences(cand);
-        }
-    }
-
     /**
      * Ouvre le formulaire de préférences
      */
-    private void ouvrirPreferences(Candidature candidature) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/utilisateur/FormPreference.fxml"));
-            Parent root = loader.load();
-
-            FormPreferenceUtilisateurController ctrl = loader.getController();
-
-            PreferenceCandidatureService prefService = new PreferenceCandidatureService();
-            PreferenceCandidature preference = prefService.getByIdCandidature(candidature.getIdCandidature());
-
-            ctrl.initData(candidature, preference, parentController);
-
-            Stage stage = new Stage();
-            stage.setTitle(preference == null ? "Ajouter mes préférences" : "Modifier mes préférences");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-
-        } catch (IOException e) {
-            System.err.println("Erreur : " + e.getMessage());
-        }
-    }
-
-
 
 // Dans la méthode initialize() ou initData(), ajoutez ces listeners pour la validation en temps réel:
-
     private void setupRealtimeValidation() {
         // Validation en temps réel pour le niveau d'expérience
         niveauExperience.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -547,11 +423,11 @@ public class FormCandidatureUtilisateurController implements Initializable {
         // Style moderne pour l'alerte
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.setStyle(
-                "-fx-background-color: #2d2d48; " +
-                        "-fx-border-color: #10b981; " +
-                        "-fx-border-width: 2; " +
-                        "-fx-border-radius: 12; " +
-                        "-fx-background-radius: 12;"
+                "-fx-background-color: #2d2d48; "
+                + "-fx-border-color: #10b981; "
+                + "-fx-border-width: 2; "
+                + "-fx-border-radius: 12; "
+                + "-fx-background-radius: 12;"
         );
 
         // Style pour les labels
@@ -560,12 +436,12 @@ public class FormCandidatureUtilisateurController implements Initializable {
         // Style pour les boutons
         Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
         okButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #10b981, #059669); " +
-                        "-fx-text-fill: white; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-padding: 12 30; " +
-                        "-fx-background-radius: 10; " +
-                        "-fx-cursor: hand;"
+                "-fx-background-color: linear-gradient(to right, #10b981, #059669); "
+                + "-fx-text-fill: white; "
+                + "-fx-font-weight: bold; "
+                + "-fx-padding: 12 30; "
+                + "-fx-background-radius: 10; "
+                + "-fx-cursor: hand;"
         );
 
         alert.showAndWait();
@@ -592,6 +468,7 @@ public class FormCandidatureUtilisateurController implements Initializable {
         shake.setAutoReverse(true);
         shake.play();
     }
+
     private String copierFichierVersProjet(File fichierSource, String sousDossier) {
         try {
             // Chemin absolu vers le dossier uploads dans les resources
@@ -615,5 +492,143 @@ public class FormCandidatureUtilisateurController implements Initializable {
             return null;
         }
     }
+   private void afficherSuccesAvecPreferences(String msg) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle("✅ Candidature soumise avec succès !");
+    alert.setHeaderText("🎉 Bravo !");
+    
+    // Message plus clair et mieux formaté
+    alert.setContentText(
+        "Votre candidature a été enregistrée avec succès.\n\n" +
+        "Vous pouvez maintenant configurer vos préférences\n" +
+        "de candidature pour améliorer votre profil."
+    );
+
+    // Ajouter les boutons
+    ButtonType btnPreferences = new ButtonType("⭐ Gérer mes préférences");
+    ButtonType btnOk = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+    alert.getButtonTypes().setAll(btnPreferences, btnOk);
+
+    // Style du DialogPane
+    DialogPane dialogPane = alert.getDialogPane();
+    dialogPane.setStyle(
+            "-fx-background-color: linear-gradient(to bottom, #2d2d48, #1e1e32); " +
+            "-fx-border-color: #a855f7; " +
+            "-fx-border-width: 2; " +
+            "-fx-border-radius: 15; " +
+            "-fx-background-radius: 15; " +
+            "-fx-padding: 20; " +
+            "-fx-font-family: 'Segoe UI';"
+    );
+
+    // Style du texte du contenu - ✅ CORRECTED
+    try {
+        javafx.scene.layout.VBox vbox = (javafx.scene.layout.VBox) dialogPane.lookup(".content");
+        if (vbox != null && !vbox.getChildren().isEmpty()) {
+            for (javafx.scene.Node node : vbox.getChildren()) {
+                if (node instanceof javafx.scene.control.Label) {
+                    javafx.scene.control.Label label = (javafx.scene.control.Label) node;
+                    label.setStyle(
+                        "-fx-text-fill: #e2e8f0; " +
+                        "-fx-font-size: 13px; " +
+                        "-fx-line-spacing: 6px;"
+                    );
+                }
+            }
+        }
+    } catch (Exception e) {
+        System.out.println("⚠️ Impossible de styliser le contenu : " + e.getMessage());
+    }
+
+    // Style du bouton "Gérer mes préférences" (primaire)
+    Button prefButton = (Button) dialogPane.lookupButton(btnPreferences);
+    if (prefButton != null) {
+        String styleNormal = 
+            "-fx-background-color: linear-gradient(to right, #a855f7 0%, #ec4899 100%); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: 700; " +
+            "-fx-font-size: 13px; " +
+            "-fx-padding: 12 28; " +
+            "-fx-background-radius: 10; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 15, 0, 0, 5);";
+        
+        String styleHover = 
+            "-fx-background-color: linear-gradient(to right, #c084fc 0%, #f472b6 100%); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: 700; " +
+            "-fx-font-size: 13px; " +
+            "-fx-padding: 12 28; " +
+            "-fx-background-radius: 10; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 20, 0, 0, 8);";
+        
+        prefButton.setStyle(styleNormal);
+        
+        prefButton.setOnMouseEntered(e -> prefButton.setStyle(styleHover));
+        prefButton.setOnMouseExited(e -> prefButton.setStyle(styleNormal));
+    }
+
+    // Style du bouton "OK" (secondaire)
+    Button okBtn = (Button) dialogPane.lookupButton(btnOk);
+    if (okBtn != null) {
+        String styleNormal = 
+            "-fx-background-color: #3d3d5c; " +
+            "-fx-text-fill: #cbd5e1; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 13px; " +
+            "-fx-padding: 12 28; " +
+            "-fx-background-radius: 10; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: #4d4d6c; " +
+            "-fx-border-width: 1;";
+        
+        String styleHover = 
+            "-fx-background-color: #4d4d6c; " +
+            "-fx-text-fill: #e2e8f0; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 13px; " +
+            "-fx-padding: 12 28; " +
+            "-fx-background-radius: 10; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-color: #5d5d7c; " +
+            "-fx-border-width: 1;";
+        
+        okBtn.setStyle(styleNormal);
+        
+        okBtn.setOnMouseEntered(e -> okBtn.setStyle(styleHover));
+        okBtn.setOnMouseExited(e -> okBtn.setStyle(styleNormal));
+    }
+
+    Optional<ButtonType> result = alert.showAndWait();
+    
+    // Si l'utilisateur clique sur "Gérer mes préférences"
+    if (result.isPresent() && result.get() == btnPreferences) {
+        ouvrirListePreferences();
+    }
+}
+
+/**
+ * Ouvre la liste des préférences de l'utilisateur
+ */
+private void ouvrirListePreferences() {
+    try {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/utilisateur/ListePreferencesUtilisateur.fxml"));
+        Parent root = loader.load();
+
+        ListePreferencesUtilisateurController ctrl = loader.getController();
+        ctrl.initData(idUtilisateurCourant, parentController);
+
+        Stage stage = new Stage();
+        stage.setTitle("Mes Préférences de Candidature");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(new Scene(root, 1300, 800));
+        stage.showAndWait();
+
+    } catch (IOException e) {
+        afficherErreur("❌ Impossible d'ouvrir les préférences : " + e.getMessage());
+    }
+}
 
 }

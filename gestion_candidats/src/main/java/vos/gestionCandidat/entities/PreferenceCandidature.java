@@ -11,12 +11,12 @@ public class PreferenceCandidature {
     private String typeContratSouhaite;
     private double pretentionSalariale;
     private Date dateDisponibilite;
-    private int idCandidature;
+    private int idUtilisateur ;
 
     public PreferenceCandidature() {
     }
 
-    public PreferenceCandidature(String typePosteSouhaite, String modeTravail, String disponibilite, String mobiliteGeographique, String pretDeplacement, String typeContratSouhaite, double pretentionSalariale, Date dateDisponibilite, int idCandidature) {
+    public PreferenceCandidature(String typePosteSouhaite, String modeTravail, String disponibilite, String mobiliteGeographique, String pretDeplacement, String typeContratSouhaite, double pretentionSalariale, Date dateDisponibilite, int idUtilisateur) {
         this.typePosteSouhaite = typePosteSouhaite;
         this.modeTravail = modeTravail;
         this.disponibilite = disponibilite;
@@ -25,7 +25,7 @@ public class PreferenceCandidature {
         this.typeContratSouhaite = typeContratSouhaite;
         this.pretentionSalariale = pretentionSalariale;
         this.dateDisponibilite = dateDisponibilite;
-        this.idCandidature = idCandidature;
+        this.idUtilisateur = idUtilisateur;
     }
 
     public int getIdPreference() {
@@ -100,12 +100,12 @@ public class PreferenceCandidature {
         this.dateDisponibilite = dateDisponibilite;
     }
 
-    public int getIdCandidature() {
-        return idCandidature;
+    public int getidUtilisateur() {
+        return idUtilisateur;
     }
 
-    public void setIdCandidature(int idCandidature) {
-        this.idCandidature = idCandidature;
+    public void setIdUtilisateur(int idUtilisateur) {
+        this.idUtilisateur = idUtilisateur;
     }
 
     @Override
@@ -120,7 +120,7 @@ public class PreferenceCandidature {
                 ", typeContratSouhaite='" + typeContratSouhaite + '\'' +
                 ", pretentionSalariale=" + pretentionSalariale +
                 ", dateDisponibilite=" + dateDisponibilite +
-                ", idCandidature=" + idCandidature +
+                ", idUtilisateur=" + idUtilisateur +
                 '}';
     }
 }

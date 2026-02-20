@@ -1,18 +1,19 @@
 package vos.gestionCandidat.controllers;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.stage.Stage;
-
-import vos.gestionCandidat.entities.Candidature;
-import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
-
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.stage.Stage;
+import vos.gestionCandidat.entities.Candidature;
+import vos.gestionCandidat.entities.PreferenceCandidature;
+import vos.gestionCandidat.services.PreferenceCandidatureService;
 
 public class FormPreferenceAdminController implements Initializable {
 
@@ -60,7 +61,7 @@ public class FormPreferenceAdminController implements Initializable {
                 + " — Offre #" + candidature.getIdOffre());
 
         // Charger la préférence
-        preferenceActuelle = service.getByIdCandidature(candidature.getIdCandidature());
+        preferenceActuelle = service.getByIdUtilisateur(candidature.getIdCandidature());
 
         if (preferenceActuelle == null) {
             afficherAucunePreference();

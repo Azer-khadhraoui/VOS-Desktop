@@ -1,5 +1,12 @@
 package vos.gestionCandidat.controllers;
 
+import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,54 +16,61 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.entities.PreferenceCandidature;
 import vos.gestionCandidat.services.CandidatureService;
 import vos.gestionCandidat.services.PreferenceCandidatureService;
 
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-
-import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
-
 public class ListeCandidaturesUtilisateurController implements Initializable {
 
     /* ===================== FXML INJECTIONS ===================== */
-
     // Hero stats
-    @FXML private Label heroSubtitle;
-    @FXML private Label heroTotal;
-    @FXML private Label heroEnAttente;
-    @FXML private Label heroAcceptee;
+    @FXML
+    private Label heroSubtitle;
+    @FXML
+    private Label heroTotal;
+    @FXML
+    private Label heroEnAttente;
+    @FXML
+    private Label heroAcceptee;
 
     // Search / filter
-    @FXML private TextField    searchField;
-    @FXML private ComboBox<String> filterStatut;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> filterStatut;
 
     // Dynamic cards container
-    @FXML private VBox  cardsContainer;
-    @FXML private VBox  emptyState;
+    @FXML
+    private VBox cardsContainer;
+    @FXML
+    private VBox emptyState;
 
-        // Sidebar
-    @FXML private VBox sidebar;
-    @FXML private Label navCandidaturesText;
-    @FXML private Label navOffresText;
-    @FXML private Label navForumText;
-    @FXML private Label navProfilText;
-    @FXML private TextField searchFieldTable;  // Nouveau champ pour la recherche dans le tableau
+    // Sidebar
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private Label navCandidaturesText;
+    @FXML
+    private Label navOffresText;
+    @FXML
+    private Label navForumText;
+    @FXML
+    private Label navProfilText;
+    @FXML
+    private TextField searchFieldTable;  // Nouveau champ pour la recherche dans le tableau
 
     /* ===================== STATE ===================== */
-
     private final CandidatureService service = new CandidatureService();
     private List<Candidature> toutesLesCandidatures;
 
@@ -66,7 +80,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("dd MMM yyyy");
 
     /* ===================== INITIALISE ===================== */
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurerFiltre();
@@ -74,7 +87,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     }
 
     /* ---------------------- Config filtre ---------------------- */
-
     private void configurerFiltre() {
         filterStatut.getItems().setAll("Tous", "En attente", "Acceptée", "Refusée", "En cours");
         filterStatut.setValue("Tous");
@@ -84,7 +96,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     }
 
     /* ===================== CHARGEMENT DONNÉES ===================== */
-
     private void chargerDonnees() {
         // Récupère uniquement les candidatures de l'utilisateur courant
         toutesLesCandidatures = service.getAll().stream()
@@ -96,9 +107,9 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     }
 
     private void mettreAJourStats(List<Candidature> liste) {
-        long total     = liste.size();
+        long total = liste.size();
         long enAttente = liste.stream().filter(c -> "En attente".equalsIgnoreCase(c.getStatut())).count();
-        long acceptee  = liste.stream().filter(c -> "Acceptée".equalsIgnoreCase(c.getStatut())).count();
+        long acceptee = liste.stream().filter(c -> "Acceptée".equalsIgnoreCase(c.getStatut())).count();
 
         heroTotal.setText(String.valueOf(total));
         heroEnAttente.setText(String.valueOf(enAttente));
@@ -107,7 +118,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     }
 
     /* ===================== CONSTRUCTION DES CARDS ===================== */
-
     private void afficherCartes(List<Candidature> liste) {
         cardsContainer.getChildren().clear();
 
@@ -128,7 +138,7 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     /**
      * Crée une card candidature reprenant le style des job-cards de offres.fxml
      */
-        /**
+    /**
      * Crée une card candidature reprenant le style des job-cards de offres.fxml
      */
     private Node creerCarte(Candidature c) {
@@ -185,23 +195,13 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
                 + "-fx-background-radius: 10; -fx-padding: 8 18; "
                 + "-fx-font-weight: 600; -fx-font-size: 12px; -fx-cursor: hand;");
 
-        Button btnPreference = new Button("⭐ Préférences");
-        btnPreference.setStyle("-fx-background-color: #fef3c7; -fx-text-fill: #92400e; "
-                + "-fx-background-radius: 10; -fx-padding: 8 18; "
-                + "-fx-font-weight: 600; -fx-font-size: 12px; -fx-cursor: hand;");
 
         btnDetail.setOnAction(e -> ouvrirDetail(c));
         btnModifier.setOnAction(e -> ouvrirFormulaire(c));
-        btnPreference.setOnAction(e -> ouvrirPreferences(c));
 
         // Double-clic pour les préférences
-        card.setOnMouseClicked(e -> {
-            if (e.getClickCount() == 2) {
-                ouvrirPreferences(c);
-            }
-        });
 
-        btnBox.getChildren().addAll(btnDetail, btnModifier, btnPreference);
+        btnBox.getChildren().addAll(btnDetail, btnModifier);
 
         card.getChildren().addAll(icone, infoBox, badge, btnBox);
 
@@ -221,11 +221,12 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     }
 
     /* ===================== FILTRES ===================== */
-
     private void appliquerFiltres() {
-        if (toutesLesCandidatures == null) return;
+        if (toutesLesCandidatures == null) {
+            return;
+        }
 
-        String texte  = searchField.getText().toLowerCase().trim();
+        String texte = searchField.getText().toLowerCase().trim();
         String statut = filterStatut.getValue();
 
         List<Candidature> filtrées = toutesLesCandidatures.stream()
@@ -250,7 +251,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
         return val != null && val.toLowerCase().contains(search);
     }
 
-
     @FXML
     private void nouvelleCandidature(ActionEvent event) {
         ouvrirFormulaire(null);
@@ -271,7 +271,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     private void goProfile(ActionEvent event) {
         naviguerVers("/vos/gestionCandidat/fxml/utilisateur/profil.fxml", event);
     }
-
 
     private void ouvrirFormulaire(Candidature candidature) {
         try {
@@ -325,41 +324,52 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
         }
     }
 
-  
-
     /* ===================== HELPERS VISUELS ===================== */
-
     private String getIconeStatut(String statut) {
-        if (statut == null) return "📋";
+        if (statut == null) {
+            return "📋";
+        }
         return switch (statut.toLowerCase()) {
-            case "acceptée", "acceptee" -> "✅";
-            case "refusée", "refusee"   -> "❌";
-            case "en cours"             -> "⏳";
-            default                     -> "📋";  // En attente
+            case "acceptée", "acceptee" ->
+                "✅";
+            case "refusée", "refusee" ->
+                "❌";
+            case "en cours" ->
+                "⏳";
+            default ->
+                "📋";  // En attente
         };
     }
 
     private String getBgIconeStatut(String statut) {
-        if (statut == null) return "#fef3c7";
+        if (statut == null) {
+            return "#fef3c7";
+        }
         return switch (statut.toLowerCase()) {
-            case "acceptée", "acceptee" -> "#d1fae5";
-            case "refusée", "refusee"   -> "#fee2e2";
-            case "en cours"             -> "#dbeafe";
-            default                     -> "#fef3c7";
+            case "acceptée", "acceptee" ->
+                "#d1fae5";
+            case "refusée", "refusee" ->
+                "#fee2e2";
+            case "en cours" ->
+                "#dbeafe";
+            default ->
+                "#fef3c7";
         };
     }
 
     private String getBadgeStyle(String statut) {
-        if (statut == null) return "-fx-background-color: #FEF3C7; -fx-text-fill: #D97706;";
+        if (statut == null) {
+            return "-fx-background-color: #FEF3C7; -fx-text-fill: #D97706;";
+        }
         return switch (statut.toLowerCase()) {
             case "acceptée", "acceptee" ->
-                    "-fx-background-color: #D1FAE5; -fx-text-fill: #059669;";
+                "-fx-background-color: #D1FAE5; -fx-text-fill: #059669;";
             case "refusée", "refusee" ->
-                    "-fx-background-color: #FEE2E2; -fx-text-fill: #DC2626;";
+                "-fx-background-color: #FEE2E2; -fx-text-fill: #DC2626;";
             case "en cours" ->
-                    "-fx-background-color: #DBEAFE; -fx-text-fill: #2563EB;";
+                "-fx-background-color: #DBEAFE; -fx-text-fill: #2563EB;";
             default ->
-                    "-fx-background-color: #FEF3C7; -fx-text-fill: #D97706;";
+                "-fx-background-color: #FEF3C7; -fx-text-fill: #D97706;";
         };
     }
 
@@ -376,15 +386,16 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     }
 
     /* ===================== SETTER SESSION ===================== */
-
-    /** Setter à appeler depuis le contrôleur de connexion pour injecter l'ID utilisateur */
+    /**
+     * Setter à appeler depuis le contrôleur de connexion pour injecter l'ID
+     * utilisateur
+     */
     public void setIdUtilisateurCourant(int id) {
         this.idUtilisateurCourant = id;
         chargerDonnees();
     }
 
-        /* ===================== SIDEBAR ANIMATIONS ===================== */
-
+    /* ===================== SIDEBAR ANIMATIONS ===================== */
     @FXML
     private void onSidebarEntered() {
         expandSidebar();
@@ -448,7 +459,8 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
             fade.play();
         }
     }
-        /**
+
+    /**
      * Ouvre le formulaire de gestion des préférences
      */
     private void ouvrirPreferences(Candidature candidature) {
@@ -459,11 +471,11 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
             Parent root = loader.load();
 
             FormPreferenceUtilisateurController ctrl = loader.getController();
-            
+
             // Charger la préférence existante s'il en existe une
             PreferenceCandidatureService prefService = new PreferenceCandidatureService();
-            PreferenceCandidature preference = prefService.getByIdCandidature(candidature.getIdCandidature());
-            
+            PreferenceCandidature preference = prefService.getByIdUtilisateur(candidature.getIdCandidature());
+
             ctrl.initData(candidature, preference, this);
 
             Stage stage = new Stage();
@@ -482,5 +494,29 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
      */
     public void rafraichir() {
         chargerDonnees();
+    }
+
+    @FXML
+    private void allerAuxPreferencesUtilisateur(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/utilisateur/ListePreferencesUtilisateur.fxml"));
+            Parent root = loader.load();
+
+            ListePreferencesUtilisateurController ctrl = loader.getController();
+            ctrl.initData(idUtilisateurCourant, this);
+
+            Stage stage = new Stage();
+            stage.setTitle("Mes Préférences de Candidature");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root, 1300, 800));
+            stage.showAndWait();
+
+            rafraichir();
+
+        } catch (IOException e) {
+            afficherAlerte(Alert.AlertType.ERROR, "Erreur",
+                    "Impossible d'ouvrir les préférences : " + e.getMessage());
+        }
     }
 }
