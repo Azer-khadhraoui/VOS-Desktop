@@ -446,4 +446,299 @@ public class AIEnhancementService {
     public String getProvider() {
         return provider;
     }
+
+    /**
+     * Generates responsibilities and required competences based on job title, experience level, and education level.
+     * Uses AI to create realistic job criteria.
+     * 
+     * @param jobTitle The job title (e.g., "Senior Backend Developer")
+     * @param experienceLevel The required experience level (e.g., "5+ years")
+     * @param educationLevel The required education level (e.g., "Bachelor's in Computer Science")
+     * @return An array with [responsibilities, competencies] or null if generation fails
+     * @throws IOException if API communication fails
+     */
+    public String[] generateJobCriteria(String jobTitle, String experienceLevel, String educationLevel) throws IOException {
+        if (!isConfigured()) {
+            return null;
+        }
+
+        String prompt = String.format(
+            "You are an expert HR professional and job description writer. Based on the following job details, generate:\n" +
+            "1. Detailed responsibilities (as bullet points, max 300 characters total)\n" +
+            "2. Required competences/skills (as bullet points, max 300 characters total)\n\n" +
+            "Job Title: %s\n" +
+            "Experience Level Required: %s\n" +
+            "Education Level Required: %s\n\n" +
+            "IMPORTANT: Each list must be:\n" +
+            "- Maximum 300 characters total\n" +
+            "- Formatted with bullet points (• or -) on separate lines\n" +
+            "- Concise and to the point\n\n" +
+            "Return ONLY the following format:\n" +
+            "RESPONSIBILITIES:\n" +
+            "• [responsibility 1]\n" +
+            "• [responsibility 2]\n" +
+            "• [responsibility 3]\n\n" +
+            "COMPETENCIES:\n" +
+            "• [competency 1]\n" +
+            "• [competency 2]\n" +
+            "• [competency 3]\n\n" +
+            "Make the lists realistic, relevant, and professional.",
+            jobTitle, experienceLevel, educationLevel
+        );
+
+        if ("gemini".equalsIgnoreCase(provider)) {
+            return generateWithGemini(prompt);
+        } else if ("claude".equalsIgnoreCase(provider)) {
+            return generateWithClaude(prompt);
+        } else if ("groq".equalsIgnoreCase(provider)) {
+            return generateWithGroq(prompt);
+        }
+
+        return null;
+    }
+
+    /**
+     * Generates job criteria using Google Gemini API.
+     */
+    private String[] generateWithGemini(String prompt) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        
+        try {
+            HttpPost httpPost = new HttpPost(GEMINI_API_URL + "?key=" + apiKey);
+            httpPost.setHeader("Content-Type", "application/json");
+
+            JsonObject requestBody = new JsonObject();
+            JsonArray contents = new JsonArray();
+            JsonObject content = new JsonObject();
+            JsonArray parts = new JsonArray();
+            JsonObject part = new JsonObject();
+            part.addProperty("text", prompt);
+            parts.add(part);
+            content.add("parts", parts);
+            contents.add(content);
+            requestBody.add("contents", contents);
+
+            httpPost.setEntity(new StringEntity(requestBody.toString(), ContentType.APPLICATION_JSON));
+
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                if (response.getEntity() == null) {
+                    System.err.println("Gemini API returned empty response");
+                    return null;
+                }
+                
+                try {
+                    String responseBody = EntityUtils.toString(response.getEntity());
+                    JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
+
+                    if (jsonResponse.has("candidates") && jsonResponse.getAsJsonArray("candidates").size() > 0) {
+                        JsonObject candidate = jsonResponse.getAsJsonArray("candidates").get(0).getAsJsonObject();
+                        if (candidate.has("content") && candidate.getAsJsonObject("content").has("parts")) {
+                            String text = candidate.getAsJsonObject("content").getAsJsonArray("parts")
+                                .get(0).getAsJsonObject().get("text").getAsString();
+                            return parseAIResponse(text);
+                        }
+                    }
+                } catch (ParseException e) {
+                    System.err.println("Failed to parse Gemini API response: " + e.getMessage());
+                    return null;
+                }
+            }
+        } finally {
+            httpClient.close();
+        }
+
+        return null;
+    }
+
+    /**
+     * Generates job criteria using Anthropic Claude API.
+     */
+    private String[] generateWithClaude(String prompt) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        
+        try {
+            HttpPost httpPost = new HttpPost(CLAUDE_API_URL);
+            httpPost.setHeader("x-api-key", apiKey);
+            httpPost.setHeader("anthropic-version", "2023-06-01");
+            httpPost.setHeader("Content-Type", "application/json");
+
+            JsonObject requestBody = new JsonObject();
+            requestBody.addProperty("model", CLAUDE_MODEL);
+            requestBody.addProperty("max_tokens", 1024);
+            
+            JsonArray messages = new JsonArray();
+            JsonObject message = new JsonObject();
+            message.addProperty("role", "user");
+            message.addProperty("content", prompt);
+            messages.add(message);
+            
+            requestBody.add("messages", messages);
+
+            httpPost.setEntity(new StringEntity(requestBody.toString(), ContentType.APPLICATION_JSON));
+
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                if (response.getEntity() == null) {
+                    System.err.println("Claude API returned empty response");
+                    return null;
+                }
+                
+                try {
+                    String responseBody = EntityUtils.toString(response.getEntity());
+                    JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
+
+                    if (jsonResponse.has("content") && jsonResponse.getAsJsonArray("content").size() > 0) {
+                        String text = jsonResponse.getAsJsonArray("content")
+                            .get(0).getAsJsonObject().get("text").getAsString();
+                        return parseAIResponse(text);
+                    }
+                } catch (ParseException e) {
+                    System.err.println("Failed to parse Claude API response: " + e.getMessage());
+                    return null;
+                }
+            }
+        } finally {
+            httpClient.close();
+        }
+
+        return null;
+    }
+
+    /**
+     * Generates job criteria using Groq API.
+     */
+    private String[] generateWithGroq(String prompt) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        
+        try {
+            HttpPost httpPost = new HttpPost(GROQ_API_URL);
+            httpPost.setHeader("Authorization", "Bearer " + apiKey);
+            httpPost.setHeader("Content-Type", "application/json");
+
+            JsonObject requestBody = new JsonObject();
+            requestBody.addProperty("model", GROQ_MODEL);
+            requestBody.addProperty("max_tokens", 1024);
+            
+            JsonArray messages = new JsonArray();
+            JsonObject message = new JsonObject();
+            message.addProperty("role", "user");
+            message.addProperty("content", prompt);
+            messages.add(message);
+            
+            requestBody.add("messages", messages);
+
+            httpPost.setEntity(new StringEntity(requestBody.toString(), ContentType.APPLICATION_JSON));
+
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                if (response.getEntity() == null) {
+                    System.err.println("Groq API returned empty response");
+                    return null;
+                }
+                
+                try {
+                    String responseBody = EntityUtils.toString(response.getEntity());
+                    JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
+
+                    if (jsonResponse.has("choices") && jsonResponse.getAsJsonArray("choices").size() > 0) {
+                        String text = jsonResponse.getAsJsonArray("choices")
+                            .get(0).getAsJsonObject().getAsJsonObject("message").get("content").getAsString();
+                        return parseAIResponse(text);
+                    }
+                } catch (ParseException e) {
+                    System.err.println("Failed to parse Groq API response: " + e.getMessage());
+                    return null;
+                }
+            }
+        } finally {
+            httpClient.close();
+        }
+
+        return null;
+    }
+
+    /**
+     * Parses the AI response to extract responsibilities and competencies.
+     * Formats them with bullet points and ensures they don't exceed 300 characters.
+     */
+    private String[] parseAIResponse(String response) {
+        String[] result = new String[2];
+        
+        try {
+            String[] lines = response.split("\n");
+            StringBuilder responsibilities = new StringBuilder();
+            StringBuilder competencies = new StringBuilder();
+            boolean inResponsibilities = false;
+            boolean inCompetencies = false;
+            
+            for (String line : lines) {
+                line = line.trim();
+                
+                if (line.startsWith("RESPONSIBILITIES:")) {
+                    inResponsibilities = true;
+                    inCompetencies = false;
+                    // Extract any content on the same line
+                    String content = line.substring("RESPONSIBILITIES:".length()).trim();
+                    if (!content.isEmpty() && !content.startsWith("•") && !content.startsWith("-")) {
+                        if (responsibilities.length() > 0) responsibilities.append("\n");
+                        responsibilities.append("• ").append(content);
+                    }
+                } else if (line.startsWith("COMPETENCIES:") || line.startsWith("COMPETENCES:")) {
+                    inCompetencies = true;
+                    inResponsibilities = false;
+                    // Extract any content on the same line
+                    String content = line.substring(line.contains("COMPETENCIES:") ? "COMPETENCIES:".length() : "COMPETENCES:".length()).trim();
+                    if (!content.isEmpty() && !content.startsWith("•") && !content.startsWith("-")) {
+                        if (competencies.length() > 0) competencies.append("\n");
+                        competencies.append("• ").append(content);
+                    }
+                } else if (inResponsibilities && !line.isEmpty()) {
+                    // Add responsibility with bullet point if not already present
+                    if (line.startsWith("•") || line.startsWith("-")) {
+                        if (responsibilities.length() > 0) responsibilities.append("\n");
+                        responsibilities.append(line.startsWith("•") ? line : "• " + line.substring(1).trim());
+                    } else if (!line.isEmpty()) {
+                        if (responsibilities.length() > 0) responsibilities.append("\n");
+                        responsibilities.append("• ").append(line);
+                    }
+                } else if (inCompetencies && !line.isEmpty()) {
+                    // Add competency with bullet point if not already present
+                    if (line.startsWith("•") || line.startsWith("-")) {
+                        if (competencies.length() > 0) competencies.append("\n");
+                        competencies.append(line.startsWith("•") ? line : "• " + line.substring(1).trim());
+                    } else if (!line.isEmpty()) {
+                        if (competencies.length() > 0) competencies.append("\n");
+                        competencies.append("• ").append(line);
+                    }
+                }
+            }
+            
+            // Trim to 300 characters if needed
+            String resp = responsibilities.toString().trim();
+            String comp = competencies.toString().trim();
+            
+            if (resp.length() > 300) {
+                resp = resp.substring(0, 300).trim();
+                // Remove partial bullet point at the end
+                int lastNewline = resp.lastIndexOf("\n");
+                if (lastNewline > 0) {
+                    resp = resp.substring(0, lastNewline);
+                }
+            }
+            
+            if (comp.length() > 300) {
+                comp = comp.substring(0, 300).trim();
+                // Remove partial bullet point at the end
+                int lastNewline = comp.lastIndexOf("\n");
+                if (lastNewline > 0) {
+                    comp = comp.substring(0, lastNewline);
+                }
+            }
+            
+            result[0] = resp.isEmpty() ? "" : resp;
+            result[1] = comp.isEmpty() ? "" : comp;
+            
+            return result;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

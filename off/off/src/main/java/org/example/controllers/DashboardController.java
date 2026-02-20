@@ -106,6 +106,7 @@ public class DashboardController {
     private AIEnhancementService aiService = new AIEnhancementService();
     private StatisticsService statsService = new StatisticsService();
     private Integer currentOffreId = null;
+    private OffreEmploi currentOffre = null;
 
     /**
      * Fetches all distinct user IDs from the offre_emploi table in the database.
@@ -158,6 +159,7 @@ public class DashboardController {
                 (obs, oldSelection, newSelection) -> {
                     if (newSelection != null) {
                         currentOffreId = newSelection.getIdOffre();
+                        currentOffre = newSelection;
                         loadCriteres();
                     }
                 }
@@ -443,7 +445,8 @@ public class DashboardController {
             return;
         }
 
-        CritereOffre c = showCritereDialog(currentOffreId);
+        CritereOffre c = showCritereDialog(currentOffreId, 
+                                          currentOffre != null ? currentOffre.getTitre() : "Untitled");
 
         if (c != null) {
             critereService.insertCritere(c);
@@ -1266,7 +1269,7 @@ public class DashboardController {
                 critereService.getByOffreId(selected.getIdOffre())
         );
     }
-    private CritereOffre showCritereDialog(int offreId) {
+    private CritereOffre showCritereDialog(int offreId, String jobTitle) {
 
         Dialog<CritereOffre> dialog = new Dialog<>();
         dialog.setTitle("Ajouter Critère");
@@ -1491,10 +1494,76 @@ public class DashboardController {
             }
         });
 
+        // AI Generation Button
+        Button aiButton = new Button("🤖 Générer avec l'IA");
+        aiButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: 600; " +
+                         "-fx-font-size: 12px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;");
+        aiButton.setOnMouseEntered(e -> aiButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
+                         "-fx-font-weight: 600; -fx-font-size: 12px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"));
+        aiButton.setOnMouseExited(e -> aiButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; " +
+                         "-fx-font-weight: 600; -fx-font-size: 12px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"));
+
+        aiButton.setOnAction(e -> {
+            try {
+                AIEnhancementService aiService = new AIEnhancementService();
+                if (!aiService.isConfigured()) {
+                    showAlert(Alert.AlertType.WARNING, "AI Non Configuré", 
+                            "Veuillez configurer une clé API pour utiliser la génération IA.");
+                    return;
+                }
+
+                // Show loading indicator
+                aiButton.setText("⏳ Génération en cours...");
+                aiButton.setDisable(true);
+
+                // Generate on background thread to avoid blocking UI
+                new Thread(() -> {
+                    try {
+                        String[] result = aiService.generateJobCriteria(
+                            jobTitle,
+                            expField.getText().trim(),
+                            etudeField.getText().trim()
+                        );
+
+                        // Update UI on JavaFX thread
+                        javafx.application.Platform.runLater(() -> {
+                            if (result != null && result.length == 2) {
+                                respField.setText(result[0]);
+                                compField.setText(result[1]);
+                                showAlert(Alert.AlertType.INFORMATION, "Succès", 
+                                        "Les responsabilités et compétences ont été générées avec succès !");
+                            } else {
+                                showAlert(Alert.AlertType.ERROR, "Erreur", 
+                                        "Impossible de générer le contenu. Veuillez réessayer.");
+                            }
+
+                            aiButton.setText("🤖 Générer avec l'IA");
+                            aiButton.setDisable(false);
+                        });
+                    } catch (Exception ex) {
+                        javafx.application.Platform.runLater(() -> {
+                            showAlert(Alert.AlertType.ERROR, "Erreur", 
+                                    "Erreur lors de la génération: " + ex.getMessage());
+                            aiButton.setText("🤖 Générer avec l'IA");
+                            aiButton.setDisable(false);
+                        });
+                    }
+                }).start();
+            } catch (Exception ex) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", 
+                        "Erreur lors de l'initialisation du service IA: " + ex.getMessage());
+            }
+        });
+
+        HBox aiButtonContainer = new HBox(aiButton);
+        aiButtonContainer.setAlignment(Pos.CENTER);
+        aiButtonContainer.setStyle("-fx-padding: 10 0;");
+
         container.getChildren().addAll(
             titleLabel,
             expLbl, expField, expError,
             etudeLbl, etudeField, etudeError,
+            aiButtonContainer,
             respLbl, respField, respError,
             compLbl, compField, compError
         );
