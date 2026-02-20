@@ -124,6 +124,7 @@ Application de gestion des utilisateurs avec JavaFX 17
 
 ## 👨‍💻 Développeur
 Mohamed Azer Khadhraoui
+Manai Fares
 
 ---
 ✨ **Version actuelle** : 2.0 avec Dashboard Admin et Statistiques
