@@ -455,14 +455,14 @@ public class MainController implements Initializable {
         // Add icons and text to column headers
         colIdContrat.setText("# ID");
         colTypeContrat.setText("📋 Type");
-        colDateDebut.setText("📅 Date Début");
+        colDateDebut.setText("📅 Période");
         colSalaire.setText("💰 Salaire");
         colIdRecrutementContrat.setText("👤 Recrutement");
         colActionsContrat.setText("⚙️ Actions");
         
         colIdContrat.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         colTypeContrat.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
-        colDateDebut.setCellValueFactory(cellData -> cellData.getValue().dateDebutProperty());
+        colDateDebut.setCellValueFactory(cellData -> cellData.getValue().periodeProperty());
         colSalaire.setCellValueFactory(cellData -> cellData.getValue().salaireProperty().asObject());
         colIdRecrutementContrat.setCellValueFactory(cellData -> cellData.getValue().idRecrutementProperty().asObject());
         
@@ -784,7 +784,17 @@ public class MainController implements Initializable {
             contratData.clear();
             for (Contrat c : serviceContrat.afficher()) {
                 String dateFinStr = (c.getDate_fin() != null) ? c.getDate_fin().toString() : "";
-                contratData.add(new ContratRow(c.getId_contrat(), c.getType_contrat(), c.getDate_debut().toString(), dateFinStr, c.getSalaire(), c.getStatus(), c.getVolume_horaire(), c.getAvantages(), c.getId_recrutement()));
+                String periode = calculatePeriode(c.getDate_debut().toString(), dateFinStr);
+                
+                // Calculate auto status based on dates
+                String autoStatus = "En attente";
+                if (c.getDate_fin() != null) {
+                    java.time.LocalDate dateDebut = c.getDate_debut().toLocalDate();
+                    java.time.LocalDate dateFin = c.getDate_fin().toLocalDate();
+                    autoStatus = calculateAutoStatus(dateDebut, dateFin);
+                }
+                
+                contratData.add(new ContratRow(c.getId_contrat(), c.getType_contrat(), c.getDate_debut().toString(), dateFinStr, c.getSalaire(), autoStatus, c.getVolume_horaire(), c.getAvantages(), c.getId_recrutement(), periode));
             }
         } catch (SQLException e) {
             showError("Erreur lors du chargement des contrats: " + e.getMessage());
@@ -800,6 +810,53 @@ public class MainController implements Initializable {
         } catch (SQLException e) {
             showError("Erreur lors du chargement des recrutements: " + e.getMessage());
         }
+    }
+
+    private String calculatePeriode(String dateDebutStr, String dateFinStr) {
+        if (dateDebutStr == null || dateDebutStr.isEmpty() || dateFinStr == null || dateFinStr.isEmpty()) {
+            return "";
+        }
+        
+        try {
+            java.time.LocalDate dateDebut = java.time.LocalDate.parse(dateDebutStr);
+            java.time.LocalDate dateFin = java.time.LocalDate.parse(dateFinStr);
+            
+            long months = java.time.temporal.ChronoUnit.MONTHS.between(dateDebut, dateFin);
+            
+            if (months < 12) {
+                return months + " mois";
+            } else if (months % 12 == 0) {
+                long years = months / 12;
+                return years + " an" + (years > 1 ? "s" : "");
+            } else {
+                long years = months / 12;
+                long remainingMonths = months % 12;
+                return years + " an" + (years > 1 ? "s" : "") + " et " + remainingMonths + " mois";
+            }
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String calculateAutoStatus(java.time.LocalDate dateDebut, java.time.LocalDate dateFin) {
+        if (dateDebut == null || dateFin == null) {
+            return "En attente";
+        }
+        
+        java.time.LocalDate today = java.time.LocalDate.now();
+        
+        // Si date_fin < aujourd'hui, alors statut = "Terminé"
+        if (dateFin.isBefore(today)) {
+            return "Terminé";
+        }
+        
+        // Si date_debut <= aujourd'hui et aujourd'hui < date_fin, alors statut = "Actif"
+        if (!dateDebut.isAfter(today) && dateFin.isAfter(today)) {
+            return "Actif";
+        }
+        
+        // Sinon statut = "En attente"
+        return "En attente";
     }
 
     private void hideAllPages() {
@@ -1217,16 +1274,17 @@ public class MainController implements Initializable {
         VBox dateFinBox = new VBox(lblDateFin, dateFin, dateFinError);
         dateFinBox.setSpacing(3);
         
-        // Status
-        Label lblStatus = new Label("STATUT");
+        // Status (Auto-calculé)
+        Label lblStatus = new Label("STATUT (Automatique)");
         lblStatus.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
         
         ComboBox<String> statusCombo = new ComboBox<>();
-        statusCombo.setItems(FXCollections.observableArrayList("Actif", "Terminé", "En attente", "Annulé"));
+        statusCombo.setItems(FXCollections.observableArrayList("En attente", "Actif", "Terminé"));
         statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
         statusCombo.setPrefWidth(300);
+        statusCombo.setDisable(true);
         statusCombo.setCellFactory(param -> new ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -1244,27 +1302,26 @@ public class MainController implements Initializable {
             }
         });
         
-        Label statusError = new Label("");
-        statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
-        statusCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && !newVal.isEmpty()) {
-                statusError.setText("✓ Sélection valide");
-                statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
-                statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
-                        "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
-                        "-fx-font-size: 13px; -fx-text-fill: white;");
-            } else {
-                statusError.setText("Ce champ est obligatoire");
-                statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
-                statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
-                        "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
-                        "-fx-font-size: 13px; -fx-text-fill: white;");
-            }
-        });
+        Label statusError = new Label("(Rempli automatiquement selon les dates)");
+        statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #667eea; -fx-padding: 2 0; -fx-font-style: italic;");
         
         VBox statusBox = new VBox(lblStatus, statusCombo, statusError);
         statusBox.setSpacing(3);
+        
+        // Set default status and add listeners to dateDebut and dateFin
+        statusCombo.setValue("En attente");
+        dateDebut.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && dateFin.getValue() != null) {
+                String autoStatus = calculateAutoStatus(newVal, dateFin.getValue());
+                statusCombo.setValue(autoStatus);
+            }
+        });
+        dateFin.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && dateDebut.getValue() != null) {
+                String autoStatus = calculateAutoStatus(dateDebut.getValue(), newVal);
+                statusCombo.setValue(autoStatus);
+            }
+        });
         
         // Volume Horaire
         Label lblVolumeHoraire = new Label("VOLUME HORAIRE");
@@ -1398,12 +1455,6 @@ public class MainController implements Initializable {
                     dateFin.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                             "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
                             "-fx-font-size: 13px; -fx-text-fill: white;");
-                    return;
-                }
-                
-                if (statusCombo.getValue() == null || statusCombo.getValue().isEmpty()) {
-                    statusError.setText("Ce champ est obligatoire");
-                    statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
                     return;
                 }
                 
@@ -1977,17 +2028,17 @@ public class MainController implements Initializable {
         VBox dateFinBox = new VBox(lblDateFin, dateFin, dateFinError);
         dateFinBox.setSpacing(3);
         
-        // Status
-        Label lblStatus = new Label("STATUT");
+        // Status (Auto-calculé)
+        Label lblStatus = new Label("STATUT (Automatique)");
         lblStatus.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
         
         ComboBox<String> statusCombo = new ComboBox<>();
-        statusCombo.setItems(FXCollections.observableArrayList("Actif", "Terminé", "En attente", "Annulé"));
-        statusCombo.setValue(contratRow.statusProperty().get());
+        statusCombo.setItems(FXCollections.observableArrayList("En attente", "Actif", "Terminé"));
         statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
         statusCombo.setPrefWidth(300);
+        statusCombo.setDisable(true);
         statusCombo.setCellFactory(param -> new ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -2005,27 +2056,32 @@ public class MainController implements Initializable {
             }
         });
         
-        Label statusError = new Label("");
-        statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0;");
-        
-        statusCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && !newVal.isEmpty()) {
-                statusError.setText("✓ Sélection valide");
-                statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-padding: 2 0; -fx-font-weight: bold;");
-                statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
-                        "-fx-border-color: rgba(16,185,129,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
-                        "-fx-font-size: 13px; -fx-text-fill: white;");
-            } else {
-                statusError.setText("Ce champ est obligatoire");
-                statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #EF4444; -fx-padding: 2 0; -fx-font-weight: bold;");
-                statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
-                        "-fx-border-color: rgba(239,68,68,0.5); -fx-border-radius: 10; -fx-padding: 12 14; " +
-                        "-fx-font-size: 13px; -fx-text-fill: white;");
-            }
-        });
+        Label statusError = new Label("(Rempli automatiquement selon les dates)");
+        statusError.setStyle("-fx-font-size: 10px; -fx-text-fill: #667eea; -fx-padding: 2 0; -fx-font-style: italic;");
         
         VBox statusBox = new VBox(lblStatus, statusCombo, statusError);
         statusBox.setSpacing(3);
+        
+        // Set initial auto status and add listeners to dateDebut and dateFin
+        if (dateDebut.getValue() != null && dateFin.getValue() != null) {
+            String autoStatus = calculateAutoStatus(dateDebut.getValue(), dateFin.getValue());
+            statusCombo.setValue(autoStatus);
+        } else {
+            statusCombo.setValue("En attente");
+        }
+        
+        dateDebut.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && dateFin.getValue() != null) {
+                String autoStatus = calculateAutoStatus(newVal, dateFin.getValue());
+                statusCombo.setValue(autoStatus);
+            }
+        });
+        dateFin.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && dateDebut.getValue() != null) {
+                String autoStatus = calculateAutoStatus(dateDebut.getValue(), newVal);
+                statusCombo.setValue(autoStatus);
+            }
+        });
         
         // Volume Horaire
         Label lblVolumeHoraire = new Label("VOLUME HORAIRE");
@@ -2566,17 +2622,19 @@ public class MainController implements Initializable {
         private final SimpleStringProperty type;
         private final SimpleStringProperty dateDebut;
         private final SimpleStringProperty dateFin;
+        private final SimpleStringProperty periode;
         private final SimpleDoubleProperty salaire;
         private final SimpleStringProperty status;
         private final SimpleStringProperty volumeHoraire;
         private final SimpleStringProperty avantages;
         private final SimpleIntegerProperty idRecrutement;
 
-        public ContratRow(Integer id, String type, String dateDebut, String dateFin, Double salaire, String status, String volumeHoraire, String avantages, Integer idRecrutement) {
+        public ContratRow(Integer id, String type, String dateDebut, String dateFin, Double salaire, String status, String volumeHoraire, String avantages, Integer idRecrutement, String periode) {
             this.id = new SimpleIntegerProperty(id);
             this.type = new SimpleStringProperty(type);
             this.dateDebut = new SimpleStringProperty(dateDebut);
             this.dateFin = new SimpleStringProperty(dateFin);
+            this.periode = new SimpleStringProperty(periode);
             this.salaire = new SimpleDoubleProperty(salaire);
             this.status = new SimpleStringProperty(status);
             this.volumeHoraire = new SimpleStringProperty(volumeHoraire);
@@ -2588,6 +2646,7 @@ public class MainController implements Initializable {
         public SimpleStringProperty typeProperty() { return type; }
         public SimpleStringProperty dateDebutProperty() { return dateDebut; }
         public SimpleStringProperty dateFinProperty() { return dateFin; }
+        public SimpleStringProperty periodeProperty() { return periode; }
         public SimpleDoubleProperty salaireProperty() { return salaire; }
         public SimpleStringProperty statusProperty() { return status; }
         public SimpleStringProperty volumeHoraireProperty() { return volumeHoraire; }

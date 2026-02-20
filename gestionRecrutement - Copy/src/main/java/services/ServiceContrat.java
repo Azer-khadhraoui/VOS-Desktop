@@ -18,14 +18,18 @@ public class ServiceContrat {
     // ✅ CREATE : Ajouter un contrat
     public void ajouter(Contrat c) throws SQLException {
 
-        String req = "INSERT INTO contrat_embauche(type_contrat, date_debut, salaire, id_recrutement) VALUES (?,?,?,?)";
+        String req = "INSERT INTO contrat_embauche(type_contrat, date_debut, date_fin, salaire, status, volume_horaire, avantages, id_recrutement) VALUES (?,?,?,?,?,?,?,?)";
 
         PreparedStatement ps = conn.prepareStatement(req);
 
         ps.setString(1, c.getType_contrat());
         ps.setDate(2, c.getDate_debut());
-        ps.setDouble(3, c.getSalaire());
-        ps.setInt(4, c.getId_recrutement());
+        ps.setDate(3, c.getDate_fin());
+        ps.setDouble(4, c.getSalaire());
+        ps.setString(5, c.getStatus());
+        ps.setString(6, c.getVolume_horaire());
+        ps.setString(7, c.getAvantages());
+        ps.setInt(8, c.getId_recrutement());
 
         ps.executeUpdate();
 
@@ -35,15 +39,19 @@ public class ServiceContrat {
     // ✅ UPDATE : Modifier un contrat
     public void modifier(Contrat c) throws SQLException {
 
-        String req = "UPDATE contrat_embauche SET type_contrat=?, date_debut=?, salaire=?, id_recrutement=? WHERE id_contrat=?";
+        String req = "UPDATE contrat_embauche SET type_contrat=?, date_debut=?, date_fin=?, salaire=?, status=?, volume_horaire=?, avantages=?, id_recrutement=? WHERE id_contrat=?";
 
         PreparedStatement ps = conn.prepareStatement(req);
 
         ps.setString(1, c.getType_contrat());
         ps.setDate(2, c.getDate_debut());
-        ps.setDouble(3, c.getSalaire());
-        ps.setInt(4, c.getId_recrutement());
-        ps.setInt(5, c.getId_contrat());
+        ps.setDate(3, c.getDate_fin());
+        ps.setDouble(4, c.getSalaire());
+        ps.setString(5, c.getStatus());
+        ps.setString(6, c.getVolume_horaire());
+        ps.setString(7, c.getAvantages());
+        ps.setInt(8, c.getId_recrutement());
+        ps.setInt(9, c.getId_contrat());
 
         ps.executeUpdate();
 
