@@ -499,6 +499,35 @@ public class MainController implements Initializable {
             }
         });
         
+        // Style Période column with dates info
+        colDateDebut.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setGraphic(null);
+                } else {
+                    ContratRow row = getTableView().getItems().get(getIndex());
+                    VBox container = new VBox();
+                    container.setSpacing(4);
+                    container.setStyle("-fx-padding: 5;");
+                    
+                    // Période (gros et bold)
+                    Label periode = new Label(value);
+                    periode.setStyle("-fx-font-weight: 600; -fx-font-size: 12px; -fx-text-fill: #1F2937;");
+                    
+                    // Dates (petit et gris)
+                    String dateDebut = row.dateDebutProperty().get();
+                    String dateFin = row.dateFinProperty().get();
+                    Label dates = new Label(dateDebut + " → " + dateFin);
+                    dates.setStyle("-fx-font-size: 10px; -fx-text-fill: #9CA3AF; -fx-font-style: italic;");
+                    
+                    container.getChildren().addAll(periode, dates);
+                    setGraphic(container);
+                }
+            }
+        });
+        
         // Style Status column with colored badges
         colStatus.setCellFactory(param -> new TableCell<>() {
             @Override
