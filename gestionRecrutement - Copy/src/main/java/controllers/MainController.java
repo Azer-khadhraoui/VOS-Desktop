@@ -27,14 +27,30 @@ import javafx.util.Duration;
 import services.ServiceContrat;
 import services.ServiceRecrutement;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.List;
+// OpenPDF imports — explicit to avoid TextField clash with javafx.scene.control.TextField
+import com.lowagie.text.Chunk;
+import com.lowagie.text.Element;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import javafx.geometry.Insets;
+import javafx.stage.FileChooser;
 
 public class MainController implements Initializable {
 
@@ -685,10 +701,12 @@ public class MainController implements Initializable {
         colActionsContrat.setCellFactory(param -> new TableCell<>() {
             private final Button btnEdit = new Button();
             private final Button btnDelete = new Button();
-            private final HBox hbox = new HBox(8, btnEdit, btnDelete);
+            private final Button btnPreview = new Button("📄");
+            private final Button btnDownload = new Button("⬇");
+            private final HBox hbox = new HBox(6, btnEdit, btnDelete, btnPreview, btnDownload);
 
             {
-                // Create image views for buttons
+                // ── Edit / Delete icons ──────────────────────────────────
                 ImageView editIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/Edit.png")));
                 editIcon.setFitHeight(16);
                 editIcon.setFitWidth(16);
@@ -702,37 +720,48 @@ public class MainController implements Initializable {
                 btnEdit.setGraphic(editIcon);
                 btnDelete.setGraphic(deleteIcon);
 
-                // Style for both buttons - transparent with icons only
-                String buttonStyle = "-fx-padding: 4 4; -fx-cursor: hand; " +
-                        "-fx-background-color: transparent; " +
-                        "-fx-border-color: transparent; -fx-border-width: 0;";
+                String baseStyle = "-fx-padding: 4 4; -fx-cursor: hand; " +
+                        "-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;";
+                btnEdit.setStyle(baseStyle);
+                btnDelete.setStyle(baseStyle);
 
-                btnEdit.setStyle(buttonStyle);
-                btnDelete.setStyle(buttonStyle);
+                // ── PDF Preview button ───────────────────────────────────
+                btnPreview.setStyle("-fx-padding: 3 7; -fx-cursor: hand; -fx-font-size: 13px; " +
+                        "-fx-background-color: #DBEAFE; -fx-background-radius: 5; " +
+                        "-fx-border-color: #BFDBFE; -fx-border-width: 1; -fx-border-radius: 5;");
+                Tooltip.install(btnPreview, new Tooltip("Aperçu du contrat"));
 
-                // Add tooltips
-                Tooltip editTooltip = new Tooltip("Modifier le contrat");
-                editTooltip.setStyle("-fx-font-size: 11px;");
-                Tooltip.install(btnEdit, editTooltip);
+                // ── PDF Download button ──────────────────────────────────
+                btnDownload.setStyle("-fx-padding: 3 7; -fx-cursor: hand; -fx-font-size: 13px; " +
+                        "-fx-background-color: #EDE9FE; -fx-background-radius: 5; " +
+                        "-fx-border-color: #DDD6FE; -fx-border-width: 1; -fx-border-radius: 5;");
+                Tooltip.install(btnDownload, new Tooltip("Télécharger en PDF"));
 
-                Tooltip deleteTooltip = new Tooltip("Supprimer le contrat");
-                deleteTooltip.setStyle("-fx-font-size: 11px;");
-                Tooltip.install(btnDelete, deleteTooltip);
+                // ── Tooltips ─────────────────────────────────────────────
+                Tooltip.install(btnEdit, new Tooltip("Modifier le contrat"));
+                Tooltip.install(btnDelete, new Tooltip("Supprimer le contrat"));
 
-                // Shared background container with transparency
-                hbox.setStyle("-fx-background-color: rgba(150, 171, 241, 0.52); " +
-                        "-fx-padding: 4 4; -fx-border-radius: 4; -fx-background-radius: 4;");
+                // ── Container ────────────────────────────────────────────
+                hbox.setStyle("-fx-background-color: rgba(150,171,241,0.52); " +
+                        "-fx-padding: 4 6; -fx-border-radius: 4; -fx-background-radius: 4;");
                 hbox.setAlignment(Pos.CENTER);
-                hbox.setPrefWidth(70);
 
-                btnEdit.setOnAction(event -> {
-                    ContratRow contrat = getTableView().getItems().get(getIndex());
-                    editContrat(contrat);
+                // ── Actions ──────────────────────────────────────────────
+                btnEdit.setOnAction(e -> {
+                    ContratRow c = getTableView().getItems().get(getIndex());
+                    editContrat(c);
                 });
-
-                btnDelete.setOnAction(event -> {
-                    ContratRow contrat = getTableView().getItems().get(getIndex());
-                    deleteContrat(contrat);
+                btnDelete.setOnAction(e -> {
+                    ContratRow c = getTableView().getItems().get(getIndex());
+                    deleteContrat(c);
+                });
+                btnPreview.setOnAction(e -> {
+                    ContratRow c = getTableView().getItems().get(getIndex());
+                    showContratPreview(c);
+                });
+                btnDownload.setOnAction(e -> {
+                    ContratRow c = getTableView().getItems().get(getIndex());
+                    downloadContratPdf(c);
                 });
             }
 
@@ -3045,6 +3074,267 @@ public class MainController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    // =========================================================================
+    // PDF CONTRACT GENERATION
+    // =========================================================================
+
+    /** Generates a 16-char unique signature token for the contract. */
+    private String generateContractSignature(int contractId) {
+        try {
+            String raw = contractId + "-" + System.currentTimeMillis();
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(raw.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash)
+                sb.append(String.format("%02x", b));
+            return sb.substring(0, 16).toUpperCase();
+        } catch (Exception e) {
+            return "SIGN" + contractId;
+        }
+    }
+
+    /** Opens a styled JavaFX modal showing the formatted contract. */
+    private void showContratPreview(ContratRow contrat) {
+        Stage modal = new Stage();
+        modal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        modal.setTitle("Aperçu du Contrat #" + contrat.idProperty().get());
+        modal.setResizable(true);
+
+        // ── Root ─────────────────────────────────────────────────────────────
+        VBox root = new VBox(0);
+        root.setStyle("-fx-background-color: #1a1a2e;");
+
+        // ── Header bar ───────────────────────────────────────────────────────
+        VBox headerBar = new VBox(4);
+        headerBar.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #667eea, #f093fb); " +
+                "-fx-padding: 20 30;");
+        Label companyLbl = new Label("🏢  VOS – Votre Outil de Succès");
+        companyLbl.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+        Label genDate = new Label("Généré le : " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        genDate.setStyle("-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.75);");
+        Label titleLbl = new Label("CONTRAT DE TRAVAIL");
+        titleLbl.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 6 0 0 0;");
+        headerBar.getChildren().addAll(companyLbl, genDate, titleLbl);
+
+        // ── Body ─────────────────────────────────────────────────────────────
+        VBox body = new VBox(18);
+        body.setStyle("-fx-padding: 24 30;");
+
+        body.getChildren().addAll(
+                buildPreviewSection("📋  Informations du Contrat", new String[][] {
+                        { "N° Contrat", "#" + contrat.idProperty().get() },
+                        { "Type", contrat.typeProperty().get() },
+                        { "Période", contrat.periodeProperty().get() },
+                        { "Date de début", contrat.dateDebutProperty().get() },
+                        { "Date de fin", contrat.dateFinProperty().get() },
+                        { "Réf. Recrutement", "#" + contrat.idRecrutementProperty().get() }
+                }),
+                buildPreviewSection("⚙️  Conditions", new String[][] {
+                        { "Statut", contrat.statusProperty().get() },
+                        { "Volume horaire", contrat.volumeHoraireProperty().get() }
+                }),
+                buildPreviewSection("💰  Rémunération", new String[][] {
+                        { "Salaire brut", String.format("%.2f DT", contrat.salaireProperty().get()) }
+                }),
+                buildPreviewSection("🎁  Avantages", new String[][] {
+                        { "Avantages", contrat.avantagesProperty().get() }
+                }));
+
+        // ── Signature ─────────────────────────────────────────────────────────
+        String sig = generateContractSignature(contrat.idProperty().get());
+        VBox sigBox = new VBox(6);
+        sigBox.setStyle("-fx-background-color: rgba(255,255,255,0.04); -fx-padding: 16; " +
+                "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 8; -fx-background-radius: 8;");
+        Label sigTitle = new Label("✍️  Signature électronique");
+        sigTitle.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #9CA3AF;");
+        Label sigValue = new Label(sig);
+        sigValue.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 18px; -fx-font-style: italic; " +
+                "-fx-text-fill: #667eea; -fx-letter-spacing: 4;");
+        Label sigNote = new Label("Signature unique générée automatiquement – non modifiable");
+        sigNote.setStyle("-fx-font-size: 10px; -fx-text-fill: #6B7280; -fx-padding: 2 0 0 0;");
+        sigBox.getChildren().addAll(sigTitle, sigValue, sigNote);
+        body.getChildren().add(sigBox);
+
+        // ── Close button ─────────────────────────────────────────────────────
+        Button btnClose = new Button("✖  Fermer");
+        btnClose.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; " +
+                "-fx-font-size: 13px; -fx-padding: 10 30; -fx-background-radius: 8; -fx-cursor: hand; " +
+                "-fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 8;");
+        btnClose.setOnAction(e -> modal.close());
+        HBox btnBar = new HBox(btnClose);
+        btnBar.setAlignment(Pos.CENTER_RIGHT);
+        btnBar.setStyle("-fx-padding: 0 30 24 30;");
+
+        root.getChildren().addAll(headerBar, body, btnBar);
+
+        ScrollPane scroll = new ScrollPane(root);
+        scroll.setFitToWidth(true);
+        scroll.setStyle("-fx-background-color: #1a1a2e;");
+
+        Scene scene = new Scene(scroll, 560, 680);
+        scene.setFill(Color.web("#1a1a2e"));
+        modal.setScene(scene);
+        try {
+            modal.getIcons().add(new Image(getClass().getResourceAsStream("/images/VOS.jpg")));
+        } catch (Exception ignored) {
+        }
+        modal.show();
+    }
+
+    /** Builds one labelled section card for the preview modal. */
+    private VBox buildPreviewSection(String title, String[][] rows) {
+        VBox card = new VBox(8);
+        card.setStyle("-fx-background-color: rgba(255,255,255,0.04); -fx-padding: 14 16; " +
+                "-fx-border-color: rgba(102,126,234,0.25); -fx-border-radius: 8; -fx-background-radius: 8;");
+        Label sectionTitle = new Label(title);
+        sectionTitle
+                .setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #c4b5fd; -fx-padding: 0 0 4 0;");
+        card.getChildren().add(sectionTitle);
+        for (String[] kv : rows) {
+            HBox row = new HBox(10);
+            Label key = new Label(kv[0] + " :");
+            key.setStyle("-fx-min-width: 130; -fx-font-size: 12px; -fx-text-fill: #9CA3AF;");
+            Label val = new Label(kv[1] == null || kv[1].isEmpty() ? "—" : kv[1]);
+            val.setStyle("-fx-font-size: 12px; -fx-font-weight: 600; -fx-text-fill: #F3F4F6;");
+            row.getChildren().addAll(key, val);
+            card.getChildren().add(row);
+        }
+        return card;
+    }
+
+    /** Saves a real PDF file for the contract using OpenPDF. */
+    private void downloadContratPdf(ContratRow contrat) {
+        // ── File chooser ─────────────────────────────────────────────────────
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Enregistrer le contrat PDF");
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String defaultName = String.format("contrat_%d_%s_%s.pdf",
+                contrat.idProperty().get(),
+                contrat.typeProperty().get().replaceAll("\\s+", "_"),
+                today);
+        fc.setInitialFileName(defaultName);
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        File file = fc.showSaveDialog(tableContrats.getScene().getWindow());
+        if (file == null)
+            return;
+
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            // ── Document setup ────────────────────────────────────────────────
+            com.lowagie.text.Document doc = new com.lowagie.text.Document(PageSize.A4, 50, 50, 60, 60);
+            PdfWriter.getInstance(doc, fos);
+            doc.open();
+
+            // ── Fonts ─────────────────────────────────────────────────────────
+            com.lowagie.text.Font fontTitle = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 22,
+                    com.lowagie.text.Font.BOLD, new java.awt.Color(0x66, 0x7e, 0xea));
+            com.lowagie.text.Font fontSubtitle = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10,
+                    com.lowagie.text.Font.NORMAL, java.awt.Color.GRAY);
+            com.lowagie.text.Font fontSection = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 13,
+                    com.lowagie.text.Font.BOLD, new java.awt.Color(0x13, 0x11, 0x14));
+            com.lowagie.text.Font fontKey = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10,
+                    com.lowagie.text.Font.NORMAL, java.awt.Color.GRAY);
+            com.lowagie.text.Font fontVal = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 11,
+                    com.lowagie.text.Font.BOLD, new java.awt.Color(0x11, 0x18, 0x27));
+            com.lowagie.text.Font fontSig = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 16,
+                    com.lowagie.text.Font.BOLDITALIC, new java.awt.Color(0x66, 0x7e, 0xea));
+
+            // ── Header ────────────────────────────────────────────────────────
+            Paragraph company = new Paragraph("VOS – Votre Outil de Succès", fontSection);
+            company.setAlignment(Element.ALIGN_CENTER);
+            doc.add(company);
+
+            Paragraph dateGen = new Paragraph("Généré le : " +
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), fontSubtitle);
+            dateGen.setAlignment(Element.ALIGN_CENTER);
+            doc.add(dateGen);
+
+            doc.add(new Paragraph(" "));
+            Paragraph titlePara = new Paragraph("CONTRAT DE TRAVAIL", fontTitle);
+            titlePara.setAlignment(Element.ALIGN_CENTER);
+            doc.add(titlePara);
+
+            // Divider
+            com.lowagie.text.pdf.draw.LineSeparator lineSep = new com.lowagie.text.pdf.draw.LineSeparator();
+            lineSep.setLineColor(new java.awt.Color(0x66, 0x7e, 0xea));
+            doc.add(new Chunk(lineSep));
+            doc.add(new Paragraph(" "));
+
+            // ── Helper to write a section ─────────────────────────────────────
+            // Sections: (title, key-value pairs)
+            addPdfSection(doc, "Informations du Contrat", fontSection, fontKey, fontVal, new String[][] {
+                    { "N° Contrat", "#" + contrat.idProperty().get() },
+                    { "Type de contrat", contrat.typeProperty().get() },
+                    { "Période", contrat.periodeProperty().get() },
+                    { "Date de début", contrat.dateDebutProperty().get() },
+                    { "Date de fin", contrat.dateFinProperty().get() },
+                    { "Réf. Recrutement", "#" + contrat.idRecrutementProperty().get() }
+            });
+            addPdfSection(doc, "Conditions", fontSection, fontKey, fontVal, new String[][] {
+                    { "Statut", contrat.statusProperty().get() },
+                    { "Volume horaire", contrat.volumeHoraireProperty().get() }
+            });
+            addPdfSection(doc, "Rémunération", fontSection, fontKey, fontVal, new String[][] {
+                    { "Salaire brut", String.format("%.2f DT", contrat.salaireProperty().get()) }
+            });
+            addPdfSection(doc, "Avantages", fontSection, fontKey, fontVal, new String[][] {
+                    { "Avantages", contrat.avantagesProperty().get() }
+            });
+
+            // ── Signature ─────────────────────────────────────────────────────
+            doc.add(new Paragraph(" "));
+            String sig = generateContractSignature(contrat.idProperty().get());
+            Paragraph sigTitle = new Paragraph("Signature électronique", fontSection);
+            doc.add(sigTitle);
+            Paragraph sigPara = new Paragraph(sig, fontSig);
+            sigPara.setSpacingBefore(4);
+            doc.add(sigPara);
+            Paragraph sigNote = new Paragraph(
+                    "Signature unique générée automatiquement – valeur non modifiable.", fontSubtitle);
+            doc.add(sigNote);
+
+            doc.close();
+            showAlert("PDF généré", "Contrat enregistré avec succès :\n" + file.getAbsolutePath());
+
+        } catch (Exception e) {
+            showError("Erreur lors de la génération PDF : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /** Writes a labelled section with key-value rows into the PDF. */
+    private void addPdfSection(com.lowagie.text.Document doc, String title,
+            com.lowagie.text.Font fontSection, com.lowagie.text.Font fontKey, com.lowagie.text.Font fontVal,
+            String[][] rows) throws com.lowagie.text.DocumentException {
+        Paragraph sectionTitle = new Paragraph(title, fontSection);
+        sectionTitle.setSpacingBefore(12);
+        sectionTitle.setSpacingAfter(4);
+        doc.add(sectionTitle);
+
+        PdfPTable table = new PdfPTable(2);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[] { 1.8f, 3f });
+        table.setSpacingAfter(4);
+
+        for (String[] kv : rows) {
+            String val = (kv[1] == null || kv[1].isEmpty()) ? "—" : kv[1];
+
+            PdfPCell cellKey = new PdfPCell(new Phrase(kv[0], fontKey));
+            cellKey.setBorder(com.lowagie.text.Rectangle.BOTTOM);
+            cellKey.setBorderColor(new java.awt.Color(0xe5, 0xe7, 0xeb));
+            cellKey.setPadding(5);
+            cellKey.setBackgroundColor(new java.awt.Color(0xf9, 0xfa, 0xfb));
+
+            PdfPCell cellVal = new PdfPCell(new Phrase(val, fontVal));
+            cellVal.setBorder(com.lowagie.text.Rectangle.BOTTOM);
+            cellVal.setBorderColor(new java.awt.Color(0xe5, 0xe7, 0xeb));
+            cellVal.setPadding(5);
+
+            table.addCell(cellKey);
+            table.addCell(cellVal);
+        }
+        doc.add(table);
     }
 
     // Inner classes for table data
