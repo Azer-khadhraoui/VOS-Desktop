@@ -23,7 +23,7 @@ public class ServiceRecrutement {
         List<Integer> ids = new ArrayList<>();
         String req = "SELECT DISTINCT id_entretien FROM entretien ORDER BY id_entretien";
         try (Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
+                ResultSet rs = st.executeQuery(req)) {
             while (rs.next()) {
                 ids.add(rs.getInt("id_entretien"));
             }
@@ -36,7 +36,7 @@ public class ServiceRecrutement {
         List<Integer> ids = new ArrayList<>();
         String req = "SELECT DISTINCT id_utilisateur FROM utilisateur ORDER BY id_utilisateur";
         try (Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
+                ResultSet rs = st.executeQuery(req)) {
             while (rs.next()) {
                 ids.add(rs.getInt("id_utilisateur"));
             }
@@ -109,8 +109,7 @@ public class ServiceRecrutement {
                     rs.getDate("date_decision"),
                     rs.getString("decision_finale"),
                     rs.getInt("id_entretien"),
-                    rs.getInt("id_utilisateur")
-            );
+                    rs.getInt("id_utilisateur"));
 
             list.add(r);
         }
@@ -136,13 +135,13 @@ public class ServiceRecrutement {
     public List<RecrutementGroup> afficherGroupedByUser() throws SQLException {
         // First, get all recruitments
         List<Recrutement> allRecrutements = afficher();
-        
+
         // Group by user ID
         Map<Integer, List<Recrutement>> groupedMap = new HashMap<>();
         for (Recrutement r : allRecrutements) {
             groupedMap.computeIfAbsent(r.getId_utilisateur(), k -> new ArrayList<>()).add(r);
         }
-        
+
         // Create RecrutementGroup objects
         List<RecrutementGroup> groups = new ArrayList<>();
         for (Map.Entry<Integer, List<Recrutement>> entry : groupedMap.entrySet()) {
@@ -151,7 +150,49 @@ public class ServiceRecrutement {
             RecrutementGroup group = new RecrutementGroup(userId, userName, entry.getValue());
             groups.add(group);
         }
-        
+
         return groups;
+    }
+
+    // ✅ GET AI CONTEXT (Detailed info for AI Match)
+    public Map<String, String> getAIContext(int recruitmentId) throws SQLException {
+        Map<String, String> context = new HashMap<>();
+
+        String req = "SELECT r.id_recrutement, r.decision_finale, " +
+                "e.type_entretien, e.statut_entretien, e.type_test, " +
+                "c.message_candidat, c.niveau_experience, c.annees_experience, c.domaine_experience, c.dernier_poste, "
+                +
+                "o.titre as job_title, o.description as job_desc, o.type_contrat as job_contract, " +
+                "co.niveau_experience as req_exp, co.niveau_etude as req_study, co.competences_requises " +
+                "FROM recrutement r " +
+                "LEFT JOIN entretien e ON r.id_entretien = e.id_entretien " +
+                "LEFT JOIN candidature c ON e.id_candidature = c.id_candidature " +
+                "LEFT JOIN offre_emploi o ON c.id_offre = o.id_offre " +
+                "LEFT JOIN critere_offre co ON o.id_offre = co.id_offre " +
+                "WHERE r.id_recrutement = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(req)) {
+            ps.setInt(1, recruitmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    context.put("candidate_exp",
+                            (rs.getString("niveau_experience") != null ? rs.getString("niveau_experience") : "Inconnu")
+                                    +
+                                    " (" + rs.getInt("annees_experience") + " ans)");
+                    context.put("candidate_domain", rs.getString("domaine_experience"));
+                    context.put("candidate_last_post", rs.getString("dernier_poste"));
+                    context.put("candidate_message", rs.getString("message_candidat"));
+
+                    context.put("job_title", rs.getString("job_title"));
+                    context.put("job_desc", rs.getString("job_desc"));
+                    context.put("job_requirements", rs.getString("competences_requises"));
+                    context.put("job_min_exp", rs.getString("req_exp"));
+
+                    context.put("interview_type", rs.getString("type_entretien"));
+                    context.put("interview_test", rs.getString("type_test"));
+                }
+            }
+        }
+        return context;
     }
 }

@@ -801,6 +801,63 @@
     -fx-font-size: 11px;
 }
 
+/* AI MATCHING MODAL & ELEMENTS */
+.btn-ai {
+    -fx-background-color: #F5E6FF;
+    -fx-text-fill: #9333EA;
+    -fx-font-size: 18px;
+    -fx-padding: 10 14;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(147, 51, 234, 0.2), 4, 0, 0, 2);
+}
+
+.btn-ai:hover {
+    -fx-background-color: #E9D5FF;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-effect: dropshadow(gaussian, rgba(147, 51, 234, 0.4), 8, 0, 0, 3);
+}
+
+.ai-modal-header {
+    -fx-background-color: linear-gradient(to right, #9333EA, #3B82F6);
+    -fx-padding: 20;
+    -fx-background-radius: 20 20 0 0;
+}
+
+.ai-modal-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.ai-score-ring {
+    -fx-font-size: 36px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #9333EA;
+    -fx-padding: 20;
+}
+
+.ai-analysis-text {
+    -fx-font-size: 15px;
+    -fx-line-spacing: 1.5;
+    -fx-text-fill: #374151;
+}
+
+.ai-recommendation-badge {
+    -fx-background-color: #F3F4F6;
+    -fx-padding: 8 16;
+    -fx-background-radius: 20;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2937;
+}
+
+/* Loading Spinner for AI */
+.ai-loading-spinner {
+    -fx-font-size: 48px;
+    -fx-text-fill: #9333EA;
+}
+
 /* Bar Chart Colors */
 .default-color0.chart-bar {
     -fx-bar-fill: #6366F1;
