@@ -211,6 +211,9 @@ public class MainController implements Initializable {
 
         // Setup navigation click handlers
         setupNavigation();
+        
+        // Setup dynamic search for recrutement by name
+        setupRecrutementSearch();
     }
 
     private void initializeSidebar() {
@@ -1157,6 +1160,61 @@ public class MainController implements Initializable {
             tableRecrutements.setItems(recrutementData);
         } catch (SQLException e) {
             showError("Erreur lors du chargement des recrutements: " + e.getMessage());
+        }
+    }
+
+    /** Dynamic search for recrutement by name */
+    private void setupRecrutementSearch() {
+        if (searchField == null) {
+            return;
+        }
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterRecrutementByName(newValue);
+        });
+    }
+
+    /** Filter recrutement table by user name */
+    private void filterRecrutementByName(String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            // Show all data
+            loadSampleRecrutementData();
+            return;
+        }
+
+        try {
+            ObservableList<RecrutementTableRow> filteredData = FXCollections.observableArrayList();
+            String searchLower = searchText.toLowerCase().trim();
+            Map<RecrutementGroup, Integer> newHeaderIndexMap = new HashMap<>();
+
+            int index = 0;
+            for (RecrutementGroup group : recrutementGroups) {
+                String groupNameLower = group.getUserName().toLowerCase();
+
+                // Check if group name matches
+                if (groupNameLower.contains(searchLower)) {
+                    // Add group header
+                    RecrutementTableRow headerRow = new RecrutementTableRow(group);
+                    filteredData.add(headerRow);
+                    newHeaderIndexMap.put(group, index);
+                    index++;
+
+                    // If group is expanded, add all its detail rows
+                    if (group.isExpanded()) {
+                        for (Recrutement recrutement : group.getRecrutements()) {
+                            RecrutementTableRow detailRow = new RecrutementTableRow(group, recrutement);
+                            filteredData.add(detailRow);
+                            index++;
+                        }
+                    }
+                }
+            }
+
+            groupHeaderIndexMap = newHeaderIndexMap;
+            tableRecrutements.setItems(filteredData);
+
+        } catch (Exception e) {
+            showError("Erreur lors de la recherche: " + e.getMessage());
         }
     }
 
