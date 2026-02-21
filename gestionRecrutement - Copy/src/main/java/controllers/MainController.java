@@ -3494,7 +3494,7 @@ public class MainController implements Initializable {
             String cachetPath = "src/main/resources/Images/cachet.png";
             com.lowagie.text.Image cachet = com.lowagie.text.Image.getInstance(cachetPath);
             cachet.setAlignment(Element.ALIGN_CENTER);
-            cachet.scaleToFit(55, 55);
+            cachet.scaleToFit(99, 99);
             Paragraph cachetPara = new Paragraph();
             cachetPara.add(new Chunk(cachet, 0, 0));
             cachetPara.setAlignment(Element.ALIGN_CENTER);
@@ -3518,13 +3518,27 @@ public class MainController implements Initializable {
         employeeLabel.setSpacingAfter(3);
         rightCell.addElement(employeeLabel);
 
-        // Empty signature line
-        Paragraph signatureLine = new Paragraph(
-                "_____________________________________________________", fontBody);
-        signatureLine.setAlignment(Element.ALIGN_CENTER);
-        signatureLine.setSpacingBefore(20);
-        signatureLine.setSpacingAfter(2);
-        rightCell.addElement(signatureLine);
+        // Employee signature image
+        try {
+            String clientSigPath = "src/main/resources/Images/client.png";
+            com.lowagie.text.Image clientSig = com.lowagie.text.Image.getInstance(clientSigPath);
+            clientSig.setAlignment(Element.ALIGN_CENTER);
+            clientSig.scaleToFit(100, 50);
+            Paragraph clientSigPara = new Paragraph();
+            clientSigPara.add(new Chunk(clientSig, 0, 0));
+            clientSigPara.setAlignment(Element.ALIGN_CENTER);
+            clientSigPara.setSpacingBefore(15);
+            clientSigPara.setSpacingAfter(2);
+            rightCell.addElement(clientSigPara);
+        } catch (Exception e) {
+            // Fallback to signature line if image not found
+            Paragraph signatureLine = new Paragraph(
+                    "_____________________________________________________", fontBody);
+            signatureLine.setAlignment(Element.ALIGN_CENTER);
+            signatureLine.setSpacingBefore(20);
+            signatureLine.setSpacingAfter(2);
+            rightCell.addElement(signatureLine);
+        }
 
         // Employee name or reference
         Paragraph employeeName = new Paragraph("N° Recrutement : #" + contrat.idRecrutementProperty().get(),
