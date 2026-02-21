@@ -78,7 +78,7 @@
     -fx-border-color: transparent;
 }
 
-.sidebar-titled-pane > .title {
+.sidebar-titled-pane>.title {
     -fx-padding: 0 8;
     -fx-background-color: transparent;
     -fx-text-fill: white;
@@ -88,22 +88,22 @@
     -fx-alignment: CENTER_LEFT;
 }
 
-.sidebar-titled-pane > .title .arrow {
+.sidebar-titled-pane>.title .arrow {
     -fx-padding: 0;
     -fx-background-color: transparent;
 }
 
-.sidebar-titled-pane > .title:hover {
+.sidebar-titled-pane>.title:hover {
     -fx-background-color: #2a3f7a;
     -fx-background-radius: 6;
 }
 
-.sidebar-titled-pane:expanded > .title {
+.sidebar-titled-pane:expanded>.title {
     -fx-background-color: #2a3f7a;
     -fx-background-radius: 6;
 }
 
-.sidebar-titled-pane > .content {
+.sidebar-titled-pane>.content {
     -fx-padding: 0;
     -fx-background-color: transparent;
     -fx-border-width: 0;
@@ -674,4 +674,164 @@
     -fx-max-width: 0;
     -fx-pref-width: 0;
     -fx-min-width: 0;
+}
+
+/* ================================
+   STATISTICS DASHBOARD
+   ================================ */
+
+.modern-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.section-header-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+    -fx-padding: 0 0 10 0;
+}
+
+.section-separator {
+    -fx-background-color: #E5E7EB;
+    -fx-pref-height: 1;
+}
+
+/* STAT CARDS */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 20;
+    -fx-spacing: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 10, 0, 0, 4);
+    -fx-border-color: #F3F4F6;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s ease-in-out;
+}
+
+.stat-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 15, 0, 0, 8);
+    -fx-translate-y: -5px;
+    -fx-border-color: #3b82f6;
+}
+
+.stat-card-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #6B7280;
+}
+
+.stat-card-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.stat-card-trend-up {
+    -fx-font-size: 12px;
+    -fx-text-fill: #10B981;
+    -fx-font-weight: 600;
+}
+
+.stat-card-trend-down {
+    -fx-font-size: 12px;
+    -fx-text-fill: #EF4444;
+    -fx-font-weight: 600;
+}
+
+.stat-card-trend-neutral {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
+    -fx-font-weight: 600;
+}
+
+.stat-card-note {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9CA3AF;
+    -fx-font-style: italic;
+}
+
+/* CHART CONTAINERS */
+.chart-container {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 25;
+    -fx-spacing: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 15, 0, 0, 6);
+    -fx-border-color: #F3F4F6;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+}
+
+.chart-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+
+/* CHART STYLING */
+.chart {
+    -fx-padding: 10px;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 10 0 0 0;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #4B5563;
+    -fx-font-size: 12px;
+}
+
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: #F3F4F6;
+}
+
+/* Pie Chart Specific */
+.chart-pie-label {
+    -fx-fill: #4B5563;
+    -fx-font-size: 11px;
+}
+
+/* Bar Chart Colors */
+.default-color0.chart-bar {
+    -fx-bar-fill: #6366F1;
+}
+
+/* Primary/Blue */
+.default-color1.chart-bar {
+    -fx-bar-fill: #10B981;
+}
+
+/* Success/Green */
+.default-color2.chart-bar {
+    -fx-bar-fill: #F59E0B;
+}
+
+/* Warning/Amber */
+.default-color3.chart-bar {
+    -fx-bar-fill: #EF4444;
+}
+
+/* Destructive/Red */
+
+/* Line Chart */
+.chart-series-line {
+    -fx-stroke-width: 3px;
+}
+
+.default-color0.chart-series-line {
+    -fx-stroke: #6366F1;
+}
+
+.default-color0.chart-line-symbol {
+    -fx-background-color: #6366F1, white;
 }

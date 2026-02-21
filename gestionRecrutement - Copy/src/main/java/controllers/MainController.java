@@ -14,6 +14,7 @@ import javafx.scene.*;
 import javafx.stage.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.chart.*;
 import javafx.beans.property.*;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
@@ -22,6 +23,10 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.Interpolator;
 import javafx.util.Duration;
 import services.ServiceContrat;
@@ -36,6 +41,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -146,9 +152,43 @@ public class MainController implements Initializable {
     @FXML
     private VBox pageStatOffres;
     @FXML
-    private VBox pageStatRecrutements;
+    private ScrollPane pageStatRecrutements;
     @FXML
     private VBox pageUtilisateurs;
+
+    // Statistics - KPI Cards
+    @FXML
+    private Label valTotalRecrutements;
+    @FXML
+    private Label valTauxAcceptation;
+    @FXML
+    private Label valEntretiensMoyens;
+    @FXML
+    private Label valEnAttenteCount;
+    @FXML
+    private Label valTotalContrats;
+    @FXML
+    private Label valSalaireMoyen;
+    @FXML
+    private Label valVolumeMoyen;
+    @FXML
+    private Label valContratsActifs;
+
+    // Statistics - Charts
+    @FXML
+    private PieChart chartDecisions;
+    @FXML
+    private BarChart<String, Number> chartRecruteur;
+    @FXML
+    private LineChart<String, Number> chartRecrutementMois;
+    @FXML
+    private PieChart chartTypeContrat;
+    @FXML
+    private BarChart<String, Number> chartSalaireType;
+    @FXML
+    private PieChart chartStatutContrat;
+
+    private boolean statsInitialized = false;
 
     // Contrats Table
     @FXML
@@ -218,12 +258,17 @@ public class MainController implements Initializable {
 
         // Setup navigation click handlers
         setupNavigation();
-        
+
         // Setup dynamic search for recrutement by name
         setupRecrutementSearch();
-        
+
         // Setup tab visibility for search bar
         setupTabVisibility();
+
+        // Initialize stats if needed
+        if (pageStatRecrutements.isVisible()) {
+            initializeStatistiques();
+        }
     }
 
     private void initializeSidebar() {
@@ -787,7 +832,8 @@ public class MainController implements Initializable {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || getTableView().getItems().isEmpty() || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
+                if (empty || getTableView().getItems().isEmpty() || getIndex() < 0
+                        || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
                     return;
                 }
@@ -1307,7 +1353,7 @@ public class MainController implements Initializable {
             boolean isRecrutementTab = newVal.intValue() == 0;
             searchField.setVisible(isRecrutementTab);
             searchField.setManaged(isRecrutementTab);
-            
+
             // Clear search when switching to Contrat tab
             if (!isRecrutementTab) {
                 searchField.clear();
@@ -1477,6 +1523,148 @@ public class MainController implements Initializable {
         if (pageStatRecrutements != null) {
             pageStatRecrutements.setVisible(true);
             pageStatRecrutements.setManaged(true);
+
+            // Proactively initialize stats on first view
+            if (!statsInitialized) {
+                initializeStatistiques();
+            }
+
+            // Apply animations every time it is shown
+            applyDashboardAnimations();
+        }
+    }
+
+    private void applyDashboardAnimations() {
+        if (pageStatRecrutements == null)
+            return;
+
+        // Collect all animatable parents (cards and chart containers)
+        List<Node> kpiCards = new ArrayList<>();
+        List<Node> chartContainers = new ArrayList<>();
+
+        // Traverse VBox -> ScrollPane content to find nodes
+        if (pageStatRecrutements.getContent() instanceof VBox) {
+            VBox mainContainer = (VBox) pageStatRecrutements.getContent();
+            for (Node section : mainContainer.getChildren()) {
+                if (section instanceof VBox) {
+                    VBox sectionVBox = (VBox) section;
+                    for (Node child : sectionVBox.getChildren()) {
+                        if (child instanceof GridPane) {
+                            kpiCards.addAll(((GridPane) child).getChildren());
+                        } else if (child instanceof HBox) {
+                            chartContainers.addAll(((HBox) child).getChildren());
+                        } else if (child instanceof VBox && child.getStyleClass().contains("chart-container")) {
+                            chartContainers.add(child);
+                        }
+                    }
+                }
+            }
+        }
+
+        double delay = 0;
+
+        // Animate KPI Cards: Staggered Fade & Slide Up
+        for (Node card : kpiCards) {
+            card.setOpacity(0);
+            card.setTranslateY(20);
+
+            FadeTransition fade = new FadeTransition(Duration.millis(500), card);
+            fade.setToValue(1);
+
+            TranslateTransition slide = new TranslateTransition(Duration.millis(500), card);
+            slide.setToY(0);
+
+            SequentialTransition seq = new SequentialTransition(new PauseTransition(Duration.millis(delay)), fade,
+                    slide);
+            // Optimization: Run them in parallel after initial pause
+            ParallelTransition parallel = new ParallelTransition(fade, slide);
+            SequentialTransition finalSeq = new SequentialTransition(new PauseTransition(Duration.millis(delay)),
+                    parallel);
+            finalSeq.play();
+
+            delay += 100;
+        }
+
+        // Animate Charts: Staggered Fade & Scale
+        for (Node chartContainer : chartContainers) {
+            chartContainer.setOpacity(0);
+            chartContainer.setScaleX(0.95);
+            chartContainer.setScaleY(0.95);
+
+            FadeTransition fade = new FadeTransition(Duration.millis(600), chartContainer);
+            fade.setToValue(1);
+
+            ScaleTransition scale = new ScaleTransition(Duration.millis(600), chartContainer);
+            scale.setToX(1);
+            scale.setToY(1);
+
+            SequentialTransition finalSeq = new SequentialTransition(new PauseTransition(Duration.millis(delay)),
+                    new ParallelTransition(fade, scale));
+            finalSeq.play();
+
+            delay += 200;
+        }
+    }
+
+    private void initializeStatistiques() {
+        try {
+            // --- Recrutement Stats ---
+            // KPI Data (Mock)
+            valTotalRecrutements.setText("7");
+            valTauxAcceptation.setText("43%");
+            valEntretiensMoyens.setText("2.4");
+            valEnAttenteCount.setText("2");
+
+            // Decision Distribution Chart
+            chartDecisions.setData(FXCollections.observableArrayList(
+                    new PieChart.Data("Accepté", 3),
+                    new PieChart.Data("Refusé", 2),
+                    new PieChart.Data("En attente", 2)));
+
+            // Recruitments by User (Mock Data based on screenshot)
+            XYChart.Series<String, Number> recSeries = new XYChart.Series<>();
+            recSeries.setName("Recrutements");
+            recSeries.getData().add(new XYChart.Data<>("Ben Ali", 3));
+            recSeries.getData().add(new XYChart.Data<>("Trabelsi", 2));
+            recSeries.getData().add(new XYChart.Data<>("Khadraoui", 2));
+            chartRecruteur.getData().setAll(recSeries);
+
+            // Recruitments per Month
+            XYChart.Series<String, Number> monthSeries = new XYChart.Series<>();
+            monthSeries.setName("2024");
+            monthSeries.getData().add(new XYChart.Data<>("Jan", 1));
+            monthSeries.getData().add(new XYChart.Data<>("Feb", 3));
+            monthSeries.getData().add(new XYChart.Data<>("Mar", 2));
+            monthSeries.getData().add(new XYChart.Data<>("Apr", 1));
+            chartRecrutementMois.getData().setAll(monthSeries);
+
+            // --- Contrat Stats ---
+            // KPI Data (Mock)
+            valTotalContrats.setText("3");
+            valSalaireMoyen.setText("3850 DT");
+            valVolumeMoyen.setText("38h");
+            valContratsActifs.setText("2");
+
+            // Contract Type Distribution
+            chartTypeContrat.setData(FXCollections.observableArrayList(
+                    new PieChart.Data("CDI", 2),
+                    new PieChart.Data("CDD", 1)));
+
+            // Salaries by Type
+            XYChart.Series<String, Number> salSeries = new XYChart.Series<>();
+            salSeries.setName("Salaire Moyen");
+            salSeries.getData().add(new XYChart.Data<>("CDI", 4200));
+            salSeries.getData().add(new XYChart.Data<>("CDD", 3100));
+            chartSalaireType.getData().setAll(salSeries);
+
+            // Contract Status
+            chartStatutContrat.setData(FXCollections.observableArrayList(
+                    new PieChart.Data("Actif", 2),
+                    new PieChart.Data("Expiré", 1)));
+
+            statsInitialized = true;
+        } catch (Exception e) {
+            System.err.println("Error initializing statistics: " + e.getMessage());
         }
     }
 
@@ -3377,7 +3565,10 @@ public class MainController implements Initializable {
         return card;
     }
 
-    /** Saves a professional corporate contract PDF using OpenPDF with French legal formatting. */
+    /**
+     * Saves a professional corporate contract PDF using OpenPDF with French legal
+     * formatting.
+     */
     private void downloadContratPdf(ContratRow contrat) {
         // Check if contract status is "Actif"
         if (!contrat.statusProperty().get().equals("Actif")) {
@@ -3570,7 +3761,7 @@ public class MainController implements Initializable {
         article.setSpacingAfter(2);
         doc.add(article);
 
-        String content = "La rémunération brute mensuelle garantie est fixée à " 
+        String content = "La rémunération brute mensuelle garantie est fixée à "
                 + String.format("%.2f DT", contrat.salaireProperty().get())
                 + " (Dinars Tunisiens). Cette rémunération est payable selon les modalités légales en vigueur et comprend les contributions sociales obligatoires.";
         Paragraph text = new Paragraph(content, fontBody);
@@ -3590,7 +3781,7 @@ public class MainController implements Initializable {
         doc.add(article);
 
         String content = "Le volume horaire convenu est de " + contrat.volumeHoraireProperty().get()
-                + " heures par semaine. Le statut de l'employé(e) est défini comme : " 
+                + " heures par semaine. Le statut de l'employé(e) est défini comme : "
                 + contrat.statusProperty().get()
                 + ". L'employé(e) accepte de respecter le règlement intérieur de la société et les dispositions légales en matière de droit du travail.";
         Paragraph text = new Paragraph(content, fontBody);
