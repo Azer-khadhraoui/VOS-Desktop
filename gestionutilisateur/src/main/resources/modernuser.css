@@ -74,6 +74,27 @@
     -fx-text-fill: #DC2626;
 }
 
+/* SIDEBAR BUTTONS (for OffresView style sidebar) */
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 15;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+    -fx-cursor: hand;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.sidebar-btn-active {
+    -fx-background-color: transparent;
+}
+
+.sidebar-icon {
+    -fx-font-size: 22px;
+}
+
 /* HEADER BAR */
 .header-bar {
     -fx-background-color: white;

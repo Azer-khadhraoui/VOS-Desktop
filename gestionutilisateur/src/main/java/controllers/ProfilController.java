@@ -424,6 +424,39 @@ public class ProfilController {
             showError("Erreur", "Impossible de retourner aux offres");
         }
     }
+    
+    /**
+     * Logs out the current user and returns to signin page.
+     */
+    @FXML
+    public void logout() {
+        try {
+            // Show confirmation dialog
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Déconnexion");
+            alert.setHeaderText(null);
+            alert.setContentText("Êtes-vous sûr de vouloir vous déconnecter ?");
+            
+            java.util.Optional<ButtonType> result = alert.showAndWait();
+            
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                // Clear user session
+                UserSession.getInstance().clearSession();
+                
+                // Navigate to SigninView
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
+                Parent root = loader.load();
+                
+                Scene scene = lblNom.getScene();
+                scene.setRoot(root);
+                
+                System.out.println("✓ Déconnexion réussie");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Erreur de déconnexion", "Impossible de se déconnecter : " + e.getMessage());
+        }
+    }
 
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

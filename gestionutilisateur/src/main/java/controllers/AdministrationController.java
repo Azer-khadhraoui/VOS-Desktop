@@ -98,6 +98,7 @@ public class AdministrationController {
         // Add navigation handlers
         logoutBtn.setOnMouseClicked(event -> logout());
         btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
+        btnOffres.setOnMouseClicked(event -> goToOffres());
         btnServices.setOnMouseClicked(event -> goToServices());
     }
 
@@ -1127,6 +1128,27 @@ public class AdministrationController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Erreur");
             alert.setContentText("Impossible d'ouvrir les statistiques: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    public void goToOffres() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdminOffresView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) tableUsers.getScene().getWindow();
+            Scene newScene = new Scene(root, 1440, 1024);
+            stage.setScene(newScene);
+            stage.setTitle("Gestion des Offres - VOS Admin");
+            stage.centerOnScreen();
+            System.out.println("✓ Navigation vers Gestion Offres");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setContentText("Impossible d'ouvrir la gestion des offres: " + e.getMessage());
             alert.showAndWait();
         }
     }

@@ -11,24 +11,62 @@
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="controllers.ProfilController">
 
-    <!-- SIDEBAR NORMAL -->
+    <!-- ================= LEFT SIDEBAR ================= -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="80.0">
-            <VBox alignment="CENTER" styleClass="logo-container">
-                <Label text="VOS" styleClass="logo-text"/>
+        <VBox styleClass="sidebar"
+              spacing="25"
+              alignment="TOP_CENTER"
+              prefWidth="90">
+
+            <padding>
+                <Insets top="25" right="15" bottom="25" left="15"/>
+            </padding>
+
+            <!-- Logo -->
+            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
+                <image>
+                    <Image url="@/org/example/images/VOS 1.png"/>
+                </image>
+            </ImageView>
+
+            <!-- Navigation -->
+            <VBox spacing="20"
+                  alignment="TOP_CENTER"
+                  VBox.vgrow="ALWAYS">
+
+                <VBox alignment="CENTER" style="-fx-padding: 13;">
+                    <ImageView fitWidth="24" fitHeight="24" preserveRatio="true">
+                        <image>
+                            <Image url="@/org/example/images/iconoir_bag.png"/>
+                        </image>
+                    </ImageView>
+                </VBox>
+
+                <Button styleClass="sidebar-btn" onAction="#retournerOffres">
+                    <graphic>
+                        <ImageView fitWidth="24" fitHeight="24" preserveRatio="true">
+                            <image>
+                                <Image url="@/org/example/images/bxs_chat.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
             </VBox>
 
-            <VBox alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
-                <padding>
-                    <Insets top="30.0"/>
-                </padding>
-                <Button styleClass="nav-icon" text="🏠"/>
-                <Button styleClass="nav-icon" text="📋"/>
-                <Button styleClass="nav-icon" text="💼"/>
-                <Button styleClass="nav-icon" text="⭐"/>
-                <Button styleClass="nav-icon" text="⚙️"/>
-                <Button styleClass="nav-icon" text="➡️" onAction="#retournerOffres"/>
-            </VBox>
+            <!-- Profile (active) -->
+            <Button styleClass="sidebar-btn">
+                <graphic>
+                    <Label text="👤" styleClass="sidebar-icon"/>
+                </graphic>
+            </Button>
+
+            <!-- Logout -->
+            <Button styleClass="sidebar-btn" onAction="#logout">
+                <graphic>
+                    <Label text="🚪" styleClass="sidebar-icon"/>
+                </graphic>
+            </Button>
+
         </VBox>
     </left>
 

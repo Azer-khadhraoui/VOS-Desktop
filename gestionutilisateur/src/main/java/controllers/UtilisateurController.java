@@ -144,4 +144,33 @@ public class UtilisateurController {
         tfPrenom.clear();
         utilisateurSelectionne = null;
     }
+    
+    // ============================
+    // SET USER FOR PROFILE VIEW
+    // ============================
+    /**
+     * Configure le formulaire pour afficher le profil de l'utilisateur connecté
+     * @param user L'utilisateur dont on veut afficher le profil
+     */
+    public void setCurrentUserForProfile(Utilisateur user) {
+        if (user != null) {
+            utilisateurSelectionne = user;
+            tfEmail.setText(user.getEmail());
+            tfPassword.setText(user.getMot_de_passe());
+            tfNom.setText(user.getNom());
+            tfPrenom.setText(user.getPrenom());
+            
+            // Sélectionner l'utilisateur dans la table si elle existe
+            if (tableUsers != null && tableUsers.getItems() != null) {
+                for (Utilisateur u : tableUsers.getItems()) {
+                    if (u.getId_utilisateur() == user.getId_utilisateur()) {
+                        tableUsers.getSelectionModel().select(u);
+                        break;
+                    }
+                }
+            }
+            
+            System.out.println("✓ Profil chargé pour: " + user.getPrenom() + " " + user.getNom());
+        }
+    }
 }

@@ -8,7 +8,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.OffresController"
+            fx:controller="org.example.controllers.OffresController"
             stylesheets="@/org/example/styles/styleoffre.css">
 
     <!-- ================= LEFT SIDEBAR ================= -->
@@ -54,16 +54,9 @@
             </VBox>
 
             <!-- Profile -->
-            <Button fx:id="profileButton" styleClass="sidebar-btn" onAction="#showProfile">
+            <Button styleClass="sidebar-btn">
                 <graphic>
                     <Label text="👤" styleClass="sidebar-icon"/>
-                </graphic>
-            </Button>
-
-            <!-- Logout -->
-            <Button fx:id="logoutButton" styleClass="sidebar-btn" onAction="#logout">
-                <graphic>
-                    <Label text="🚪" styleClass="sidebar-icon"/>
                 </graphic>
             </Button>
 

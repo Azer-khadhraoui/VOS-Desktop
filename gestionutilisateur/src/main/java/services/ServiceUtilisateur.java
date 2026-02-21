@@ -1,7 +1,7 @@
 package services;
 
 import entities.Utilisateur;
-import utils.MyConnection;
+import utilis.MyConnection;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.*;
