@@ -37,9 +37,11 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 // OpenPDF imports — explicit to avoid TextField clash with javafx.scene.control.TextField
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Element;
@@ -119,6 +121,8 @@ public class MainController implements Initializable {
     // Header Elements
     @FXML
     private TextField searchField;
+    @FXML
+    private TabPane recrutementTabPane;
 
     // Content Area
     @FXML
@@ -149,6 +153,8 @@ public class MainController implements Initializable {
     // Contrats Table
     @FXML
     private TableView<ContratRow> tableContrats;
+    @FXML
+    private ComboBox<String> cbTypeContratFilter;
     @FXML
     private TableColumn<ContratRow, Integer> colIdContrat;
     @FXML
@@ -185,6 +191,7 @@ public class MainController implements Initializable {
     private TableColumn<RecrutementTableRow, Void> colActions;
 
     private ObservableList<ContratRow> contratData = FXCollections.observableArrayList();
+    private ObservableList<ContratRow> allContratData = FXCollections.observableArrayList();
     private ObservableList<RecrutementTableRow> recrutementData = FXCollections.observableArrayList();
     private List<RecrutementGroup> recrutementGroups;
     private Map<RecrutementGroup, Integer> groupHeaderIndexMap = new HashMap<>();
@@ -214,6 +221,9 @@ public class MainController implements Initializable {
         
         // Setup dynamic search for recrutement by name
         setupRecrutementSearch();
+        
+        // Setup tab visibility for search bar
+        setupTabVisibility();
     }
 
     private void initializeSidebar() {
@@ -777,7 +787,26 @@ public class MainController implements Initializable {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : hbox);
+                if (empty || getTableView().getItems().isEmpty() || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                ContratRow currentRow = getTableView().getItems().get(getIndex());
+                String status = currentRow.statusProperty().get();
+
+                // Update hbox children based on status
+                hbox.getChildren().clear();
+                hbox.getChildren().add(btnEdit);
+                hbox.getChildren().add(btnDelete);
+
+                // Only show preview and download buttons if status is "Actif"
+                if (status.equals("Actif")) {
+                    hbox.getChildren().add(btnPreview);
+                    hbox.getChildren().add(btnDownload);
+                }
+
+                setGraphic(hbox);
             }
         });
 
@@ -800,6 +829,9 @@ public class MainController implements Initializable {
         // Add sample data
         loadSampleContratData();
         tableContrats.setItems(contratData);
+
+        // Initialize type filter
+        setupContratTypeFilter();
 
         // Handle empty table
         if (contratData.isEmpty()) {
@@ -1121,6 +1153,7 @@ public class MainController implements Initializable {
     private void loadSampleContratData() {
         try {
             contratData.clear();
+            allContratData.clear();
             for (Contrat c : serviceContrat.afficher()) {
                 String dateFinStr = (c.getDate_fin() != null) ? c.getDate_fin().toString() : "";
                 String periode = calculatePeriode(c.getDate_debut().toString(), dateFinStr);
@@ -1133,12 +1166,52 @@ public class MainController implements Initializable {
                     autoStatus = calculateAutoStatus(dateDebut, dateFin);
                 }
 
-                contratData.add(new ContratRow(c.getId_contrat(), c.getType_contrat(), c.getDate_debut().toString(),
+                ContratRow row = new ContratRow(c.getId_contrat(), c.getType_contrat(), c.getDate_debut().toString(),
                         dateFinStr, c.getSalaire(), autoStatus, c.getVolume_horaire(), c.getAvantages(),
-                        c.getId_recrutement(), periode));
+                        c.getId_recrutement(), periode);
+                contratData.add(row);
+                allContratData.add(row);
             }
         } catch (SQLException e) {
             showError("Erreur lors du chargement des contrats: " + e.getMessage());
+        }
+    }
+
+    /** Setup contract type filter dropdown */
+    private void setupContratTypeFilter() {
+        if (cbTypeContratFilter == null) {
+            return;
+        }
+
+        // Get distinct contract types from data
+        Set<String> typesSet = new HashSet<>();
+        typesSet.add("Tous");
+        for (ContratRow row : allContratData) {
+            typesSet.add(row.typeProperty().get());
+        }
+
+        ObservableList<String> types = FXCollections.observableArrayList(typesSet);
+        types.sort(null);
+        cbTypeContratFilter.setItems(types);
+        cbTypeContratFilter.setValue("Tous");
+
+        // Add listener for filter changes
+        cbTypeContratFilter.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                filterContratByType(newVal);
+            }
+        });
+    }
+
+    /** Filter contracts by selected type */
+    private void filterContratByType(String selectedType) {
+        if (selectedType.equals("Tous")) {
+            contratData.setAll(allContratData);
+        } else {
+            List<ContratRow> filtered = allContratData.stream()
+                    .filter(row -> row.typeProperty().get().equals(selectedType))
+                    .collect(java.util.stream.Collectors.toList());
+            contratData.setAll(filtered);
         }
     }
 
@@ -1216,6 +1289,31 @@ public class MainController implements Initializable {
         } catch (Exception e) {
             showError("Erreur lors de la recherche: " + e.getMessage());
         }
+    }
+
+    /** Setup tab visibility for search bar - only show for Recrutement tab */
+    private void setupTabVisibility() {
+        if (recrutementTabPane == null || searchField == null) {
+            return;
+        }
+
+        // Initially hide search field
+        searchField.setVisible(false);
+        searchField.setManaged(false);
+
+        // Listen for tab selection changes
+        recrutementTabPane.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
+            // Show search only for Recrutement tab (index 0)
+            boolean isRecrutementTab = newVal.intValue() == 0;
+            searchField.setVisible(isRecrutementTab);
+            searchField.setManaged(isRecrutementTab);
+            
+            // Clear search when switching to Contrat tab
+            if (!isRecrutementTab) {
+                searchField.clear();
+                loadSampleRecrutementData();
+            }
+        });
     }
 
     private String calculatePeriode(String dateDebutStr, String dateFinStr) {
@@ -1955,6 +2053,8 @@ public class MainController implements Initializable {
 
                 serviceContrat.ajouter(c);
                 loadSampleContratData();
+                setupContratTypeFilter();
+                cbTypeContratFilter.setValue("Tous");
                 tableContrats.setItems(contratData);
                 showAlert("Succès", "Contrat ajouté avec succès!");
                 modalStage.close();
@@ -2829,6 +2929,8 @@ public class MainController implements Initializable {
 
                 serviceContrat.modifier(c);
                 loadSampleContratData();
+                setupContratTypeFilter();
+                cbTypeContratFilter.setValue("Tous");
                 tableContrats.setItems(contratData);
                 showAlert("Succès", "Contrat modifié avec succès!");
                 modalStage.close();
@@ -2866,6 +2968,8 @@ public class MainController implements Initializable {
                 try {
                     serviceContrat.supprimer(contratRow.idProperty().get());
                     loadSampleContratData();
+                    setupContratTypeFilter();
+                    cbTypeContratFilter.setValue("Tous");
                     tableContrats.setItems(contratData);
                     showAlert("Succès", "Contrat supprimé avec succès!");
                 } catch (SQLException e) {
@@ -3161,6 +3265,11 @@ public class MainController implements Initializable {
 
     /** Opens a styled JavaFX modal showing the formatted contract. */
     private void showContratPreview(ContratRow contrat) {
+        // Check if contract status is "Actif"
+        if (!contrat.statusProperty().get().equals("Actif")) {
+            showAlert("Accès refusé", "Seuls les contrats avec le statut 'Actif' peuvent être visualisés.");
+            return;
+        }
         Stage modal = new Stage();
         modal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
         modal.setTitle("Aperçu du Contrat #" + contrat.idProperty().get());
@@ -3270,6 +3379,12 @@ public class MainController implements Initializable {
 
     /** Saves a professional corporate contract PDF using OpenPDF with French legal formatting. */
     private void downloadContratPdf(ContratRow contrat) {
+        // Check if contract status is "Actif"
+        if (!contrat.statusProperty().get().equals("Actif")) {
+            showAlert("Accès refusé", "Seuls les contrats avec le statut 'Actif' peuvent être téléchargés.");
+            return;
+        }
+
         // ── File chooser ─────────────────────────────────────────────────────
         FileChooser fc = new FileChooser();
         fc.setTitle("Enregistrer le contrat PDF");

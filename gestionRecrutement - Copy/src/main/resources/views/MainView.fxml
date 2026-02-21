@@ -138,7 +138,7 @@
 
             <!-- PAGE: RECRUTEMENT -->
             <VBox fx:id="pageRecrutement" visible="false" managed="false">
-                <TabPane styleClass="modern-tabs" VBox.vgrow="ALWAYS">
+                <TabPane fx:id="recrutementTabPane" styleClass="modern-tabs" VBox.vgrow="ALWAYS">
                     <tabs>
                         <!-- Recrutements Tab -->
                         <Tab text="Gestion des Recrutements" closable="false">
@@ -186,7 +186,12 @@
                                         <Label text="📄 Gestion des Contrats" styleClass="page-title"/>
                                         <Label text="Gérez vos contrats" styleClass="page-subtitle"/>
                                     </VBox>
-                                    <Button text="➕ Ajouter Contrat" onAction="#ajouterContrat" styleClass="btn-add"/>
+                                    <HBox spacing="15.0" alignment="CENTER_RIGHT">
+                                        <ComboBox fx:id="cbTypeContratFilter" prefWidth="150.0" styleClass="combo-box-filter">
+                                            <items/>
+                                        </ComboBox>
+                                        <Button text="➕ Ajouter Contrat" onAction="#ajouterContrat" styleClass="btn-add"/>
+                                    </HBox>
                                 </HBox>
 
                                 <!-- Table -->
