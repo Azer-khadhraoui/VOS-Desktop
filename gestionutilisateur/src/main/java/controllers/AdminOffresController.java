@@ -414,8 +414,8 @@ public class AdminOffresController {
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmation");
-        confirm.setHeaderText("Supprimer ce critéÂ¨re ?");
-        confirm.setContentText("Cette action est irréÂ©versible.");
+        confirm.setHeaderText("Supprimer ce critéé¨re ?");
+        confirm.setContentText("Cette action est irréé©versible.");
 
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
@@ -453,7 +453,7 @@ public class AdminOffresController {
         if (currentOffreId == null) {
             showAlert(Alert.AlertType.WARNING,
                     "Attention",
-                    "SéÂ©lectionnez une offre d'abord !");
+                    "Séé©lectionnez une offre d'abord !");
             return;
         }
 
@@ -493,14 +493,14 @@ public class AdminOffresController {
     public void supprimerOffre() {
         OffreEmploi selected = offreTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Aucune séÂ©lection", "SéÂ©lectionnez une offre éÂ  supprimer.");
+            showAlert(Alert.AlertType.WARNING, "Aucune séé©lection", "Séé©lectionnez une offre éé  supprimer.");
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmation");
         confirm.setHeaderText("Supprimer l'offre #" + selected.getIdOffre() + " ?");
-        confirm.setContentText("Cette action est irréÂ©versible.");
+        confirm.setContentText("Cette action est irréé©versible.");
 
         Optional<ButtonType> res = confirm.showAndWait();
         if (res.isPresent() && res.get() == ButtonType.OK) {
@@ -515,7 +515,7 @@ public class AdminOffresController {
         OffreEmploi selected = offreTable.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Aucune séÂ©lection", "SéÂ©lectionnez une offre.");
+            showAlert(Alert.AlertType.WARNING, "Aucune séé©lection", "Séé©lectionnez une offre.");
             return;
         }
 
@@ -559,7 +559,7 @@ public class AdminOffresController {
         dialog.setTitle(existing == null ? "Ajouter Offre" : "Modifier Offre");
         dialog.setHeaderText(null);
 
-        ButtonType saveButton = new ButtonType(existing == null ? "Ajouter" : "Mettre éÂ  jour", ButtonBar.ButtonData.OK_DONE);
+        ButtonType saveButton = new ButtonType(existing == null ? "Ajouter" : "Mettre éé  jour", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButton, cancelButton);
 
@@ -569,16 +569,16 @@ public class AdminOffresController {
         container.setPrefWidth(450);
 
         // Title
-        Label titleLabel = new Label(existing == null ? "é°Å¸âÂ Ajouter une nouvelle offre" : "é¢ÅÂé¯Â¸Â Modifier l'offre");
+        Label titleLabel = new Label(existing == null ? "é°Å¸éé Ajouter une nouvelle offre" : "é¢Åéé¯é¸é Modifier l'offre");
         titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
         VBox.setMargin(titleLabel, new javafx.geometry.Insets(0, 0, 10, 0));
 
         // FORM FIELDS with modern dark design
         // Titre
-        Label titreLbl = new Label("é°Å¸ââ¹ TITRE");
+        Label titreLbl = new Label("é°Å¸éé¹ TITRE");
         titreLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextField titreField = new TextField();
-        titreField.setPromptText("Ex: DéÂ©veloppeur Full Stack");
+        titreField.setPromptText("Ex: Déé©veloppeur Full Stack");
         titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                           "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
                           "-fx-border-radius: 8; -fx-font-size: 14px;");
@@ -589,25 +589,25 @@ public class AdminOffresController {
         // Real-time validation for titre
         titreField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                titreError.setText("é¢ÂÅ Le titre est obligatoire.");
+                titreError.setText("é¢éÅ Le titre est obligatoire.");
                 titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 5) {
-                titreError.setText("é¢ÂÅ Le titre doit contenir au moins 5 caractéÂ¨res (" + newVal.trim().length() + "/5)");
+                titreError.setText("é¢éÅ Le titre doit contenir au moins 5 caractéé¨res (" + newVal.trim().length() + "/5)");
                 titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
-                titreError.setText("é¢ÂÅ Le titre ne peut pas déÂ©passer 100 caractéÂ¨res (" + newVal.trim().length() + "/100)");
+                titreError.setText("é¢éÅ Le titre ne peut pas déé©passer 100 caractéé¨res (" + newVal.trim().length() + "/100)");
                 titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
-                titreError.setText("é¢Åâ¦ Valide");
+                titreError.setText("é¢Åé¦ Valide");
                 titreError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
@@ -616,17 +616,17 @@ public class AdminOffresController {
         });
 
         // Description
-        Label descLbl = new Label("é°Å¸âÂ DESCRIPTION");
+        Label descLbl = new Label("é°Å¸éé DESCRIPTION");
         descLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextArea descriptionArea = new TextArea();
-        descriptionArea.setPromptText("DéÂ©crivez l'offre d'emploi...");
+        descriptionArea.setPromptText("Déé©crivez l'offre d'emploi...");
         descriptionArea.setPrefRowCount(4);
         descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                 "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                 "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
         
         // Small AI Enhancement Button (inside TextArea)
-        Button enhanceBtn = new Button("é¢ÅÂ¨");
+        Button enhanceBtn = new Button("é¢Åé¨");
         enhanceBtn.setStyle(
             "-fx-background-color: linear-gradient(to right, #8b5cf6, #ec4899); " +
             "-fx-text-fill: white; " +
@@ -638,7 +638,7 @@ public class AdminOffresController {
             "-fx-opacity: 0.9; " +
             "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 6, 0, 0, 2);"
         );
-        enhanceBtn.setTooltip(new javafx.scene.control.Tooltip("AméÂ©liorer avec l'IA"));
+        enhanceBtn.setTooltip(new javafx.scene.control.Tooltip("Améé©liorer avec l'IA"));
         
         // Stack the button on top of TextArea
         StackPane descriptionStack = new StackPane();
@@ -693,7 +693,7 @@ public class AdminOffresController {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Description vide");
                 alert.setHeaderText(null);
-                alert.setContentText("Veuillez entrer une description avant de l'améÂ©liorer.");
+                alert.setContentText("Veuillez entrer une description avant de l'améé©liorer.");
                 alert.showAndWait();
                 return;
             }
@@ -702,14 +702,14 @@ public class AdminOffresController {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Configuration manquante");
                 alert.setHeaderText(null);
-                alert.setContentText("L'API AI n'est pas configuréÂ©e.\n\n" +
-                    "OPTION GRATUITE (RecommandéÂ©e):\n" +
+                alert.setContentText("L'API AI n'est pas configuréé©e.\n\n" +
+                    "OPTION GRATUITE (Recommandéé©e):\n" +
                     "1. Ouvrez: src/main/resources/config.properties\n" +
-                    "2. DéÂ©finissez: ai.provider=gemini\n" +
-                    "3. Obtenez une cléÂ© GRATUITE sur:\n" +
+                    "2. Déé©finissez: ai.provider=gemini\n" +
+                    "3. Obtenez une cléé© GRATUITE sur:\n" +
                     "   https://aistudio.google.com/app/apikey\n" +
-                    "4. DéÂ©finissez: gemini.api.key=votre-cléÂ©\n\n" +
-                    "RedéÂ©marrez l'application apréÂ¨s configuration.");
+                    "4. Déé©finissez: gemini.api.key=votre-cléé©\n\n" +
+                    "Redéé©marrez l'application apréé¨s configuration.");
                 alert.showAndWait();
                 return;
             }
@@ -719,7 +719,7 @@ public class AdminOffresController {
             descriptionArea.setDisable(true);
             enhanceProgress.setVisible(true);
             enhanceStatus.setVisible(true);
-            enhanceStatus.setText("AméÂ©lioration en cours...");
+            enhanceStatus.setText("Améé©lioration en cours...");
             enhanceStatus.setStyle("-fx-text-fill: #60a5fa; -fx-font-size: 11px;");
             
             // Create background task
@@ -734,7 +734,7 @@ public class AdminOffresController {
                     Platform.runLater(() -> {
                         String enhanced = getValue();
                         descriptionArea.setText(enhanced);
-                        enhanceStatus.setText("é¢Åâ¦ Description améÂ©lioréÂ©e!");
+                        enhanceStatus.setText("é¢Åé¦ Description améé©lioréé©e!");
                         enhanceStatus.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px;");
                         
                         // Hide status after 3 seconds
@@ -756,13 +756,13 @@ public class AdminOffresController {
                 protected void failed() {
                     Platform.runLater(() -> {
                         Throwable ex = getException();
-                        enhanceStatus.setText("é¢ÂÅ éâ°chec: " + ex.getMessage());
+                        enhanceStatus.setText("é¢éÅ éé°chec: " + ex.getMessage());
                         enhanceStatus.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px;");
                         
                         Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Erreur d'améÂ©lioration");
+                        alert.setTitle("Erreur d'améé©lioration");
                         alert.setHeaderText(null);
-                        alert.setContentText("Impossible d'améÂ©liorer la description:\n\n" + ex.getMessage());
+                        alert.setContentText("Impossible d'améé©liorer la description:\n\n" + ex.getMessage());
                         alert.showAndWait();
                         
                         enhanceProgress.setVisible(false);
@@ -785,25 +785,25 @@ public class AdminOffresController {
         // Real-time validation for description
         descriptionArea.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                descError.setText("é¢ÂÅ La description est obligatoire.");
+                descError.setText("é¢éÅ La description est obligatoire.");
                 descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                         "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                         "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 20) {
-                descError.setText("é¢ÂÅ La description doit contenir au moins 20 caractéÂ¨res (" + newVal.trim().length() + "/20)");
+                descError.setText("é¢éÅ La description doit contenir au moins 20 caractéé¨res (" + newVal.trim().length() + "/20)");
                 descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                         "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                         "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 500) {
-                descError.setText("é¢ÂÅ La description ne peut pas déÂ©passer 500 caractéÂ¨res (" + newVal.trim().length() + "/500)");
+                descError.setText("é¢éÅ La description ne peut pas déé©passer 500 caractéé¨res (" + newVal.trim().length() + "/500)");
                 descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                         "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                         "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
-                descError.setText("é¢Åâ¦ Valide (" + newVal.trim().length() + "/500 caractéÂ¨res)");
+                descError.setText("é¢Åé¦ Valide (" + newVal.trim().length() + "/500 caractéé¨res)");
                 descError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                         "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
@@ -812,10 +812,10 @@ public class AdminOffresController {
         });
 
         // Type Contrat
-        Label typeLbl = new Label("é°Å¸âÂ¼ TYPE DE CONTRAT");
+        Label typeLbl = new Label("é°Å¸éé¼ TYPE DE CONTRAT");
         typeLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         ComboBox<String> typeCombo = new ComboBox<>();
-        typeCombo.getItems().addAll("CDI", "CDD", "Stage", "Alternance", "Freelance", "IntéÂ©rim");
+        typeCombo.getItems().addAll("CDI", "CDD", "Stage", "Alternance", "Freelance", "Intéé©rim");
         typeCombo.setValue("CDI");
         typeCombo.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-background-radius: 8; " +
                          "-fx-border-color: #3d3d5c; -fx-border-radius: 8;");
@@ -841,7 +841,7 @@ public class AdminOffresController {
         });
 
         // Statut - hide when adding new offer (auto-set to ACTIVE)
-        Label statutLbl = new Label("é°Å¸âÅ  STATUT");
+        Label statutLbl = new Label("é°Å¸éÅ  STATUT");
         statutLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         statutLbl.setVisible(existing != null);
         statutLbl.setManaged(existing != null);
@@ -875,7 +875,7 @@ public class AdminOffresController {
         });
 
         // Work Preference
-        Label workPrefLbl = new Label("é°Å¸ÂÂ¢ PRéâ°Féâ°RENCE DE TRAVAIL");
+        Label workPrefLbl = new Label("é°Å¸éé¢ PRéé°Féé°RENCE DE TRAVAIL");
         workPrefLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         ComboBox<String> workPrefCombo = new ComboBox<>();
         workPrefCombo.getItems().addAll("On-site", "Remote", "Hybrid");
@@ -904,7 +904,7 @@ public class AdminOffresController {
         });
 
         // Lieu (Location)
-        Label lieuLbl = new Label("é°Å¸âÂ LIEU");
+        Label lieuLbl = new Label("é°Å¸éé LIEU");
         lieuLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextField lieuField = new TextField();
         lieuField.setPromptText("Ex: Paris, Lyon, Remote...");
@@ -914,7 +914,7 @@ public class AdminOffresController {
         lieuField.setPrefWidth(400);
 
         // User ID
-        Label userLbl = new Label("é°Å¸âÂ¤ ID UTILISATEUR");
+        Label userLbl = new Label("é°Å¸éé¤ ID UTILISATEUR");
         userLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         ComboBox<Integer> userIdCombo = new ComboBox<>();
         
@@ -986,24 +986,24 @@ public class AdminOffresController {
             String editorText = userIdCombo.getEditor().getText();
             
             if (value == null && (editorText == null || editorText.trim().isEmpty())) {
-                userError.setText("é¢ÂÅ L'ID utilisateur est obligatoire.");
+                userError.setText("é¢éÅ L'ID utilisateur est obligatoire.");
                 userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
             } else if (value == null && editorText != null && !editorText.trim().isEmpty()) {
                 try {
                     int id = Integer.parseInt(editorText.trim());
                     if (id <= 0) {
-                        userError.setText("é¢ÂÅ L'ID doit éÂªtre un nombre positif.");
+                        userError.setText("é¢éÅ L'ID doit ééªtre un nombre positif.");
                         userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                     } else {
-                        userError.setText("é¢Åâ¦ Valide");
+                        userError.setText("é¢Åé¦ Valide");
                         userError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                     }
                 } catch (NumberFormatException e) {
-                    userError.setText("é¢ÂÅ L'ID doit éÂªtre un nombre valide.");
+                    userError.setText("é¢éÅ L'ID doit ééªtre un nombre valide.");
                     userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 }
             } else {
-                userError.setText("é¢Åâ¦ Valide");
+                userError.setText("é¢Åé¦ Valide");
                 userError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
             }
         };
@@ -1133,7 +1133,7 @@ public class AdminOffresController {
             // Validate Titre
             String titre = titreField.getText();
             if (titre == null || titre.trim().isEmpty()) {
-                titreError.setText("é¢ÂÅ Le titre est obligatoire.");
+                titreError.setText("é¢éÅ Le titre est obligatoire.");
                 titreError.setVisible(true);
                 titreError.setManaged(true);
                 titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1141,7 +1141,7 @@ public class AdminOffresController {
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (titre.trim().length() < 5) {
-                titreError.setText("é¢ÂÅ Le titre doit contenir au moins 5 caractéÂ¨res.");
+                titreError.setText("é¢éÅ Le titre doit contenir au moins 5 caractéé¨res.");
                 titreError.setVisible(true);
                 titreError.setManaged(true);
                 titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1149,7 +1149,7 @@ public class AdminOffresController {
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (titre.trim().length() > 100) {
-                titreError.setText("é¢ÂÅ Le titre ne peut pas déÂ©passer 100 caractéÂ¨res.");
+                titreError.setText("é¢éÅ Le titre ne peut pas déé©passer 100 caractéé¨res.");
                 titreError.setVisible(true);
                 titreError.setManaged(true);
                 titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1161,7 +1161,7 @@ public class AdminOffresController {
             // Validate Description
             String description = descriptionArea.getText();
             if (description == null || description.trim().isEmpty()) {
-                descError.setText("é¢ÂÅ La description est obligatoire.");
+                descError.setText("é¢éÅ La description est obligatoire.");
                 descError.setVisible(true);
                 descError.setManaged(true);
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1169,7 +1169,7 @@ public class AdminOffresController {
                                         "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (description.trim().length() < 20) {
-                descError.setText("é¢ÂÅ La description doit contenir au moins 20 caractéÂ¨res.");
+                descError.setText("é¢éÅ La description doit contenir au moins 20 caractéé¨res.");
                 descError.setVisible(true);
                 descError.setManaged(true);
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1177,7 +1177,7 @@ public class AdminOffresController {
                                         "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (description.trim().length() > 500) {
-                descError.setText("é¢ÂÅ La description ne peut pas déÂ©passer 500 caractéÂ¨res.");
+                descError.setText("é¢éÅ La description ne peut pas déé©passer 500 caractéé¨res.");
                 descError.setVisible(true);
                 descError.setManaged(true);
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1202,7 +1202,7 @@ public class AdminOffresController {
                     try {
                         userId = Integer.parseInt(editorText.trim());
                         if (userId <= 0) {
-                            userError.setText("é¢ÂÅ L'ID utilisateur doit éÂªtre un nombre positif.");
+                            userError.setText("é¢éÅ L'ID utilisateur doit ééªtre un nombre positif.");
                             userError.setVisible(true);
                             userError.setManaged(true);
                             hasError = true;
@@ -1210,13 +1210,13 @@ public class AdminOffresController {
                             userIdCombo.setValue(userId); // Set the parsed value
                         }
                     } catch (NumberFormatException e) {
-                        userError.setText("é¢ÂÅ ID utilisateur invalide. Veuillez entrer un nombre.");
+                        userError.setText("é¢éÅ ID utilisateur invalide. Veuillez entrer un nombre.");
                         userError.setVisible(true);
                         userError.setManaged(true);
                         hasError = true;
                     }
                 } else {
-                    userError.setText("é¢ÂÅ Veuillez séÂ©lectionner ou entrer un ID utilisateur.");
+                    userError.setText("é¢éÅ Veuillez séé©lectionner ou entrer un ID utilisateur.");
                     userError.setVisible(true);
                     userError.setManaged(true);
                     hasError = true;
@@ -1259,7 +1259,7 @@ public class AdminOffresController {
                     return o;
 
                 } catch (Exception e) {
-                    showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la créÂ©ation de l'offre");
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la créé©ation de l'offre");
                     return null;
                 }
             }
@@ -1307,7 +1307,7 @@ public class AdminOffresController {
     private CritereOffre showCritereDialog(int offreId, String jobTitle) {
 
         Dialog<CritereOffre> dialog = new Dialog<>();
-        dialog.setTitle("Ajouter CritéÂ¨re");
+        dialog.setTitle("Ajouter Critéé¨re");
 
         ButtonType saveButton = new ButtonType("Ajouter", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -1319,15 +1319,15 @@ public class AdminOffresController {
         container.setPrefWidth(450);
 
         // Title
-        Label titleLabel = new Label("é¢ÅÂ¨ Ajouter un critéÂ¨re");
+        Label titleLabel = new Label("é¢Åé¨ Ajouter un critéé¨re");
         titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
         VBox.setMargin(titleLabel, new javafx.geometry.Insets(0, 0, 10, 0));
 
         // Experience Field
-        Label expLbl = new Label("é¢Â­Â NIVEAU D'EXPéâ°RIENCE");
+        Label expLbl = new Label("é¢é­é NIVEAU D'EXPéé°RIENCE");
         expLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextField expField = new TextField();
-        expField.setPromptText("Ex: 2 ans minimum d'expéÂ©rience");
+        expField.setPromptText("Ex: 2 ans minimum d'expéé©rience");
         expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                         "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; " +
                         "-fx-border-radius: 8; -fx-font-size: 14px;");
@@ -1338,25 +1338,25 @@ public class AdminOffresController {
         // Real-time validation for experience
         expField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                expError.setText("é¢ÂÅ Le niveau d'expéÂ©rience est obligatoire.");
+                expError.setText("é¢éÅ Le niveau d'expéé©rience est obligatoire.");
                 expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                 "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 3) {
-                expError.setText("é¢ÂÅ Minimum 3 caractéÂ¨res (" + newVal.trim().length() + "/3)");
+                expError.setText("é¢éÅ Minimum 3 caractéé¨res (" + newVal.trim().length() + "/3)");
                 expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                 "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
-                expError.setText("é¢ÂÅ Maximum 100 caractéÂ¨res  (" + newVal.trim().length() + "/100)");
+                expError.setText("é¢éÅ Maximum 100 caractéé¨res  (" + newVal.trim().length() + "/100)");
                 expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                 "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
-                expError.setText("é¢Åâ¦ Valide");
+                expError.setText("é¢Åé¦ Valide");
                 expError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                 "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
@@ -1365,7 +1365,7 @@ public class AdminOffresController {
         });
 
         // Etude Field
-        Label etudeLbl = new Label("é°Å¸Å½â NIVEAU D'éâ°TUDE");
+        Label etudeLbl = new Label("é°Å¸Å½é NIVEAU D'éé°TUDE");
         etudeLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextField etudeField = new TextField();
         etudeField.setPromptText("Ex: Bac +5 en informatique");
@@ -1379,25 +1379,25 @@ public class AdminOffresController {
         // Real-time validation for etude
         etudeField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                etudeError.setText("é¢ÂÅ Le niveau d'éÂ©tude est obligatoire.");
+                etudeError.setText("é¢éÅ Le niveau d'éé©tude est obligatoire.");
                 etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 3) {
-                etudeError.setText("é¢ÂÅ Minimum 3 caractéÂ¨res (" + newVal.trim().length() + "/3)");
+                etudeError.setText("é¢éÅ Minimum 3 caractéé¨res (" + newVal.trim().length() + "/3)");
                 etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
-                etudeError.setText("é¢ÂÅ Maximum 100 caractéÂ¨res (" + newVal.trim().length() + "/100)");
+                etudeError.setText("é¢éÅ Maximum 100 caractéé¨res (" + newVal.trim().length() + "/100)");
                 etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
-                etudeError.setText("é¢Åâ¦ Valide");
+                etudeError.setText("é¢Åé¦ Valide");
                 etudeError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
@@ -1406,7 +1406,7 @@ public class AdminOffresController {
         });
 
         // Competences Field
-        Label compLbl = new Label("é°Å¸âÂ¡ COMPéâ°TENCES REQUISES");
+        Label compLbl = new Label("é°Å¸éé¡ COMPéé°TENCES REQUISES");
         compLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextArea compField = new TextArea();
         compField.setPromptText("Ex: Java, Spring Boot, React...");
@@ -1421,25 +1421,25 @@ public class AdminOffresController {
         // Real-time validation for competences
         compField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                compError.setText("é¢ÂÅ Les compéÂ©tences requises sont obligatoires.");
+                compError.setText("é¢éÅ Les compéé©tences requises sont obligatoires.");
                 compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 5) {
-                compError.setText("é¢ÂÅ Minimum 5 caractéÂ¨res (" + newVal.trim().length() + "/5)");
+                compError.setText("é¢éÅ Minimum 5 caractéé¨res (" + newVal.trim().length() + "/5)");
                 compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 300) {
-                compError.setText("é¢ÂÅ Maximum 300 caractéÂ¨res (" + newVal.trim().length() + "/300)");
+                compError.setText("é¢éÅ Maximum 300 caractéé¨res (" + newVal.trim().length() + "/300)");
                 compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding:  2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
-                compError.setText("é¢Åâ¦ Valide (" + newVal.trim().length() + "/300 caractéÂ¨res)");
+                compError.setText("é¢Åé¦ Valide (" + newVal.trim().length() + "/300 caractéé¨res)");
                 compError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
@@ -1453,7 +1453,7 @@ public class AdminOffresController {
                 e.consume();
                 int pos = compField.getCaretPosition();
                 String text = compField.getText();
-                String newText = text.substring(0, pos) + "\né¢â¬Â¢ " + text.substring(pos);
+                String newText = text.substring(0, pos) + "\né¢é¬é¢ " + text.substring(pos);
                 compField.setText(newText);
                 compField.positionCaret(pos + 3);
             }
@@ -1462,16 +1462,16 @@ public class AdminOffresController {
         // Add bullet point at start if empty
         compField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused && compField.getText().isEmpty()) {
-                compField.setText("é¢â¬Â¢ ");
+                compField.setText("é¢é¬é¢ ");
                 compField.positionCaret(2);
             }
         });
 
         // Responsibilities Field
-        Label respLbl = new Label("é°Å¸ââ¹ RESPONSABILITéâ°S");
+        Label respLbl = new Label("é°Å¸éé¹ RESPONSABILITéé°S");
         respLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextArea respField = new TextArea();
-        respField.setPromptText("DéÂ©crivez les responsabilitéÂ©s du poste...");
+        respField.setPromptText("Déé©crivez les responsabilitéé©s du poste...");
         respField.setPrefRowCount(4);
         respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                          "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
@@ -1483,25 +1483,25 @@ public class AdminOffresController {
         // Real-time validation for responsibilities
         respField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                respError.setText("é¢ÂÅ Les responsabilitéÂ©s sont obligatoires.");
+                respError.setText("é¢éÅ Les responsabilitéé©s sont obligatoires.");
                 respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 10) {
-                respError.setText("é¢ÂÅ Minimum 10 caractéÂ¨res (" + newVal.trim().length() + "/10)");
+                respError.setText("é¢éÅ Minimum 10 caractéé¨res (" + newVal.trim().length() + "/10)");
                 respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 500) {
-                respError.setText("é¢ÂÅ Maximum 500 caractéÂ¨res (" + newVal.trim().length() + "/500)");
+                respError.setText("é¢éÅ Maximum 500 caractéé¨res (" + newVal.trim().length() + "/500)");
                 respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
-                respError.setText("é¢Åâ¦ Valide (" + newVal.trim().length() + "/500 caractéÂ¨res)");
+                respError.setText("é¢Åé¦ Valide (" + newVal.trim().length() + "/500 caractéé¨res)");
                 respError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
@@ -1515,7 +1515,7 @@ public class AdminOffresController {
                 e.consume();
                 int pos = respField.getCaretPosition();
                 String text = respField.getText();
-                String newText = text.substring(0, pos) + "\\né¢â¬Â¢ " + text.substring(pos);
+                String newText = text.substring(0, pos) + "\\né¢é¬é¢ " + text.substring(pos);
                 respField.setText(newText);
                 respField.positionCaret(pos + 3);
             }
@@ -1524,13 +1524,13 @@ public class AdminOffresController {
         // Add bullet point at start if empty for responsibilities
         respField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused && respField.getText().isEmpty()) {
-                respField.setText("é¢â¬Â¢ ");
+                respField.setText("é¢é¬é¢ ");
                 respField.positionCaret(2);
             }
         });
 
         // AI Generation Button
-        Button aiButton = new Button("é°Å¸Â¤â GéÂ©néÂ©rer avec l'IA");
+        Button aiButton = new Button("é°Å¸é¤é Géé©néé©rer avec l'IA");
         aiButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: 600; " +
                          "-fx-font-size: 12px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;");
         aiButton.setOnMouseEntered(e -> aiButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
@@ -1542,13 +1542,13 @@ public class AdminOffresController {
             try {
                 AIEnhancementOffreService aiService = new AIEnhancementOffreService();
                 if (!aiService.isConfigured()) {
-                    showAlert(Alert.AlertType.WARNING, "AI Non ConfiguréÂ©", 
-                            "Veuillez configurer une cléÂ© API pour utiliser la géÂ©néÂ©ration IA.");
+                    showAlert(Alert.AlertType.WARNING, "AI Non Configuréé©", 
+                            "Veuillez configurer une cléé© API pour utiliser la géé©néé©ration IA.");
                     return;
                 }
 
                 // Show loading indicator
-                aiButton.setText("é¢ÂÂ³ GéÂ©néÂ©ration en cours...");
+                aiButton.setText("é¢éé³ Géé©néé©ration en cours...");
                 aiButton.setDisable(true);
 
                 // Generate on background thread to avoid blocking UI
@@ -1565,21 +1565,21 @@ public class AdminOffresController {
                             if (result != null && result.length == 2) {
                                 respField.setText(result[0]);
                                 compField.setText(result[1]);
-                                showAlert(Alert.AlertType.INFORMATION, "SuccéÂ¨s", 
-                                        "Les responsabilitéÂ©s et compéÂ©tences ont éÂ©téÂ© géÂ©néÂ©réÂ©es avec succéÂ¨s !");
+                                showAlert(Alert.AlertType.INFORMATION, "Succéé¨s", 
+                                        "Les responsabilitéé©s et compéé©tences ont éé©téé© géé©néé©réé©es avec succéé¨s !");
                             } else {
                                 showAlert(Alert.AlertType.ERROR, "Erreur", 
-                                        "Impossible de géÂ©néÂ©rer le contenu. Veuillez réÂ©essayer.");
+                                        "Impossible de géé©néé©rer le contenu. Veuillez réé©essayer.");
                             }
 
-                            aiButton.setText("é°Å¸Â¤â GéÂ©néÂ©rer avec l'IA");
+                            aiButton.setText("é°Å¸é¤é Géé©néé©rer avec l'IA");
                             aiButton.setDisable(false);
                         });
                     } catch (Exception ex) {
                         javafx.application.Platform.runLater(() -> {
                             showAlert(Alert.AlertType.ERROR, "Erreur", 
-                                    "Erreur lors de la géÂ©néÂ©ration: " + ex.getMessage());
-                            aiButton.setText("é°Å¸Â¤â GéÂ©néÂ©rer avec l'IA");
+                                    "Erreur lors de la géé©néé©ration: " + ex.getMessage());
+                            aiButton.setText("é°Å¸é¤é Géé©néé©rer avec l'IA");
                             aiButton.setDisable(false);
                         });
                     }
@@ -1713,7 +1713,7 @@ public class AdminOffresController {
             
             // Validate Niveau Experience - not empty
             if (niveauExp == null || niveauExp.trim().isEmpty()) {
-                expError.setText("é¢ÂÅ Le niveau d'expéÂ©rience est obligatoire.");
+                expError.setText("é¢éÅ Le niveau d'expéé©rience est obligatoire.");
                 expError.setVisible(true);
                 expError.setManaged(true);
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1721,7 +1721,7 @@ public class AdminOffresController {
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauExp.trim().length() < 3) {
-                expError.setText("é¢ÂÅ Le niveau d'expéÂ©rience doit contenir au moins 3 caractéÂ¨res.");
+                expError.setText("é¢éÅ Le niveau d'expéé©rience doit contenir au moins 3 caractéé¨res.");
                 expError.setVisible(true);
                 expError.setManaged(true);
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1729,7 +1729,7 @@ public class AdminOffresController {
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauExp.trim().length() > 100) {
-                expError.setText("é¢ÂÅ Le niveau d'expéÂ©rience ne peut pas déÂ©passer 100 caractéÂ¨res.");
+                expError.setText("é¢éÅ Le niveau d'expéé©rience ne peut pas déé©passer 100 caractéé¨res.");
                 expError.setVisible(true);
                 expError.setManaged(true);
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1740,7 +1740,7 @@ public class AdminOffresController {
             
             // Validate Niveau Etude - not empty
             if (niveauEtude == null || niveauEtude.trim().isEmpty()) {
-                etudeError.setText("é¢ÂÅ Le niveau d'éÂ©tude est obligatoire.");
+                etudeError.setText("é¢éÅ Le niveau d'éé©tude est obligatoire.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1748,7 +1748,7 @@ public class AdminOffresController {
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauEtude.trim().length() < 3) {
-                etudeError.setText("é¢ÂÅ Le niveau d'éÂ©tude doit contenir au moins 3 caractéÂ¨res.");
+                etudeError.setText("é¢éÅ Le niveau d'éé©tude doit contenir au moins 3 caractéé¨res.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1756,7 +1756,7 @@ public class AdminOffresController {
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauEtude.trim().length() > 100) {
-                etudeError.setText("é¢ÂÅ Le niveau d'éÂ©tude ne peut pas déÂ©passer 100 caractéÂ¨res.");
+                etudeError.setText("é¢éÅ Le niveau d'éé©tude ne peut pas déé©passer 100 caractéé¨res.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1767,7 +1767,7 @@ public class AdminOffresController {
             
             // Validate Competences - not empty
             if (competences == null || competences.trim().isEmpty()) {
-                compError.setText("é¢ÂÅ Les compéÂ©tences requises sont obligatoires.");
+                compError.setText("é¢éÅ Les compéé©tences requises sont obligatoires.");
                 compError.setVisible(true);
                 compError.setManaged(true);
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1775,7 +1775,7 @@ public class AdminOffresController {
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (competences.trim().length() < 5) {
-                compError.setText("é¢ÂÅ Les compéÂ©tences requises doivent contenir au moins 5 caractéÂ¨res.");
+                compError.setText("é¢éÅ Les compéé©tences requises doivent contenir au moins 5 caractéé¨res.");
                 compError.setVisible(true);
                 compError.setManaged(true);
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1783,7 +1783,7 @@ public class AdminOffresController {
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (competences.trim().length() > 300) {
-                compError.setText("é¢ÂÅ Les compéÂ©tences requises ne peuvent pas déÂ©passer 300 caractéÂ¨res.");
+                compError.setText("é¢éÅ Les compéé©tences requises ne peuvent pas déé©passer 300 caractéé¨res.");
                 compError.setVisible(true);
                 compError.setManaged(true);
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1794,7 +1794,7 @@ public class AdminOffresController {
             
             // Validate Responsibilities - not empty
             if (responsibilities == null || responsibilities.trim().isEmpty()) {
-                respError.setText("é¢ÂÅ Les responsabilitéÂ©s sont obligatoires.");
+                respError.setText("é¢éÅ Les responsabilitéé©s sont obligatoires.");
                 respError.setVisible(true);
                 respError.setManaged(true);
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1802,7 +1802,7 @@ public class AdminOffresController {
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (responsibilities.trim().length() < 10) {
-                respError.setText("é¢ÂÅ Les responsabilitéÂ©s doivent contenir au moins 10 caractéÂ¨res.");
+                respError.setText("é¢éÅ Les responsabilitéé©s doivent contenir au moins 10 caractéé¨res.");
                 respError.setVisible(true);
                 respError.setManaged(true);
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1810,7 +1810,7 @@ public class AdminOffresController {
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (responsibilities.trim().length() > 500) {
-                respError.setText("é¢ÂÅ Les responsabilitéÂ©s ne peuvent pas déÂ©passer 500 caractéÂ¨res.");
+                respError.setText("é¢éÅ Les responsabilitéé©s ne peuvent pas déé©passer 500 caractéé¨res.");
                 respError.setVisible(true);
                 respError.setManaged(true);
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -1845,9 +1845,9 @@ public class AdminOffresController {
     private CritereOffre showCritereDialogForUpdate(CritereOffre existing) {
 
         Dialog<CritereOffre> dialog = new Dialog<>();
-        dialog.setTitle("Modifier CritéÂ¨re");
+        dialog.setTitle("Modifier Critéé¨re");
 
-        ButtonType saveButton = new ButtonType("Mettre éÂ  jour", ButtonBar.ButtonData.OK_DONE);
+        ButtonType saveButton = new ButtonType("Mettre éé  jour", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButton, cancelButton);
 
@@ -1857,12 +1857,12 @@ public class AdminOffresController {
         container.setPrefWidth(450);
 
         // Title
-        Label titleLabel = new Label("é¢ÅÂé¯Â¸Â Modifier le critéÂ¨re");
+        Label titleLabel = new Label("é¢Åéé¯é¸é Modifier le critéé¨re");
         titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
         VBox.setMargin(titleLabel, new javafx.geometry.Insets(0, 0, 10, 0));
 
         // Experience Field
-        Label expLbl = new Label("é¢Â­Â NIVEAU D'EXPéâ°RIENCE");
+        Label expLbl = new Label("é¢é­é NIVEAU D'EXPéé°RIENCE");
         expLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextField expField = new TextField(existing.getNiveauExperience());
         expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1875,25 +1875,25 @@ public class AdminOffresController {
         // Real-time validation for experience
         expField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                expError.setText("é¢ÂÅ Le niveau d'expéÂ©rience est obligatoire.");
+                expError.setText("é¢éÅ Le niveau d'expéé©rience est obligatoire.");
                 expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                 "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 3) {
-                expError.setText("é¢ÂÅ Minimum 3 caractéÂ¨res (" + newVal.trim().length() + "/3)");
+                expError.setText("é¢éÅ Minimum 3 caractéé¨res (" + newVal.trim().length() + "/3)");
                 expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                 "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
-                expError.setText("é¢ÂÅ Maximum 100 caractéÂ¨res (" + newVal.trim().length() + "/100)");
+                expError.setText("é¢éÅ Maximum 100 caractéé¨res (" + newVal.trim().length() + "/100)");
                 expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                 "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
-                expError.setText("é¢Åâ¦ Valide");
+                expError.setText("é¢Åé¦ Valide");
                 expError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                 "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
@@ -1902,7 +1902,7 @@ public class AdminOffresController {
         });
 
         // Etude Field
-        Label etudeLbl = new Label("é°Å¸Å½â NIVEAU D'éâ°TUDE");
+        Label etudeLbl = new Label("é°Å¸Å½é NIVEAU D'éé°TUDE");
         etudeLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextField etudeField = new TextField(existing.getNiveauEtude());
         etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -1915,25 +1915,25 @@ public class AdminOffresController {
         // Real-time validation for etude
         etudeField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                etudeError.setText("é¢ÂÅ Le niveau d'éÂ©tude est obligatoire.");
+                etudeError.setText("é¢éÅ Le niveau d'éé©tude est obligatoire.");
                 etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 3) {
-                etudeError.setText("é¢ÂÅ Minimum 3 caractéÂ¨res (" + newVal.trim().length() + "/3)");
+                etudeError.setText("é¢éÅ Minimum 3 caractéé¨res (" + newVal.trim().length() + "/3)");
                 etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
-                etudeError.setText("é¢ÂÅ Maximum 100 caractéÂ¨res (" + newVal.trim().length() + "/100)");
+                etudeError.setText("é¢éÅ Maximum 100 caractéé¨res (" + newVal.trim().length() + "/100)");
                 etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; " +
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
-                etudeError.setText("é¢Åâ¦ Valide");
+                etudeError.setText("é¢Åé¦ Valide");
                 etudeError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
                                   "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; " +
@@ -1942,7 +1942,7 @@ public class AdminOffresController {
         });
 
         // Competences Field
-        Label compLbl = new Label("é°Å¸âÂ¡ COMPéâ°TENCES REQUISES");
+        Label compLbl = new Label("é°Å¸éé¡ COMPéé°TENCES REQUISES");
         compLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextArea compField = new TextArea(existing.getCompetencesRequises());
         compField.setPrefRowCount(4);
@@ -1956,25 +1956,25 @@ public class AdminOffresController {
         // Real-time validation for competences
         compField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                compError.setText("é¢ÂÅ Les compéÂ©tences requises sont obligatoires.");
+                compError.setText("é¢éÅ Les compéé©tences requises sont obligatoires.");
                 compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 5) {
-                compError.setText("é¢ÂÅ Minimum 5 caractéÂ¨res (" + newVal.trim().length() + "/5)");
+                compError.setText("é¢éÅ Minimum 5 caractéé¨res (" + newVal.trim().length() + "/5)");
                 compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 300) {
-                compError.setText("é¢ÂÅ Maximum 300 caractéÂ¨res (" + newVal.trim().length() + "/300)");
+                compError.setText("é¢éÅ Maximum 300 caractéé¨res (" + newVal.trim().length() + "/300)");
                 compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
-                compError.setText("é¢Åâ¦ Valide (" + newVal.trim().length() + "/300 caractéÂ¨res)");
+                compError.setText("é¢Åé¦ Valide (" + newVal.trim().length() + "/300 caractéé¨res)");
                 compError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
@@ -1988,14 +1988,14 @@ public class AdminOffresController {
                 e.consume();
                 int pos = compField.getCaretPosition();
                 String text = compField.getText();
-                String newText = text.substring(0, pos) + "\né¢â¬Â¢ " + text.substring(pos);
+                String newText = text.substring(0, pos) + "\né¢é¬é¢ " + text.substring(pos);
                 compField.setText(newText);
                 compField.positionCaret(pos + 3);
             }
         });
 
         // Responsibilities Field
-        Label respLbl = new Label("é°Å¸ââ¹ RESPONSABILITéâ°S");
+        Label respLbl = new Label("é°Å¸éé¹ RESPONSABILITéé°S");
         respLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
         TextArea respField = new TextArea(existing.getResponsibilities() != null ? existing.getResponsibilities() : "");
         respField.setPrefRowCount(4);
@@ -2009,25 +2009,25 @@ public class AdminOffresController {
         // Real-time validation for responsibilities
         respField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
-                respError.setText("é¢ÂÅ Les responsabilitéÂ©s sont obligatoires.");
+                respError.setText("é¢éÅ Les responsabilitéé©s sont obligatoires.");
                 respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 10) {
-                respError.setText("é¢ÂÅ Minimum 10 caractéÂ¨res (" + newVal.trim().length() + "/10)");
+                respError.setText("é¢éÅ Minimum 10 caractéé¨res (" + newVal.trim().length() + "/10)");
                 respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 500) {
-                respError.setText("é¢ÂÅ Maximum 500 caractéÂ¨res (" + newVal.trim().length() + "/500)");
+                respError.setText("é¢éÅ Maximum 500 caractéé¨res (" + newVal.trim().length() + "/500)");
                 respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
-                respError.setText("é¢Åâ¦ Valide (" + newVal.trim().length() + "/500 caractéÂ¨res)");
+                respError.setText("é¢Åé¦ Valide (" + newVal.trim().length() + "/500 caractéé¨res)");
                 respError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
                                  "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; " +
@@ -2041,7 +2041,7 @@ public class AdminOffresController {
                 e.consume();
                 int pos = respField.getCaretPosition();
                 String text = respField.getText();
-                String newText = text.substring(0, pos) + "\né¢â¬Â¢ " + text.substring(pos);
+                String newText = text.substring(0, pos) + "\né¢é¬é¢ " + text.substring(pos);
                 respField.setText(newText);
                 respField.positionCaret(pos + 3);
             }
@@ -2165,7 +2165,7 @@ public class AdminOffresController {
             
             // Validate Niveau Experience - not empty
             if (niveauExp == null || niveauExp.trim().isEmpty()) {
-                expError.setText("é¢ÂÅ Le niveau d'expéÂ©rience est obligatoire.");
+                expError.setText("é¢éÅ Le niveau d'expéé©rience est obligatoire.");
                 expError.setVisible(true);
                 expError.setManaged(true);
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -2173,7 +2173,7 @@ public class AdminOffresController {
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauExp.trim().length() < 3) {
-                expError.setText("é¢ÂÅ Le niveau d'expéÂ©rience doit contenir au moins 3 caractéÂ¨res.");
+                expError.setText("é¢éÅ Le niveau d'expéé©rience doit contenir au moins 3 caractéé¨res.");
                 expError.setVisible(true);
                 expError.setManaged(true);
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -2181,7 +2181,7 @@ public class AdminOffresController {
                                 "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauExp.trim().length() > 100) {
-                expError.setText("é¢ÂÅ Le niveau d'expéÂ©rience ne peut pas déÂ©passer 100 caractéÂ¨res.");
+                expError.setText("é¢éÅ Le niveau d'expéé©rience ne peut pas déé©passer 100 caractéé¨res.");
                 expError.setVisible(true);
                 expError.setManaged(true);
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -2192,7 +2192,7 @@ public class AdminOffresController {
             
             // Validate Niveau Etude - not empty
             if (niveauEtude == null || niveauEtude.trim().isEmpty()) {
-                etudeError.setText("é¢ÂÅ Le niveau d'éÂ©tude est obligatoire.");
+                etudeError.setText("é¢éÅ Le niveau d'éé©tude est obligatoire.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -2200,7 +2200,7 @@ public class AdminOffresController {
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauEtude.trim().length() < 3) {
-                etudeError.setText("é¢ÂÅ Le niveau d'éÂ©tude doit contenir au moins 3 caractéÂ¨res.");
+                etudeError.setText("é¢éÅ Le niveau d'éé©tude doit contenir au moins 3 caractéé¨res.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -2208,7 +2208,7 @@ public class AdminOffresController {
                                   "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauEtude.trim().length() > 100) {
-                etudeError.setText("é¢ÂÅ Le niveau d'éÂ©tude ne peut pas déÂ©passer 100 caractéÂ¨res.");
+                etudeError.setText("é¢éÅ Le niveau d'éé©tude ne peut pas déé©passer 100 caractéé¨res.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
                 etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; " +
@@ -2219,7 +2219,7 @@ public class AdminOffresController {
             
             // Validate Competences - not empty
             if (competences == null || competences.trim().isEmpty()) {
-                compError.setText("é¢ÂÅ Les compéÂ©tences requises sont obligatoires.");
+                compError.setText("é¢éÅ Les compéé©tences requises sont obligatoires.");
                 compError.setVisible(true);
                 compError.setManaged(true);
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -2227,7 +2227,7 @@ public class AdminOffresController {
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (competences.trim().length() < 5) {
-                compError.setText("é¢ÂÅ Les compéÂ©tences requises doivent contenir au moins 5 caractéÂ¨res.");
+                compError.setText("é¢éÅ Les compéé©tences requises doivent contenir au moins 5 caractéé¨res.");
                 compError.setVisible(true);
                 compError.setManaged(true);
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -2235,7 +2235,7 @@ public class AdminOffresController {
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (competences.trim().length() > 300) {
-                compError.setText("é¢ÂÅ Les compéÂ©tences requises ne peuvent pas déÂ©passer 300 caractéÂ¨res.");
+                compError.setText("é¢éÅ Les compéé©tences requises ne peuvent pas déé©passer 300 caractéé¨res.");
                 compError.setVisible(true);
                 compError.setManaged(true);
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -2246,7 +2246,7 @@ public class AdminOffresController {
             
             // Validate Responsibilities - not empty
             if (responsibilities == null || responsibilities.trim().isEmpty()) {
-                respError.setText("é¢ÂÅ Les responsabilitéÂ©s sont obligatoires.");
+                respError.setText("é¢éÅ Les responsabilitéé©s sont obligatoires.");
                 respError.setVisible(true);
                 respError.setManaged(true);
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -2254,7 +2254,7 @@ public class AdminOffresController {
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (responsibilities.trim().length() < 10) {
-                respError.setText("é¢ÂÅ Les responsabilitéÂ©s doivent contenir au moins 10 caractéÂ¨res.");
+                respError.setText("é¢éÅ Les responsabilitéé©s doivent contenir au moins 10 caractéé¨res.");
                 respError.setVisible(true);
                 respError.setManaged(true);
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -2262,7 +2262,7 @@ public class AdminOffresController {
                                  "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
                 hasError = true;
             } else if (responsibilities.trim().length() > 500) {
-                respError.setText("é¢ÂÅ Les responsabilitéÂ©s ne peuvent pas déÂ©passer 500 caractéÂ¨res.");
+                respError.setText("é¢éÅ Les responsabilitéé©s ne peuvent pas déé©passer 500 caractéé¨res.");
                 respError.setVisible(true);
                 respError.setManaged(true);
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; " +
@@ -2358,25 +2358,25 @@ public class AdminOffresController {
         
         // Card 1: Total Offers
         statsCardsContainer.getChildren().add(createStatCard(
-            "é°Å¸ââ¹", "Total des Offres", String.valueOf(totalOffers), 
+            "é°Å¸éé¹", "Total des Offres", String.valueOf(totalOffers), 
             "#3b82f6", "Toutes les offres"
         ));
         
         // Card 2: Active Offers
         statsCardsContainer.getChildren().add(createStatCard(
-            "é¢Åâ¦", "Offres Actives", String.valueOf(activeOffers), 
+            "é¢Åé¦", "Offres Actives", String.valueOf(activeOffers), 
             "#10b981", "Actuellement ouvertes"
         ));
         
         // Card 3: Average Active Time
         statsCardsContainer.getChildren().add(createStatCard(
-            "é¢ÂÂ±é¯Â¸Â", "DuréÂ©e Moyenne", String.format("%.1f jours", avgActiveTime), 
+            "é¢éé±é¯é¸é", "Duréé©e Moyenne", String.format("%.1f jours", avgActiveTime), 
             "#f59e0b", "Temps actif moyen"
         ));
         
         // Card 4: Recent Offers
         statsCardsContainer.getChildren().add(createStatCard(
-            "é°Å¸â â¢", "Derniers 7 Jours", String.valueOf(offersLast7Days), 
+            "é°Å¸é é¢", "Derniers 7 Jours", String.valueOf(offersLast7Days), 
             "#8b5cf6", "Nouvelles offres"
         ));
     }
@@ -2482,7 +2482,7 @@ public class AdminOffresController {
         
         if (workPrefData.isEmpty()) {
             // Show message when no data
-            PieChart.Data slice = new PieChart.Data("Aucune donnéÂ©e", 1);
+            PieChart.Data slice = new PieChart.Data("Aucune donnéé©e", 1);
             workPrefPieChart.getData().add(slice);
         } else {
             for (Map.Entry<String, Integer> entry : workPrefData.entrySet()) {
@@ -2535,7 +2535,7 @@ public class AdminOffresController {
             stage.setScene(newScene);
             stage.setTitle("Administration - VOS");
             stage.centerOnScreen();
-            System.out.println("â Retour vers Administration");
+            System.out.println("é Retour vers Administration");
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -2719,7 +2719,7 @@ public class AdminOffresController {
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
             confirmAlert.setTitle("Déconnexion");
             confirmAlert.setHeaderText("Confirmer la déconnexion");
-            confirmAlert.setContentText("Êtes-vous sûr de vouloir vous déconnecter ?");
+            confirmAlert.setContentText("êtes-vous sûr de vouloir vous déconnecter ?");
             
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
