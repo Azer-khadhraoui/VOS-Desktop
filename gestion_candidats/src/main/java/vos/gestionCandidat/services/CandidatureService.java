@@ -6,10 +6,15 @@ import vos.gestionCandidat.utils.MyDataBase;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 public class CandidatureService implements IService<Candidature> {
     private Connection connection;
+    private EmailService emailService;
+
     public CandidatureService() {
         connection = MyDataBase.getInstance().getConnection();
+        this.emailService = new EmailService();
     }
     @Override
     public void ajouter(Candidature candidature) {
@@ -34,6 +39,17 @@ public class CandidatureService implements IService<Candidature> {
 
             pst.executeUpdate();
             System.out.println("Candidature ajoutée avec succès !");
+            // Envoyer l'email de création (en arrière-plan)
+            if (emailService.isConfigured()) {
+                String date = LocalDateTime.now()
+                        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                emailService.sendCandidatureCreatedEmail(
+                        "Name-yassine",
+                        "mamiy463@gmail.com\n",
+                        "Laravel Developper ",
+                        date
+                );
+            }
 
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'ajout : " + e.getMessage());
@@ -66,6 +82,15 @@ public class CandidatureService implements IService<Candidature> {
             pst.executeUpdate();
             System.out.println("Candidature modifiée avec succès !");
 
+            if (emailService.isConfigured()) {
+                emailService.sendCandidatureUpdatedEmail(
+                        "Name-yassine",
+                        "mamiy463@gmail.com\n",
+                        "Laravel Developper ",
+                        candidature.getStatut()
+                );
+            }
+
         } catch (SQLException e) {
             System.out.println("Erreur lors de la modification : " + e.getMessage());
         }
@@ -80,6 +105,15 @@ public class CandidatureService implements IService<Candidature> {
             pst.setInt(1, id);
             pst.executeUpdate();
             System.out.println("Candidature supprimée avec succès !");
+
+            // Envoyer l'email de suppression (en arrière-plan)
+            if (emailService.isConfigured()) {
+                emailService.sendCandidatureDeletedEmail(
+                        "Name-yassine",
+                        "mamiy463@gmail.com\n",
+                        "Laravel Developper "
+                );
+            }
 
         } catch (SQLException e) {
             System.out.println("Erreur lors de la suppression : " + e.getMessage());

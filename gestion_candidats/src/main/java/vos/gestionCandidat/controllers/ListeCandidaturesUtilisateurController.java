@@ -1,5 +1,6 @@
 package vos.gestionCandidat.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -24,11 +25,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.entities.PreferenceCandidature;
 import vos.gestionCandidat.services.CandidatureService;
+import vos.gestionCandidat.services.PdfService;
 import vos.gestionCandidat.services.PreferenceCandidatureService;
 
 public class ListeCandidaturesUtilisateurController implements Initializable {
@@ -68,10 +71,11 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     @FXML
     private Label navProfilText;
     @FXML
-    private TextField searchFieldTable;  // Nouveau champ pour la recherche dans le tableau
+    private TextField searchFieldTable;
 
     /* ===================== STATE ===================== */
     private final CandidatureService service = new CandidatureService();
+    private final PdfService pdfService = new PdfService();  // ✅ AJOUT : Service PDF
     private List<Candidature> toutesLesCandidatures;
 
     // ⚠️  En production, récupérer l'ID depuis la session utilisateur courante
@@ -138,9 +142,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     /**
      * Crée une card candidature reprenant le style des job-cards de offres.fxml
      */
-    /**
-     * Crée une card candidature reprenant le style des job-cards de offres.fxml
-     */
     private Node creerCarte(Candidature c) {
         // Conteneur principal
         HBox card = new HBox(20);
@@ -195,13 +196,17 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
                 + "-fx-background-radius: 10; -fx-padding: 8 18; "
                 + "-fx-font-weight: 600; -fx-font-size: 12px; -fx-cursor: hand;");
 
+        // ✅ NOUVEAU : Bouton PDF
+        Button btnPdf = new Button("📄 PDF");
+        btnPdf.setStyle("-fx-background-color: #fef3c7; -fx-text-fill: #d97706; "
+                + "-fx-background-radius: 10; -fx-padding: 8 18; "
+                + "-fx-font-weight: 600; -fx-font-size: 12px; -fx-cursor: hand;");
 
         btnDetail.setOnAction(e -> ouvrirDetail(c));
         btnModifier.setOnAction(e -> ouvrirFormulaire(c));
+        btnPdf.setOnAction(e -> genererPDF(c));  // ✅ Action PDF
 
-        // Double-clic pour les préférences
-
-        btnBox.getChildren().addAll(btnDetail, btnModifier);
+        btnBox.getChildren().addAll(btnDetail, btnModifier, btnPdf);  // ✅ Ajouter le bouton
 
         card.getChildren().addAll(icone, infoBox, badge, btnBox);
 
@@ -218,6 +223,57 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
                         "-fx-background-color: white;")));
 
         return card;
+    }
+
+    /**
+     * ✅ NOUVELLE MÉTHODE : Générer le PDF de la candidature
+     */
+    private void genererPDF(Candidature candidature) {
+        try {
+            // ÉTAPE 1 : Ouvrir FileChooser pour choisir l'emplacement
+            FileChooser fileChooser = new FileChooser();
+            
+            // Configurer le FileChooser
+            fileChooser.setTitle("Sauvegarder la candidature en PDF");
+            fileChooser.setInitialFileName("Candidature_" + candidature.getIdCandidature() + ".pdf");
+            
+            // Filtrer pour afficher uniquement les fichiers PDF
+            FileChooser.ExtensionFilter pdfFilter = 
+                new FileChooser.ExtensionFilter("Fichiers PDF (*.pdf)", "*.pdf");
+            fileChooser.getExtensionFilters().add(pdfFilter);
+            
+            // Dossier initial : Documents
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Documents"));
+            
+            // ÉTAPE 2 : Afficher le dialog et récupérer le fichier
+            Stage stage = (Stage) cardsContainer.getScene().getWindow();
+            File selectedFile = fileChooser.showSaveDialog(stage);
+            
+            // Si l'utilisateur a annulé
+            if (selectedFile == null) {
+                return;
+            }
+            
+            // ÉTAPE 3 : Générer le PDF
+            pdfService.generateCandidaturePdf(candidature, selectedFile);
+            
+            // ÉTAPE 4 : Afficher un message de succès
+            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+            successAlert.setTitle("✅ Succès");
+            successAlert.setHeaderText("PDF généré avec succès");
+            successAlert.setContentText("Le fichier a été sauvegardé à :\n" + selectedFile.getAbsolutePath());
+            successAlert.showAndWait();
+            
+        } catch (Exception e) {
+            // Afficher un message d'erreur
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("❌ Erreur");
+            errorAlert.setHeaderText("Erreur lors de la génération du PDF");
+            errorAlert.setContentText(e.getMessage());
+            errorAlert.showAndWait();
+            
+            e.printStackTrace();
+        }
     }
 
     /* ===================== FILTRES ===================== */
@@ -386,10 +442,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     }
 
     /* ===================== SETTER SESSION ===================== */
-    /**
-     * Setter à appeler depuis le contrôleur de connexion pour injecter l'ID
-     * utilisateur
-     */
     public void setIdUtilisateurCourant(int id) {
         this.idUtilisateurCourant = id;
         chargerDonnees();
@@ -460,9 +512,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
         }
     }
 
-    /**
-     * Ouvre le formulaire de gestion des préférences
-     */
     private void ouvrirPreferences(Candidature candidature) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -472,7 +521,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
 
             FormPreferenceUtilisateurController ctrl = loader.getController();
 
-            // Charger la préférence existante s'il en existe une
             PreferenceCandidatureService prefService = new PreferenceCandidatureService();
             PreferenceCandidature preference = prefService.getByIdUtilisateur(candidature.getIdCandidature());
 
@@ -489,9 +537,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
         }
     }
 
-    /**
-     * Rafraîchir la liste après une modification
-     */
     public void rafraichir() {
         chargerDonnees();
     }

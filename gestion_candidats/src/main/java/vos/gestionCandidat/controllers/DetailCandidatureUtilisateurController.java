@@ -1,5 +1,14 @@
 package vos.gestionCandidat.controllers;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,55 +18,75 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.services.CandidatureService;
-
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
+import vos.gestionCandidat.services.PdfService;
 
 public class DetailCandidatureUtilisateurController implements Initializable {
 
+    @FXML
+    private VBox miniCardsList;
+    @FXML
+    private ScrollPane listScroll;
 
-    @FXML private VBox        miniCardsList;
-    @FXML private ScrollPane  listScroll;
+    @FXML
+    private VBox detailPanel;
 
-    @FXML private VBox   detailPanel;
+    @FXML
+    private Label badgeStatut;
+    @FXML
+    private Label titreCandidature;
+    @FXML
+    private Label offreTag;
+    @FXML
+    private Label dateLabel;
 
-    @FXML private Label  badgeStatut;
-    @FXML private Label  titreCandidature;
-    @FXML private Label  offreTag;
-    @FXML private Label  dateLabel;
+    @FXML
+    private Label lblNiveauExp;
+    @FXML
+    private Label lblAnneesExp;
+    @FXML
+    private Label lblDomaine;
+    @FXML
+    private Label lblDernierPoste;
 
-    @FXML private Label  lblNiveauExp;
-    @FXML private Label  lblAnneesExp;
-    @FXML private Label  lblDomaine;
-    @FXML private Label  lblDernierPoste;
+    @FXML
+    private HBox cvCard;
+    @FXML
+    private Label lblCv;
+    @FXML
+    private HBox lettreCard;
+    @FXML
+    private Label lblLettre;
 
-    @FXML private HBox   cvCard;
-    @FXML private Label  lblCv;
-    @FXML private HBox   lettreCard;
-    @FXML private Label  lblLettre;
+    @FXML
+    private TextArea lblMessage;
 
-    @FXML private TextArea lblMessage;
-
-    @FXML private VBox sidebar;
-    @FXML private Label navCandidaturesText;
-    @FXML private Label navOffresText;
-    @FXML private Label navForumText;
-    @FXML private Label navProfilText;
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private Label navCandidaturesText;
+    @FXML
+    private Label navOffresText;
+    @FXML
+    private Label navForumText;
+    @FXML
+    private Label navProfilText;
 
 
     private final CandidatureService service = new CandidatureService();
+    private final PdfService pdfService = new PdfService();  // ✅ AJOUT : Service PDF
     private ListeCandidaturesUtilisateurController parentController;
     private Candidature candidatureCourante;
     private int idUtilisateurCourant = 1;
@@ -77,8 +106,8 @@ public class DetailCandidatureUtilisateurController implements Initializable {
     public void initData(Candidature candidature,
                          ListeCandidaturesUtilisateurController parent) {
 
-        this.parentController     = parent;
-        this.candidatureCourante  = candidature;
+        this.parentController = parent;
+        this.candidatureCourante = candidature;
 
         if (candidature != null) {
             idUtilisateurCourant = candidature.getIdUtilisateur();
@@ -247,6 +276,60 @@ public class DetailCandidatureUtilisateurController implements Initializable {
         }
     }
 
+    /**
+     * ✅ NOUVELLE MÉTHODE : Générer le PDF de la candidature
+     */
+    @FXML
+    private void genererPDF(ActionEvent event) {
+        if (candidatureCourante == null) return;
+
+        try {
+            // ÉTAPE 1 : Ouvrir FileChooser pour choisir l'emplacement
+            FileChooser fileChooser = new FileChooser();
+            
+            // Configurer le FileChooser
+            fileChooser.setTitle("Sauvegarder la candidature en PDF");
+            fileChooser.setInitialFileName("Candidature_" + candidatureCourante.getIdCandidature() + ".pdf");
+            
+            // Filtrer pour afficher uniquement les fichiers PDF
+            FileChooser.ExtensionFilter pdfFilter = 
+                new FileChooser.ExtensionFilter("Fichiers PDF (*.pdf)", "*.pdf");
+            fileChooser.getExtensionFilters().add(pdfFilter);
+            
+            // Dossier initial : Documents
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Documents"));
+            
+            // ÉTAPE 2 : Afficher le dialog et récupérer le fichier
+            Stage stage = (Stage) detailPanel.getScene().getWindow();
+            File selectedFile = fileChooser.showSaveDialog(stage);
+            
+            // Si l'utilisateur a annulé
+            if (selectedFile == null) {
+                return;
+            }
+            
+            // ÉTAPE 3 : Générer le PDF
+            pdfService.generateCandidaturePdf(candidatureCourante, selectedFile);
+            
+            // ÉTAPE 4 : Afficher un message de succès
+            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+            successAlert.setTitle("✅ Succès");
+            successAlert.setHeaderText("PDF généré avec succès");
+            successAlert.setContentText("Le fichier a été sauvegardé à :\n" + selectedFile.getAbsolutePath());
+            successAlert.showAndWait();
+            
+        } catch (Exception e) {
+            // Afficher un message d'erreur
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("❌ Erreur");
+            errorAlert.setHeaderText("Erreur lors de la génération du PDF");
+            errorAlert.setContentText(e.getMessage());
+            errorAlert.showAndWait();
+            
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     private void goOffres(ActionEvent event) {
         fermerFenetre();
@@ -254,10 +337,8 @@ public class DetailCandidatureUtilisateurController implements Initializable {
 
     /* ===================== UTILITAIRES ===================== */
 
-    // ✅ APRÈS — reconstruit le chemin absolu depuis la racine du projet
     private void ouvrirFichier(String cheminRelatif) {
         try {
-            // Reconstruire le chemin absolu : racine_projet/src/main/resources/uploads/...
             String cheminAbsolu = System.getProperty("user.dir")
                     + "/src/main/resources/"
                     + cheminRelatif;
@@ -327,7 +408,8 @@ public class DetailCandidatureUtilisateurController implements Initializable {
         alert.setContentText(msg);
         alert.showAndWait();
     }
-        /* ===================== SIDEBAR ANIMATIONS ===================== */
+
+    /* ===================== SIDEBAR ANIMATIONS ===================== */
 
     @FXML
     private void onSidebarEntered() {
