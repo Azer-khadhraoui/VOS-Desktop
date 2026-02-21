@@ -701,8 +701,8 @@ public class MainController implements Initializable {
         colActionsContrat.setCellFactory(param -> new TableCell<>() {
             private final Button btnEdit = new Button();
             private final Button btnDelete = new Button();
-            private final Button btnPreview = new Button("📄");
-            private final Button btnDownload = new Button("⬇");
+            private final Button btnPreview = new Button();
+            private final Button btnDownload = new Button();
             private final HBox hbox = new HBox(6, btnEdit, btnDelete, btnPreview, btnDownload);
 
             {
@@ -717,29 +717,35 @@ public class MainController implements Initializable {
                 deleteIcon.setFitWidth(16);
                 deleteIcon.setPreserveRatio(true);
 
+                // ── View/Preview icon ───────────────────────────────────
+                ImageView viewIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/view.png")));
+                viewIcon.setFitHeight(18);
+                viewIcon.setFitWidth(18);
+                viewIcon.setPreserveRatio(true);
+
+                // ── PDF Download icon ───────────────────────────────────
+                ImageView pdfIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/pdf.png")));
+                pdfIcon.setFitHeight(18);
+                pdfIcon.setFitWidth(18);
+                pdfIcon.setPreserveRatio(true);
+
                 btnEdit.setGraphic(editIcon);
                 btnDelete.setGraphic(deleteIcon);
+                btnPreview.setGraphic(viewIcon);
+                btnDownload.setGraphic(pdfIcon);
 
                 String baseStyle = "-fx-padding: 4 4; -fx-cursor: hand; " +
                         "-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;";
                 btnEdit.setStyle(baseStyle);
                 btnDelete.setStyle(baseStyle);
-
-                // ── PDF Preview button ───────────────────────────────────
-                btnPreview.setStyle("-fx-padding: 3 7; -fx-cursor: hand; -fx-font-size: 13px; " +
-                        "-fx-background-color: #DBEAFE; -fx-background-radius: 5; " +
-                        "-fx-border-color: #BFDBFE; -fx-border-width: 1; -fx-border-radius: 5;");
-                Tooltip.install(btnPreview, new Tooltip("Aperçu du contrat"));
-
-                // ── PDF Download button ──────────────────────────────────
-                btnDownload.setStyle("-fx-padding: 3 7; -fx-cursor: hand; -fx-font-size: 13px; " +
-                        "-fx-background-color: #EDE9FE; -fx-background-radius: 5; " +
-                        "-fx-border-color: #DDD6FE; -fx-border-width: 1; -fx-border-radius: 5;");
-                Tooltip.install(btnDownload, new Tooltip("Télécharger en PDF"));
+                btnPreview.setStyle(baseStyle);
+                btnDownload.setStyle(baseStyle);
 
                 // ── Tooltips ─────────────────────────────────────────────
                 Tooltip.install(btnEdit, new Tooltip("Modifier le contrat"));
                 Tooltip.install(btnDelete, new Tooltip("Supprimer le contrat"));
+                Tooltip.install(btnPreview, new Tooltip("Aperçu du contrat"));
+                Tooltip.install(btnDownload, new Tooltip("Télécharger en PDF"));
 
                 // ── Container ────────────────────────────────────────────
                 hbox.setStyle("-fx-background-color: rgba(150,171,241,0.52); " +
@@ -3204,7 +3210,7 @@ public class MainController implements Initializable {
         return card;
     }
 
-    /** Saves a real PDF file for the contract using OpenPDF. */
+    /** Saves a professional corporate contract PDF using OpenPDF with French legal formatting. */
     private void downloadContratPdf(ContratRow contrat) {
         // ── File chooser ─────────────────────────────────────────────────────
         FileChooser fc = new FileChooser();
@@ -3221,78 +3227,44 @@ public class MainController implements Initializable {
             return;
 
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            // ── Document setup ────────────────────────────────────────────────
-            com.lowagie.text.Document doc = new com.lowagie.text.Document(PageSize.A4, 50, 50, 60, 60);
+            // ── Document setup (A4 with compact margins to fit on one page) ────
+            com.lowagie.text.Document doc = new com.lowagie.text.Document(PageSize.A4, 35, 35, 40, 40);
             PdfWriter.getInstance(doc, fos);
             doc.open();
 
-            // ── Fonts ─────────────────────────────────────────────────────────
-            com.lowagie.text.Font fontTitle = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 22,
-                    com.lowagie.text.Font.BOLD, new java.awt.Color(0x66, 0x7e, 0xea));
-            com.lowagie.text.Font fontSubtitle = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10,
-                    com.lowagie.text.Font.NORMAL, java.awt.Color.GRAY);
-            com.lowagie.text.Font fontSection = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 13,
-                    com.lowagie.text.Font.BOLD, new java.awt.Color(0x13, 0x11, 0x14));
-            com.lowagie.text.Font fontKey = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10,
-                    com.lowagie.text.Font.NORMAL, java.awt.Color.GRAY);
-            com.lowagie.text.Font fontVal = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 11,
-                    com.lowagie.text.Font.BOLD, new java.awt.Color(0x11, 0x18, 0x27));
-            com.lowagie.text.Font fontSig = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 16,
-                    com.lowagie.text.Font.BOLDITALIC, new java.awt.Color(0x66, 0x7e, 0xea));
+            // ── Professional Fonts ────────────────────────────────────────────
+            com.lowagie.text.Font fontTitle = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 18,
+                    com.lowagie.text.Font.BOLD, java.awt.Color.BLACK);
+            com.lowagie.text.Font fontArticle = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 11,
+                    com.lowagie.text.Font.BOLD, java.awt.Color.BLACK);
+            com.lowagie.text.Font fontBody = new com.lowagie.text.Font(com.lowagie.text.Font.TIMES_ROMAN, 11,
+                    com.lowagie.text.Font.NORMAL, java.awt.Color.BLACK);
+            com.lowagie.text.Font fontSubtitle = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 9,
+                    com.lowagie.text.Font.NORMAL, new java.awt.Color(0x6b, 0x7d, 0x8c));
+            com.lowagie.text.Font fontSmallGray = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 8,
+                    com.lowagie.text.Font.NORMAL, new java.awt.Color(0x9c, 0xa3, 0xaf));
+            com.lowagie.text.Font fontLabel = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10,
+                    com.lowagie.text.Font.BOLD, new java.awt.Color(0x1f, 0x29, 0x37));
 
-            // ── Header ────────────────────────────────────────────────────────
-            Paragraph company = new Paragraph("VOS – Votre Outil de Succès", fontSection);
-            company.setAlignment(Element.ALIGN_CENTER);
-            doc.add(company);
+            // ── Add professional header with logo ─────────────────────────────
+            addProfessionalHeader(doc, fontTitle, fontSubtitle);
 
-            Paragraph dateGen = new Paragraph("Généré le : " +
-                    LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), fontSubtitle);
-            dateGen.setAlignment(Element.ALIGN_CENTER);
-            doc.add(dateGen);
+            // ── Add introduction paragraph (French legal style) ───────────────
+            addIntroductionParagraph(doc, fontBody, contrat);
 
-            doc.add(new Paragraph(" "));
-            Paragraph titlePara = new Paragraph("CONTRAT DE TRAVAIL", fontTitle);
-            titlePara.setAlignment(Element.ALIGN_CENTER);
-            doc.add(titlePara);
+            // ── Add 5 Articles as flowing paragraphs ──────────────────────────
+            addArticle1(doc, fontArticle, fontBody, contrat);
 
-            // Divider
-            com.lowagie.text.pdf.draw.LineSeparator lineSep = new com.lowagie.text.pdf.draw.LineSeparator();
-            lineSep.setLineColor(new java.awt.Color(0x66, 0x7e, 0xea));
-            doc.add(new Chunk(lineSep));
-            doc.add(new Paragraph(" "));
+            addArticle2(doc, fontArticle, fontBody, contrat);
 
-            // ── Helper to write a section ─────────────────────────────────────
-            // Sections: (title, key-value pairs)
-            addPdfSection(doc, "Informations du Contrat", fontSection, fontKey, fontVal, new String[][] {
-                    { "N° Contrat", "#" + contrat.idProperty().get() },
-                    { "Type de contrat", contrat.typeProperty().get() },
-                    { "Période", contrat.periodeProperty().get() },
-                    { "Date de début", contrat.dateDebutProperty().get() },
-                    { "Date de fin", contrat.dateFinProperty().get() },
-                    { "Réf. Recrutement", "#" + contrat.idRecrutementProperty().get() }
-            });
-            addPdfSection(doc, "Conditions", fontSection, fontKey, fontVal, new String[][] {
-                    { "Statut", contrat.statusProperty().get() },
-                    { "Volume horaire", contrat.volumeHoraireProperty().get() }
-            });
-            addPdfSection(doc, "Rémunération", fontSection, fontKey, fontVal, new String[][] {
-                    { "Salaire brut", String.format("%.2f DT", contrat.salaireProperty().get()) }
-            });
-            addPdfSection(doc, "Avantages", fontSection, fontKey, fontVal, new String[][] {
-                    { "Avantages", contrat.avantagesProperty().get() }
-            });
+            addArticle3(doc, fontArticle, fontBody, contrat);
 
-            // ── Signature ─────────────────────────────────────────────────────
-            doc.add(new Paragraph(" "));
-            String sig = generateContractSignature(contrat.idProperty().get());
-            Paragraph sigTitle = new Paragraph("Signature électronique", fontSection);
-            doc.add(sigTitle);
-            Paragraph sigPara = new Paragraph(sig, fontSig);
-            sigPara.setSpacingBefore(4);
-            doc.add(sigPara);
-            Paragraph sigNote = new Paragraph(
-                    "Signature unique générée automatiquement – valeur non modifiable.", fontSubtitle);
-            doc.add(sigNote);
+            addArticle4(doc, fontArticle, fontBody, contrat);
+
+            addArticle5(doc, fontArticle, fontBody, contrat);
+
+            // ── Add signature block ───────────────────────────────────────────
+            addSignatureBlock(doc, fontLabel, fontBody, fontSmallGray, contrat);
 
             doc.close();
             showAlert("PDF généré", "Contrat enregistré avec succès :\n" + file.getAbsolutePath());
@@ -3303,38 +3275,273 @@ public class MainController implements Initializable {
         }
     }
 
-    /** Writes a labelled section with key-value rows into the PDF. */
-    private void addPdfSection(com.lowagie.text.Document doc, String title,
-            com.lowagie.text.Font fontSection, com.lowagie.text.Font fontKey, com.lowagie.text.Font fontVal,
-            String[][] rows) throws com.lowagie.text.DocumentException {
-        Paragraph sectionTitle = new Paragraph(title, fontSection);
-        sectionTitle.setSpacingBefore(12);
-        sectionTitle.setSpacingAfter(4);
-        doc.add(sectionTitle);
+    /** Adds professional header with logo and document title. */
+    private void addProfessionalHeader(com.lowagie.text.Document doc, com.lowagie.text.Font fontTitle,
+            com.lowagie.text.Font fontSubtitle) throws com.lowagie.text.DocumentException {
+        try {
+            // ── Add dark background container for logo ────────────────────────
+            PdfPTable headerTable = new PdfPTable(1);
+            headerTable.setWidthPercentage(100);
+            PdfPCell headerCell = new PdfPCell();
+            headerCell.setBackgroundColor(new java.awt.Color(0x1f, 0x29, 0x37));
+            headerCell.setPadding(12);
+            headerCell.setBorder(com.lowagie.text.Rectangle.NO_BORDER);
 
-        PdfPTable table = new PdfPTable(2);
-        table.setWidthPercentage(100);
-        table.setWidths(new float[] { 1.8f, 3f });
-        table.setSpacingAfter(4);
+            // ── Try to add logo ──────────────────────────────────────────────
+            try {
+                String logoPath = "src/main/resources/Images/VOSwhiteslogan.png";
+                com.lowagie.text.Image logo = com.lowagie.text.Image.getInstance(logoPath);
+                logo.setAlignment(Element.ALIGN_CENTER);
+                logo.scaleToFit(270, 105);
+                Paragraph logoPara = new Paragraph();
+                logoPara.add(new Chunk(logo, 0, 0));
+                logoPara.setAlignment(Element.ALIGN_CENTER);
+                headerCell.addElement(logoPara);
+            } catch (Exception ex) {
+                // If logo fails, add company name instead
+                Paragraph companyName = new Paragraph("VOS – VOTRE OUTIL DE SUCCÈS", fontTitle);
+                companyName.setAlignment(Element.ALIGN_CENTER);
+                companyName.setFont(new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 16,
+                        com.lowagie.text.Font.BOLD, java.awt.Color.WHITE));
+                headerCell.addElement(companyName);
+            }
 
-        for (String[] kv : rows) {
-            String val = (kv[1] == null || kv[1].isEmpty()) ? "—" : kv[1];
+            headerTable.addCell(headerCell);
+            doc.add(headerTable);
 
-            PdfPCell cellKey = new PdfPCell(new Phrase(kv[0], fontKey));
-            cellKey.setBorder(com.lowagie.text.Rectangle.BOTTOM);
-            cellKey.setBorderColor(new java.awt.Color(0xe5, 0xe7, 0xeb));
-            cellKey.setPadding(5);
-            cellKey.setBackgroundColor(new java.awt.Color(0xf9, 0xfa, 0xfb));
+            // ── Document title ──────────────────────────────────────────────
+            Paragraph title = new Paragraph("CONTRAT DE TRAVAIL", fontTitle);
+            title.setAlignment(Element.ALIGN_CENTER);
+            title.setSpacingBefore(10);
+            title.setSpacingAfter(2);
+            doc.add(title);
 
-            PdfPCell cellVal = new PdfPCell(new Phrase(val, fontVal));
-            cellVal.setBorder(com.lowagie.text.Rectangle.BOTTOM);
-            cellVal.setBorderColor(new java.awt.Color(0xe5, 0xe7, 0xeb));
-            cellVal.setPadding(5);
+            // ── Generation date ──────────────────────────────────────────────
+            Paragraph dateGen = new Paragraph("Généré le " +
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("d MMM yyyy", java.util.Locale.FRANCE)),
+                    fontSubtitle);
+            dateGen.setAlignment(Element.ALIGN_CENTER);
+            dateGen.setSpacingAfter(5);
+            doc.add(dateGen);
 
-            table.addCell(cellKey);
-            table.addCell(cellVal);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        doc.add(table);
+    }
+
+    /** Adds formal introduction paragraph with French legal phrasing. */
+    private void addIntroductionParagraph(com.lowagie.text.Document doc, com.lowagie.text.Font fontBody,
+            ContratRow contrat) throws com.lowagie.text.DocumentException {
+        String intro = "Entre les soussignés,\n" +
+                "La société VOS – Votre Outil de Succès, représentée par ses organes de direction légaux et "
+                + "dûment habilitée, d'une part,\n" +
+                "Et l'employé(e) référencé sous le N° de recrutement #" + contrat.idRecrutementProperty().get()
+                + ", d'autre part,\n\n" +
+                "Il a été librement et consciemment convenu ce qui suit :";
+
+        Paragraph introPara = new Paragraph(intro, fontBody);
+        introPara.setAlignment(Element.ALIGN_JUSTIFIED);
+        introPara.setLeading(12f);
+        introPara.setSpacingAfter(4);
+        doc.add(introPara);
+    }
+
+    /** Article 1: Nature du contrat */
+    private void addArticle1(com.lowagie.text.Document doc, com.lowagie.text.Font fontArticle,
+            com.lowagie.text.Font fontBody, ContratRow contrat) throws com.lowagie.text.DocumentException {
+        Paragraph article = new Paragraph();
+        article.add(new Chunk("Article 1 – Nature du Contrat", fontArticle));
+        article.setSpacingBefore(3);
+        article.setSpacingAfter(2);
+        doc.add(article);
+
+        String content = "Le présent contrat est établi en tant que contrat " + contrat.typeProperty().get()
+                + " (référence contrat N° " + contrat.idProperty().get()
+                + "). Il définit les obligations réciproques et les conditions d'emploi applicables.";
+        Paragraph text = new Paragraph(content, fontBody);
+        text.setAlignment(Element.ALIGN_JUSTIFIED);
+        text.setLeading(11f);
+        text.setSpacingAfter(3);
+        doc.add(text);
+    }
+
+    /** Article 2: Durée (période, dates) */
+    private void addArticle2(com.lowagie.text.Document doc, com.lowagie.text.Font fontArticle,
+            com.lowagie.text.Font fontBody, ContratRow contrat) throws com.lowagie.text.DocumentException {
+        Paragraph article = new Paragraph();
+        article.add(new Chunk("Article 2 – Durée du Contrat", fontArticle));
+        article.setSpacingBefore(3);
+        article.setSpacingAfter(2);
+        doc.add(article);
+
+        String dateFin = (contrat.dateFinProperty().get() == null || contrat.dateFinProperty().get().isEmpty())
+                ? "non définie"
+                : contrat.dateFinProperty().get();
+
+        String content = "La date de début de l'employement est fixée au " + contrat.dateDebutProperty().get()
+                + ". La date de fin du contrat est prévue au " + dateFin
+                + ". La période couverte par le présent contrat est : " + contrat.periodeProperty().get() + ".";
+        Paragraph text = new Paragraph(content, fontBody);
+        text.setAlignment(Element.ALIGN_JUSTIFIED);
+        text.setLeading(11f);
+        text.setSpacingAfter(3);
+        doc.add(text);
+    }
+
+    /** Article 3: Rémunération (salaire brut) */
+    private void addArticle3(com.lowagie.text.Document doc, com.lowagie.text.Font fontArticle,
+            com.lowagie.text.Font fontBody, ContratRow contrat) throws com.lowagie.text.DocumentException {
+        Paragraph article = new Paragraph();
+        article.add(new Chunk("Article 3 – Rémunération", fontArticle));
+        article.setSpacingBefore(3);
+        article.setSpacingAfter(2);
+        doc.add(article);
+
+        String content = "La rémunération brute mensuelle garantie est fixée à " 
+                + String.format("%.2f DT", contrat.salaireProperty().get())
+                + " (Dinars Tunisiens). Cette rémunération est payable selon les modalités légales en vigueur et comprend les contributions sociales obligatoires.";
+        Paragraph text = new Paragraph(content, fontBody);
+        text.setAlignment(Element.ALIGN_JUSTIFIED);
+        text.setLeading(11f);
+        text.setSpacingAfter(3);
+        doc.add(text);
+    }
+
+    /** Article 4: Conditions (volume horaire, statut) */
+    private void addArticle4(com.lowagie.text.Document doc, com.lowagie.text.Font fontArticle,
+            com.lowagie.text.Font fontBody, ContratRow contrat) throws com.lowagie.text.DocumentException {
+        Paragraph article = new Paragraph();
+        article.add(new Chunk("Article 4 – Conditions de Travail", fontArticle));
+        article.setSpacingBefore(3);
+        article.setSpacingAfter(2);
+        doc.add(article);
+
+        String content = "Le volume horaire convenu est de " + contrat.volumeHoraireProperty().get()
+                + " heures par semaine. Le statut de l'employé(e) est défini comme : " 
+                + contrat.statusProperty().get()
+                + ". L'employé(e) accepte de respecter le règlement intérieur de la société et les dispositions légales en matière de droit du travail.";
+        Paragraph text = new Paragraph(content, fontBody);
+        text.setAlignment(Element.ALIGN_JUSTIFIED);
+        text.setLeading(11f);
+        text.setSpacingAfter(3);
+        doc.add(text);
+    }
+
+    /** Article 5: Avantages */
+    private void addArticle5(com.lowagie.text.Document doc, com.lowagie.text.Font fontArticle,
+            com.lowagie.text.Font fontBody, ContratRow contrat) throws com.lowagie.text.DocumentException {
+        Paragraph article = new Paragraph();
+        article.add(new Chunk("Article 5 – Avantages et Bénéfices", fontArticle));
+        article.setSpacingBefore(3);
+        article.setSpacingAfter(2);
+        doc.add(article);
+
+        String avantages = (contrat.avantagesProperty().get() == null || contrat.avantagesProperty().get().isEmpty())
+                ? "Aucun avantage spécifique n'est prévu au-delà des garanties légales."
+                : "Les avantages sociaux accordés comprennent : " + contrat.avantagesProperty().get();
+
+        String content = avantages
+                + " L'employeur s'engage à respecter les obligations légales en matière de couverture sociale et de congés payés.";
+        Paragraph text = new Paragraph(content, fontBody);
+        text.setAlignment(Element.ALIGN_JUSTIFIED);
+        text.setLeading(11f);
+        text.setSpacingAfter(3);
+        doc.add(text);
+    }
+
+    /** Adds signature block with company and employee sections. */
+    private void addSignatureBlock(com.lowagie.text.Document doc, com.lowagie.text.Font fontLabel,
+            com.lowagie.text.Font fontBody, com.lowagie.text.Font fontSmallGray, ContratRow contrat)
+            throws com.lowagie.text.DocumentException {
+        doc.add(new Paragraph(" "));
+
+        // ── Signature section title ──────────────────────────────────────────
+        Paragraph sigTitle = new Paragraph("SIGNATURES", fontLabel);
+        sigTitle.setAlignment(Element.ALIGN_CENTER);
+        sigTitle.setSpacingBefore(5);
+        sigTitle.setSpacingAfter(8);
+        doc.add(sigTitle);
+
+        // ── Create two-column signature table ─────────────────────────────────
+        PdfPTable sigTable = new PdfPTable(2);
+        sigTable.setWidthPercentage(100);
+        sigTable.setWidths(new float[] { 1f, 1f });
+        sigTable.setSpacingBefore(2);
+
+        // ── Left column: For the company ─────────────────────────────────────
+        PdfPCell leftCell = new PdfPCell();
+        leftCell.setBorder(com.lowagie.text.Rectangle.NO_BORDER);
+        leftCell.setPadding(5);
+
+        Paragraph companyLabel = new Paragraph("Pour la société", fontLabel);
+        companyLabel.setAlignment(Element.ALIGN_CENTER);
+        companyLabel.setSpacingAfter(3);
+        leftCell.addElement(companyLabel);
+
+        // Add company signature image
+        try {
+            String sigPath = "src/main/resources/Images/signature.png";
+            com.lowagie.text.Image sig = com.lowagie.text.Image.getInstance(sigPath);
+            sig.setAlignment(Element.ALIGN_CENTER);
+            sig.scaleToFit(80, 40);
+            Paragraph sigPara = new Paragraph();
+            sigPara.add(new Chunk(sig, 0, 0));
+            sigPara.setAlignment(Element.ALIGN_CENTER);
+            sigPara.setSpacingAfter(3);
+            leftCell.addElement(sigPara);
+
+            // Add cachet image
+            String cachetPath = "src/main/resources/Images/cachet.png";
+            com.lowagie.text.Image cachet = com.lowagie.text.Image.getInstance(cachetPath);
+            cachet.setAlignment(Element.ALIGN_CENTER);
+            cachet.scaleToFit(55, 55);
+            Paragraph cachetPara = new Paragraph();
+            cachetPara.add(new Chunk(cachet, 0, 0));
+            cachetPara.setAlignment(Element.ALIGN_CENTER);
+            leftCell.addElement(cachetPara);
+
+        } catch (Exception e) {
+            Paragraph placeholder = new Paragraph("[Signature et Cachet]", fontBody);
+            placeholder.setAlignment(Element.ALIGN_CENTER);
+            placeholder.setSpacingBefore(15);
+            placeholder.setSpacingAfter(15);
+            leftCell.addElement(placeholder);
+        }
+
+        // ── Right column: For the employee ───────────────────────────────────
+        PdfPCell rightCell = new PdfPCell();
+        rightCell.setBorder(com.lowagie.text.Rectangle.NO_BORDER);
+        rightCell.setPadding(5);
+
+        Paragraph employeeLabel = new Paragraph("L'employé(e)", fontLabel);
+        employeeLabel.setAlignment(Element.ALIGN_CENTER);
+        employeeLabel.setSpacingAfter(3);
+        rightCell.addElement(employeeLabel);
+
+        // Empty signature line
+        Paragraph signatureLine = new Paragraph(
+                "_____________________________________________________", fontBody);
+        signatureLine.setAlignment(Element.ALIGN_CENTER);
+        signatureLine.setSpacingBefore(20);
+        signatureLine.setSpacingAfter(2);
+        rightCell.addElement(signatureLine);
+
+        // Employee name or reference
+        Paragraph employeeName = new Paragraph("N° Recrutement : #" + contrat.idRecrutementProperty().get(),
+                fontBody);
+        employeeName.setAlignment(Element.ALIGN_CENTER);
+        rightCell.addElement(employeeName);
+
+        sigTable.addCell(leftCell);
+        sigTable.addCell(rightCell);
+        doc.add(sigTable);
+
+        // ── Electronic signature hash ────────────────────────────────────────
+        String sig = generateContractSignature(contrat.idProperty().get());
+        Paragraph hashPara = new Paragraph("Signature électronique : " + sig, fontSmallGray);
+        hashPara.setAlignment(Element.ALIGN_CENTER);
+        hashPara.setSpacingBefore(3);
+        doc.add(hashPara);
     }
 
     // Inner classes for table data
