@@ -73,7 +73,8 @@
 
                 <HBox spacing="15.0" alignment="CENTER_LEFT">
                     <Button text="⭐ Voir mes préférences" onAction="#allerAuxPreferencesUtilisateur"
-                        style="-fx-background-color: #a855f7; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-weight: 700; -fx-font-size: 13px; -fx-cursor: hand;" />
+                        style="-fx-background-color: linear-gradient(to right, #6366f1 0%, #8b5cf6 100%); -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 10 22; -fx-font-weight: 700; -fx-font-size: 13px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.35), 10, 0, 0, 3);" />
+
                     <Region HBox.hgrow="ALWAYS" />
                     <StackPane
                         style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-background-radius: 20; -fx-pref-width: 40; -fx-pref-height: 40;">

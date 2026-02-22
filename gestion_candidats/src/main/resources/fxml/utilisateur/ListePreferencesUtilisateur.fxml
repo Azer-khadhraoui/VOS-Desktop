@@ -11,6 +11,7 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="vos.gestionCandidat.controllers.ListePreferencesUtilisateurController">
 
+    <!-- SIDEBAR -->
     <left>
         <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0" minWidth="60.0" maxWidth="240.0"
               onMouseEntered="#onSidebarEntered" onMouseExited="#onSidebarExited">
@@ -63,58 +64,67 @@
         </VBox>
     </left>
 
+    <!-- CONTENU PRINCIPAL -->
     <center>
         <VBox spacing="0" VBox.vgrow="ALWAYS">
+            <!-- HEADER BAR -->
             <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
                 <padding>
                     <Insets top="20.0" right="30.0" bottom="20.0" left="30.0"/>
                 </padding>
 
-                <Label text="Mes Préférences de Candidature" styleClass="page-title" style="-fx-font-size: 20px;"/>
+                <Label text="⭐ Mes préférences de candidature"
+                    style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #0f172a;" />
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <HBox spacing="15.0" alignment="CENTER">
-                    <StackPane style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-background-radius: 20; -fx-pref-width: 40; -fx-pref-height: 40;">
-                        <Label text="U" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <HBox spacing="15.0" alignment="CENTER_LEFT">
+                    <Button text="+ Ajouter une préférence" onAction="#ajouterPreference"
+                        style="-fx-background-color: linear-gradient(to right, #8b5cf6 0%, #a855f7 100%); -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-weight: 700; -fx-font-size: 13px; -fx-cursor: hand;" />
+                    <StackPane
+                        style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-background-radius: 20; -fx-pref-width: 40; -fx-pref-height: 40;">
+                        <Label text="U"
+                            style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
                     </StackPane>
                     <VBox alignment="CENTER_LEFT" spacing="2.0">
-                        <Label text="Utilisateur" styleClass="user-name"/>
-                        <Label text="Candidat" styleClass="user-role"/>
+                        <Label text="Utilisateur" styleClass="user-name" />
+                        <Label text="Candidat" styleClass="user-role" />
                     </VBox>
                 </HBox>
             </HBox>
 
-            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;" 
-                        VBox.vgrow="ALWAYS">
+            <!-- SCROLLPANE PRINCIPAL -->
+            <ScrollPane fitToWidth="true"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;" 
+                VBox.vgrow="ALWAYS">
                 <VBox fx:id="mainView" spacing="30" alignment="TOP_CENTER"
                       style="-fx-padding: 30; -fx-background-color: white;">
 
-                    <!-- Hero Section -->
-                    <VBox styleClass="hero" spacing="16" alignment="CENTER_LEFT" maxWidth="900"
-                          style="-fx-background-color: #8b5cf6; -fx-background-radius: 25; -fx-padding: 40 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 25, 0, 0, 10);">
-                        <Label text="⭐ Mes Préférences"
+                    <!-- HERO SECTION -->
+                    <VBox styleClass="hero" spacing="16" alignment="CENTER" maxWidth="900"
+                          style="-fx-background-color: #1e3a8a; -fx-background-radius: 25; -fx-padding: 40 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 25, 0, 0, 10);">
+                        <Label text="Mes Préférences"
                                style="-fx-text-fill: white; -fx-font-size: 34px; -fx-font-weight: 800;"/>
-                        <Label fx:id="heroSubtitle" text="Voici vos préférences de candidature"
-                               style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 16px;"/>
+                        <Label fx:id="heroSubtitle" text="Voici vos préférences enregistrées"
+                               style="-fx-text-fill: #cbd5e1; -fx-font-size: 16px;"/>
+
+                        <HBox spacing="30" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+                            <VBox alignment="CENTER" spacing="4">
+                                <Label fx:id="lblNombrePreferences" text="0"
+                                    style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                                <Label text="Préférences"
+                                    style="-fx-text-fill: #c4b5fd; -fx-font-size: 13px;" />
+                            </VBox>
+                        </HBox>
                     </VBox>
 
-                    <!-- Boutons d'action -->
-                    <HBox spacing="15" alignment="CENTER_LEFT" maxWidth="900">
-                        <Button text="← Retour à mes candidatures" onAction="#retournerAuxCandidatures"
-                                style="-fx-background-color: #e5e7eb; -fx-text-fill: #374151; -fx-background-radius: 12; -fx-padding: 12 24; -fx-font-weight: 700; -fx-cursor: hand;"/>
-                        <Button text="➕ Ajouter une préférence" onAction="#ajouterPreference"
-                                style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 12 24; -fx-font-weight: 700; -fx-cursor: hand;"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                    </HBox>
-
-                    <!-- Conteneur des cards -->
+                    <!-- CONTENEUR DES CARDS -->
                     <VBox fx:id="preferencesContainer" spacing="16" maxWidth="900"
                           style="-fx-padding: 0 0 20 0;">
                         <!-- Les cards seront générées dynamiquement -->
                     </VBox>
 
-                    <!-- État vide -->
+                    <!-- ÉTAT VIDE -->
                     <VBox fx:id="emptyState" visible="false" managed="false"
                           alignment="CENTER" spacing="16" maxWidth="900"
                           style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 60 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 15, 0, 0, 5); -fx-border-color: #e5e7eb; -fx-border-width: 1;">
@@ -124,7 +134,7 @@
                         <Label text="Créez une préférence de candidature pour vous aider"
                                style="-fx-font-size: 14px; -fx-text-fill: #64748b;"/>
                         <Button text="Créer une préférence" onAction="#ajouterPreference"
-                                style="-fx-background-color: linear-gradient(to right, #8b5cf6 0%, #a855f7 100%); -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 12 30; -fx-font-weight: 700; -fx-cursor: hand;"/>
+                                style="-fx-background-color: linear-gradient(to right, #6366f1 0%, #8b5cf6 100%); -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 10 22; -fx-font-weight: 700; -fx-font-size: 13px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.35), 10, 0, 0, 3);"/>
                     </VBox>
                 </VBox>
             </ScrollPane>

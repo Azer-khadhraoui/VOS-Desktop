@@ -18,7 +18,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -28,17 +27,29 @@ import vos.gestionCandidat.services.PreferenceCandidatureService;
 
 public class ListePreferencesUtilisateurController {
 
-    @FXML private VBox mainView;
-    @FXML private VBox preferencesContainer;
-    @FXML private VBox emptyState;
-    @FXML private Label heroSubtitle;
+    @FXML
+    private VBox mainView;
+    @FXML
+    private VBox preferencesContainer;
+    @FXML
+    private VBox emptyState;
+    @FXML
+    private Label heroSubtitle;
+    @FXML
+    private Label lblNombrePreferences;
 
-    @FXML private VBox sidebar;
-    @FXML private Label navCandidaturesText;
-    @FXML private Label navPreferencesText;
-    @FXML private Label navOffresText;
-    @FXML private Label navForumText;
-    @FXML private Label navProfilText;
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private Label navCandidaturesText;
+    @FXML
+    private Label navPreferencesText;
+    @FXML
+    private Label navOffresText;
+    @FXML
+    private Label navForumText;
+    @FXML
+    private Label navProfilText;
 
     private PreferenceCandidatureService service = new PreferenceCandidatureService();
     private int idUtilisateurCourant = 3;
@@ -68,12 +79,15 @@ public class ListePreferencesUtilisateurController {
             emptyState.setVisible(true);
             emptyState.setManaged(true);
             heroSubtitle.setText("Vous n'avez pas encore de préférences enregistrées");
+            lblNombrePreferences.setText("0");
+
         } else {
             preferencesContainer.setVisible(true);
             preferencesContainer.setManaged(true);
             emptyState.setVisible(false);
             emptyState.setManaged(false);
             heroSubtitle.setText("Vous avez " + preferences.size() + " préférence(s) enregistrée(s)");
+            lblNombrePreferences.setText(String.valueOf(preferences.size()));
 
             preferencesContainer.getChildren().clear();
             for (PreferenceCandidature pref : preferences) {
@@ -85,7 +99,8 @@ public class ListePreferencesUtilisateurController {
     /**
      * Crée une card de préférence
      */
-    private Node creerCartePrefence(PreferenceCandidature pref) {
+    //v1
+    /*private Node creerCartePrefence(PreferenceCandidature pref) {
         // Conteneur principal
         VBox card = new VBox(16);
         card.setPadding(new Insets(24, 28, 24, 28));
@@ -158,6 +173,82 @@ public class ListePreferencesUtilisateurController {
         });
 
         return card;
+    }*/
+    //v2
+    private Node creerCartePrefence(PreferenceCandidature pref) {
+        // Conteneur principal
+        HBox card = new HBox(20);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPadding(new Insets(20, 24, 20, 24));
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 16; "
+                + "-fx-border-color: rgba(226,232,240,0.8); -fx-border-width: 1.5; -fx-border-radius: 16; "
+                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 18, 0, 0, 4); -fx-cursor: hand;");
+
+        // Icône statut
+        Label icone = new Label("⭐");
+        icone.setStyle("-fx-font-size: 26px; -fx-padding: 10; "
+                + "-fx-background-color: #ede9fe; "
+                + "-fx-background-radius: 14; -fx-min-width: 50; -fx-min-height: 50; "
+                + "-fx-max-width: 50; -fx-max-height: 50; -fx-alignment: center;");
+
+        // Bloc principal info
+        VBox infoBox = new VBox(6);
+        HBox.setHgrow(infoBox, Priority.ALWAYS);
+
+        Label titre = new Label( nvl(pref.getTypePosteSouhaite(), "Préférence"));
+        titre.setStyle("-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #0f172a;");
+
+        Label details = new Label("💼 " + nvl(pref.getTypeContratSouhaite(), "Contrat non précisé")
+                + "  ·  💻 " + nvl(pref.getModeTravail(), "Mode non précisé")
+                + "  ·  📍 " + nvl(pref.getMobiliteGeographique(), "Mobilité non précisée"));
+        details.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+
+        Label salaire = new Label("💰 " + String.format("%.2f DT/mois", pref.getPretentionSalariale())
+                + "  ·  📅 " + nvl(pref.getDisponibilite(), "Disponibilité non précisée"));
+        salaire.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8; -fx-font-weight: 500;");
+
+        infoBox.getChildren().addAll(titre, details, salaire);
+
+        // Badge statut
+        Label badge = new Label("✅ Active");
+        badge.setStyle("-fx-background-radius: 20; -fx-padding: 5 14; "
+                + "-fx-font-size: 12px; -fx-font-weight: 700; "
+                + "-fx-background-color: #d1fae5; -fx-text-fill: #059669;");
+
+        // Boutons action
+        VBox btnBox = new VBox(8);
+        btnBox.setAlignment(Pos.CENTER);
+
+        Button btnModifier = new Button("✏️ Modifier");
+        btnModifier.setStyle("-fx-background-color: #eef2ff; -fx-text-fill: #8b5cf6; "
+                + "-fx-background-radius: 10; -fx-padding: 8 18; "
+                + "-fx-font-weight: 600; -fx-font-size: 12px; -fx-cursor: hand;");
+
+        Button btnSupprimer = new Button("🗑️ Supprimer");
+        btnSupprimer.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; "
+                + "-fx-background-radius: 10; -fx-padding: 8 18; "
+                + "-fx-font-weight: 600; -fx-font-size: 12px; -fx-cursor: hand;");
+
+        btnModifier.setOnAction(e -> modifierPreference(pref));
+        btnSupprimer.setOnAction(e -> supprimerPreference(pref));
+
+        btnBox.getChildren().addAll(btnModifier, btnSupprimer);
+
+        card.getChildren().addAll(icone, infoBox, badge, btnBox);
+
+        // Hover effect
+        card.setOnMouseEntered(e -> card.setStyle(card.getStyle()
+                .replace("-fx-border-color: rgba(226,232,240,0.8);",
+                        "-fx-border-color: rgba(139,92,246,0.4);")
+                .replace("-fx-background-color: white;",
+                        "-fx-background-color: linear-gradient(to right, #ffffff 0%, #f5f3ff 100%);")));
+        card.setOnMouseExited(e -> card.setStyle(card.getStyle()
+                .replace("-fx-border-color: rgba(139,92,246,0.4);",
+                        "-fx-border-color: rgba(226,232,240,0.8);")
+                .replace("-fx-background-color: linear-gradient(to right, #ffffff 0%, #f5f3ff 100%);",
+                        "-fx-background-color: white;")));
+
+        return card;
     }
 
     /**
@@ -198,7 +289,6 @@ public class ListePreferencesUtilisateurController {
 
             FormPreferenceUtilisateurController ctrl = loader.getController();
 
-            // Créer candidature temp
             Candidature candTemp = new Candidature();
             candTemp.setIdUtilisateur(idUtilisateurCourant);
 
@@ -281,7 +371,6 @@ public class ListePreferencesUtilisateurController {
     }
 
     /* ===================== SIDEBAR ANIMATIONS ===================== */
-
     @FXML
     private void onSidebarEntered() {
         expandSidebar();

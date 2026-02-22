@@ -29,23 +29,47 @@ import vos.gestionCandidat.services.PreferenceCandidatureService;
 public class MatchingUtilisateurController implements Initializable {
 
     // ─── FXML ─────────────────────────────────────────────────────────────────
-    @FXML private VBox   vboxResultats;
-    @FXML private VBox   boxEtatVide;
-    @FXML private HBox   boxChargement;
-    @FXML private Label  lblNombreOffres;
-    @FXML private Label  lblProfilPoste;
-    @FXML private Label  lblProfilContrat;
-    @FXML private Label  lblProfilMode;
-    @FXML private Label  lblProfilDispo;
-    @FXML private Label  lblProfilMobilite;
-    @FXML private Label  lblProfilStatus;
-    @FXML private Label  lblScoreMinVal;
-    @FXML private ComboBox<String> cmbFiltreNiveau;
-    @FXML private Slider sliderScoreMin;
+    @FXML
+    private VBox vboxResultats;
+    @FXML
+    private VBox boxEtatVide;
+    @FXML
+    private HBox boxChargement;
+    @FXML
+    private Label lblNombreOffres;
+    @FXML
+    private Label lblProfilPoste;
+    @FXML
+    private Label lblProfilContrat;
+    @FXML
+    private Label lblProfilMode;
+    @FXML
+    private Label lblProfilDispo;
+    @FXML
+    private Label lblProfilMobilite;
+    @FXML
+    private Label lblProfilStatus;
+    @FXML
+    private Label lblScoreMinVal;
+    @FXML
+    private ComboBox<String> cmbFiltreNiveau;
+    @FXML
+    private Slider sliderScoreMin;
 
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private Label navMatchingsText;
+    @FXML
+    private Label navOffresText;
+    @FXML
+    private Label navForumText;
+    @FXML
+    private Label navProfilText;
+    @FXML private VBox mainView;
     // ─── Services ─────────────────────────────────────────────────────────────
     // NOTE : Plus besoin de CandidatureService — on n'utilise que les préférences
-    private final MatchingService             matchingService    = new MatchingService();
+    private final MatchingService matchingService = new MatchingService();
     private final PreferenceCandidatureService preferenceService = new PreferenceCandidatureService();
 
     // ─── État ─────────────────────────────────────────────────────────────────
@@ -79,8 +103,8 @@ public class MatchingUtilisateurController implements Initializable {
         new Thread(() -> {
             try {
                 // 1. Vérifier que l'utilisateur a bien des préférences
-                PreferenceCandidature preference =
-                        preferenceService.getByIdUtilisateur(idUtilisateurConnecte);
+                PreferenceCandidature preference
+                        = preferenceService.getByIdUtilisateur(idUtilisateurConnecte);
 
                 if (preference == null) {
                     Platform.runLater(() -> {
@@ -112,19 +136,34 @@ public class MatchingUtilisateurController implements Initializable {
     }
 
     // ─── RÉSUMÉ DU PROFIL (préférences uniquement) ────────────────────────────
-    private void mettreAJourResumelProfil(PreferenceCandidature preference) {
-        lblProfilPoste.setText("Poste souhaité : " +
-                (preference.getTypePosteSouhaite() != null ? preference.getTypePosteSouhaite() : "—"));
-        lblProfilContrat.setText("Contrat : " +
-                (preference.getTypeContratSouhaite() != null ? preference.getTypeContratSouhaite() : "—"));
-        lblProfilMode.setText("Mode : " +
-                (preference.getModeTravail() != null ? preference.getModeTravail() : "—"));
-        lblProfilDispo.setText("Disponibilité : " +
-                (preference.getDisponibilite() != null ? preference.getDisponibilite() : "—"));
-        lblProfilMobilite.setText("Mobilité : " +
-                (preference.getMobiliteGeographique() != null ? preference.getMobiliteGeographique() : "—"));
+    //v1
+    /*private void mettreAJourResumelProfil(PreferenceCandidature preference) {
+        lblProfilPoste.setText("Poste souhaité : "
+                + (preference.getTypePosteSouhaite() != null ? preference.getTypePosteSouhaite() : "—"));
+        lblProfilContrat.setText("Contrat : "
+                + (preference.getTypeContratSouhaite() != null ? preference.getTypeContratSouhaite() : "—"));
+        lblProfilMode.setText("Mode : "
+                + (preference.getModeTravail() != null ? preference.getModeTravail() : "—"));
+        lblProfilDispo.setText("Disponibilité : "
+                + (preference.getDisponibilite() != null ? preference.getDisponibilite() : "—"));
+        lblProfilMobilite.setText("Mobilité : "
+                + (preference.getMobiliteGeographique() != null ? preference.getMobiliteGeographique() : "—"));
         lblProfilStatus.setText("✅ Profil chargé depuis vos préférences");
-    }
+    }*/
+    //v2
+    private void mettreAJourResumelProfil(PreferenceCandidature preference) {
+    lblProfilPoste.setText("🎯 Poste : " +
+            (preference.getTypePosteSouhaite() != null ? preference.getTypePosteSouhaite() : "—"));
+    lblProfilContrat.setText("📋 Contrat : " +
+            (preference.getTypeContratSouhaite() != null ? preference.getTypeContratSouhaite() : "—"));
+    lblProfilMode.setText("💻 Mode : " +
+            (preference.getModeTravail() != null ? preference.getModeTravail() : "—"));
+    lblProfilDispo.setText("📅 Dispo : " +
+            (preference.getDisponibilite() != null ? preference.getDisponibilite() : "—"));
+    lblProfilMobilite.setText("📍 Mobilité : " +
+            (preference.getMobiliteGeographique() != null ? preference.getMobiliteGeographique() : "—"));
+    lblProfilStatus.setText("✅ Profil chargé depuis vos préférences");
+}
 
     // ─── AFFICHAGE DES RÉSULTATS ──────────────────────────────────────────────
     private void afficherResultats(List<MatchResult> resultats) {
@@ -149,9 +188,9 @@ public class MatchingUtilisateurController implements Initializable {
         VBox carte = new VBox(10);
         carte.setPadding(new Insets(16));
         carte.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 10;" +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 6, 0, 0, 2);"
+                "-fx-background-color: white;"
+                + "-fx-background-radius: 10;"
+                + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 6, 0, 0, 2);"
         );
 
         // ── Ligne 1 : Titre + Badge + Score ──────────────────────────────────
@@ -167,9 +206,9 @@ public class MatchingUtilisateurController implements Initializable {
 
         Label badgeNiveau = new Label(match.getNiveauMatch());
         badgeNiveau.setStyle(
-                "-fx-background-color: " + couleurNiveau(match.getNiveauMatch()) + ";" +
-                "-fx-text-fill: white; -fx-padding: 4 12; -fx-background-radius: 20;" +
-                "-fx-font-weight: bold; -fx-font-size: 12px;"
+                "-fx-background-color: " + couleurNiveau(match.getNiveauMatch()) + ";"
+                + "-fx-text-fill: white; -fx-padding: 4 12; -fx-background-radius: 20;"
+                + "-fx-font-weight: bold; -fx-font-size: 12px;"
         );
 
         Label lblScore = new Label(match.getScoreTotal() + "%");
@@ -198,11 +237,11 @@ public class MatchingUtilisateurController implements Initializable {
         ligne3.setPadding(new Insets(6, 0, 0, 0));
 
         ligne3.getChildren().addAll(
-                creerBadgeCritere("🎯 Poste",    match.getScoreTypePoste(),     "40%"),
-                creerBadgeCritere("📋 Contrat",  match.getScoreContrat(),       "30%"),
-                creerBadgeCritere("💻 Mode",     match.getScoreModeTravail(),   "15%"),
-                creerBadgeCritere("📅 Dispo",    match.getScoreDisponibilite(), "10%"),
-                creerBadgeCritere("📍 Mobilité", match.getScoreMobilite(),      "5%")
+                creerBadgeCritere("🎯 Poste", match.getScoreTypePoste(), "40%"),
+                creerBadgeCritere("📋 Contrat", match.getScoreContrat(), "30%"),
+                creerBadgeCritere("💻 Mode", match.getScoreModeTravail(), "15%"),
+                creerBadgeCritere("📅 Dispo", match.getScoreDisponibilite(), "10%"),
+                creerBadgeCritere("📍 Mobilité", match.getScoreMobilite(), "5%")
         );
 
         // ── Ligne 4 : Description tronquée ───────────────────────────────────
@@ -220,13 +259,13 @@ public class MatchingUtilisateurController implements Initializable {
 
         // ── Hover ─────────────────────────────────────────────────────────────
         carte.setOnMouseEntered(e -> carte.setStyle(
-                "-fx-background-color: #FDFEFE; -fx-background-radius: 10;" +
-                "-fx-border-color: #3498DB; -fx-border-width: 1; -fx-border-radius: 10;" +
-                "-fx-effect: dropshadow(three-pass-box, rgba(52,152,219,0.15), 10, 0, 0, 3);"
+                "-fx-background-color: #FDFEFE; -fx-background-radius: 10;"
+                + "-fx-border-color: #3498DB; -fx-border-width: 1; -fx-border-radius: 10;"
+                + "-fx-effect: dropshadow(three-pass-box, rgba(52,152,219,0.15), 10, 0, 0, 3);"
         ));
         carte.setOnMouseExited(e -> carte.setStyle(
-                "-fx-background-color: white; -fx-background-radius: 10;" +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 6, 0, 0, 2);"
+                "-fx-background-color: white; -fx-background-radius: 10;"
+                + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 6, 0, 0, 2);"
         ));
 
         return carte;
@@ -237,8 +276,8 @@ public class MatchingUtilisateurController implements Initializable {
         badge.setAlignment(Pos.CENTER);
         badge.setPadding(new Insets(3, 8, 3, 8));
         badge.setStyle(
-                "-fx-background-color: " + couleurBadge(score) + ";" +
-                "-fx-background-radius: 12;"
+                "-fx-background-color: " + couleurBadge(score) + ";"
+                + "-fx-background-radius: 12;"
         );
         Label lbl = new Label(nom + " : " + score + "% (" + poids + ")");
         lbl.setStyle("-fx-font-size: 10px; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -247,13 +286,18 @@ public class MatchingUtilisateurController implements Initializable {
     }
 
     // ─── FILTRES ──────────────────────────────────────────────────────────────
-    @FXML private void onFiltrerNiveau() { appliquerFiltres(); }
+    @FXML
+    private void onFiltrerNiveau() {
+        appliquerFiltres();
+    }
 
     private void appliquerFiltres() {
-        if (tousLesResultats == null) return;
+        if (tousLesResultats == null) {
+            return;
+        }
 
         String niveauFiltre = cmbFiltreNiveau.getValue();
-        int    scoreMin     = (int) sliderScoreMin.getValue();
+        int scoreMin = (int) sliderScoreMin.getValue();
 
         List<MatchResult> filtres = tousLesResultats.stream()
                 .filter(m -> "Tous".equals(niveauFiltre) || m.getNiveauMatch().equals(niveauFiltre))
@@ -263,8 +307,17 @@ public class MatchingUtilisateurController implements Initializable {
         afficherResultats(filtres);
     }
 
-    @FXML private void onActualiser()      { tousLesResultats = null; vboxResultats.getChildren().clear(); chargerMatchings(); }
-    @FXML private void onCompleterProfil() { System.out.println("→ Naviguer vers le formulaire de préférences"); }
+    @FXML
+    private void onActualiser() {
+        tousLesResultats = null;
+        vboxResultats.getChildren().clear();
+        chargerMatchings();
+    }
+
+    @FXML
+    private void onCompleterProfil() {
+        System.out.println("→ Naviguer vers le formulaire de préférences");
+    }
 
     // ─── ÉTATS UI ─────────────────────────────────────────────────────────────
     private void afficherChargement(boolean visible) {
@@ -286,25 +339,106 @@ public class MatchingUtilisateurController implements Initializable {
 
     // ─── COULEURS ─────────────────────────────────────────────────────────────
     private String couleurScore(int score) {
-        if (score >= 75) return "#27AE60";
-        if (score >= 50) return "#2980B9";
-        if (score >= 25) return "#F39C12";
+        if (score >= 75) {
+            return "#27AE60";
+        }
+        if (score >= 50) {
+            return "#2980B9";
+        }
+        if (score >= 25) {
+            return "#F39C12";
+        }
         return "#E74C3C";
     }
 
     private String couleurNiveau(String niveau) {
         switch (niveau) {
-            case "Excellent": return "#27AE60";
-            case "Bon":       return "#2980B9";
-            case "Moyen":     return "#F39C12";
-            default:          return "#E74C3C";
+            case "Excellent":
+                return "#27AE60";
+            case "Bon":
+                return "#2980B9";
+            case "Moyen":
+                return "#F39C12";
+            default:
+                return "#E74C3C";
         }
     }
 
     private String couleurBadge(int score) {
-        if (score >= 75) return "#27AE60";
-        if (score >= 50) return "#2980B9";
-        if (score >= 25) return "#F39C12";
+        if (score >= 75) {
+            return "#27AE60";
+        }
+        if (score >= 50) {
+            return "#2980B9";
+        }
+        if (score >= 25) {
+            return "#F39C12";
+        }
         return "#BDC3C7";
+    }
+    // ─── SIDEBAR ANIMATIONS ───────────────────────────────────────────
+
+    @FXML
+    private void onSidebarEntered() {
+        expandSidebar();
+    }
+
+    @FXML
+    private void onSidebarExited() {
+        collapseSidebar();
+    }
+
+    private void expandSidebar() {
+        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(
+                        javafx.util.Duration.millis(300),
+                        new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 240)
+                )
+        );
+        timeline.play();
+        fadeInLabels();
+    }
+
+    private void collapseSidebar() {
+        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(
+                        javafx.util.Duration.millis(300),
+                        new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 60)
+                )
+        );
+        timeline.play();
+        fadeOutLabels();
+    }
+
+    private void fadeInLabels() {
+        java.util.List<Label> labels = java.util.Arrays.asList(
+                navMatchingsText, navOffresText, navForumText, navProfilText
+        );
+        for (Label label : labels) {
+            javafx.animation.Timeline fade = new javafx.animation.Timeline(
+                    new javafx.animation.KeyFrame(
+                            javafx.util.Duration.millis(200),
+                            new javafx.animation.KeyValue(label.opacityProperty(), 1.0),
+                            new javafx.animation.KeyValue(label.maxWidthProperty(), 150)
+                    )
+            );
+            fade.play();
+        }
+    }
+
+    private void fadeOutLabels() {
+        java.util.List<Label> labels = java.util.Arrays.asList(
+                navMatchingsText, navOffresText, navForumText, navProfilText
+        );
+        for (Label label : labels) {
+            javafx.animation.Timeline fade = new javafx.animation.Timeline(
+                    new javafx.animation.KeyFrame(
+                            javafx.util.Duration.millis(200),
+                            new javafx.animation.KeyValue(label.opacityProperty(), 0.0),
+                            new javafx.animation.KeyValue(label.maxWidthProperty(), 0)
+                    )
+            );
+            fade.play();
+        }
     }
 }
