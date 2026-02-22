@@ -649,6 +649,8 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
             stage.centerOnScreen();
             stage.show();
 
+            Stage currentStage = (Stage) sidebar.getScene().getWindow();
+            currentStage.close();
         } catch (IOException e) {
             afficherAlerte(Alert.AlertType.ERROR, "Erreur",
                     "Chargement impossible : " + e.getMessage());
