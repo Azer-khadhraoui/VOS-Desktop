@@ -1,4 +1,4 @@
-package vos.gestionCandidat.controllers;
+package vos.gestionCandidat.controllers.utilisateur;
 
 import java.io.File;
 import java.io.IOException;

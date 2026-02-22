@@ -9,7 +9,7 @@
             stylesheets="@../../css/modernRecrutement.css"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="vos.gestionCandidat.controllers.ListePreferencesUtilisateurController">
+            fx:controller="vos.gestionCandidat.controllers.utilisateur.ListePreferencesUtilisateurController">
 
     <!-- SIDEBAR -->
     <left>

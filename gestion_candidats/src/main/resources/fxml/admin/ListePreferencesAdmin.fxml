@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="vos.gestionCandidat.controllers.ListePreferencesAdminController"
+      fx:controller="vos.gestionCandidat.controllers.admin.ListePreferencesAdminController"
       spacing="15" style="-fx-padding: 20; -fx-background-color: #f8fafc;">
 
     <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 15 0;">

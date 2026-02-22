@@ -10,7 +10,7 @@
             stylesheets="@../../css/style.css"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="vos.gestionCandidat.controllers.FormPreferenceUtilisateurController"
+            fx:controller="vos.gestionCandidat.controllers.utilisateur.FormPreferenceUtilisateurController"
             style="-fx-background-color: #1a1a2e;">
 
     <center>

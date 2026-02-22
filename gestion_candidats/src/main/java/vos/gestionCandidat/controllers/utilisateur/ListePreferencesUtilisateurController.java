@@ -1,4 +1,4 @@
-package vos.gestionCandidat.controllers;
+package vos.gestionCandidat.controllers.utilisateur;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

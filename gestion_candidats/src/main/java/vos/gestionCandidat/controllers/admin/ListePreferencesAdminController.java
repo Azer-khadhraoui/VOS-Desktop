@@ -1,4 +1,4 @@
-package vos.gestionCandidat.controllers;
+package vos.gestionCandidat.controllers.admin;
 
 import java.net.URL;
 import java.util.List;

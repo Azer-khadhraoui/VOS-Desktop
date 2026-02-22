@@ -1,4 +1,4 @@
-package vos.gestionCandidat.controllers;
+package vos.gestionCandidat.controllers.admin;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

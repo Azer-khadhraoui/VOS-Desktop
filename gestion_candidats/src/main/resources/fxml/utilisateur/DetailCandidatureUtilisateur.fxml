@@ -9,7 +9,7 @@
     stylesheets="@../../css/modernRecrutement.css"
     xmlns="http://javafx.com/javafx/17"
     xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="vos.gestionCandidat.controllers.DetailCandidatureUtilisateurController">
+    fx:controller="vos.gestionCandidat.controllers.utilisateur.DetailCandidatureUtilisateurController">
 
     <left>
         <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0" minWidth="60.0" maxWidth="240.0"

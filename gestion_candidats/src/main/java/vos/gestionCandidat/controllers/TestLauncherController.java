@@ -13,6 +13,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import vos.gestionCandidat.controllers.admin.FormCandidatureAdminController;
+import vos.gestionCandidat.controllers.utilisateur.DetailCandidatureUtilisateurController;
+import vos.gestionCandidat.controllers.utilisateur.FormCandidatureUtilisateurController;
+import vos.gestionCandidat.controllers.utilisateur.ListeCandidaturesUtilisateurController;
+import vos.gestionCandidat.controllers.utilisateur.MatchingUtilisateurController;
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.services.CandidatureService;
 

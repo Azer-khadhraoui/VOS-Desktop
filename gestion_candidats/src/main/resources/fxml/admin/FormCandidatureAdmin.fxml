@@ -10,7 +10,7 @@
             stylesheets="@../../css/modernRecrutement.css"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="vos.gestionCandidat.controllers.FormCandidatureAdminController">
+            fx:controller="vos.gestionCandidat.controllers.admin.FormCandidatureAdminController">
 
     <top>
         <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-padding: 20 30; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;">
