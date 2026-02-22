@@ -154,7 +154,10 @@
                                         <Label text="👥 Gestion des Recrutements" styleClass="page-title"/>
                                         <Label text="Gérez vos recrutements" styleClass="page-subtitle"/>
                                     </VBox>
-                                    <Button text="➕ Ajouter Recrutement" onAction="#ajouterRecrutement" styleClass="btn-add"/>
+                                    <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                                        <Button text="📅 Synchroniser Google" onAction="#handleGoogleSync" styleClass="btn-secondary" style="-fx-background-color: #4285F4; -fx-text-fill: white;"/>
+                                        <Button text="➕ Ajouter Recrutement" onAction="#ajouterRecrutement" styleClass="btn-add"/>
+                                    </HBox>
                                 </HBox>
 
                                 <!-- Table -->

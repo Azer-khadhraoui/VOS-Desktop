@@ -12,6 +12,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -111,7 +113,7 @@ public class RecrutementController implements Initializable {
     private void setupTableColumns() {
         // ===== USER NAME COLUMN (Name + Count + Expansion Button) =====
         colUserName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getUserName()));
-        colUserName.setCellFactory(param -> new TableCell<>() {
+        colUserName.setCellFactory(param -> new TableCell<RecrutementTableRow, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -162,7 +164,7 @@ public class RecrutementController implements Initializable {
         // ===== RECRUTEMENT COUNT COLUMN =====
         colRecrutementCount.setCellValueFactory(
                 data -> new SimpleIntegerProperty(data.getValue().getRecrutementCount()).asObject());
-        colRecrutementCount.setCellFactory(param -> new TableCell<>() {
+        colRecrutementCount.setCellFactory(param -> new TableCell<RecrutementTableRow, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
@@ -191,7 +193,7 @@ public class RecrutementController implements Initializable {
 
         // ===== DECISION DATE COLUMN =====
         colDecisionDate.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecisionDate()));
-        colDecisionDate.setCellFactory(param -> new TableCell<>() {
+        colDecisionDate.setCellFactory(param -> new TableCell<RecrutementTableRow, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -219,7 +221,7 @@ public class RecrutementController implements Initializable {
 
         // ===== DECISION FINALE COLUMN =====
         colDecisionFinale.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecision()));
-        colDecisionFinale.setCellFactory(param -> new TableCell<>() {
+        colDecisionFinale.setCellFactory(param -> new TableCell<RecrutementTableRow, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -262,7 +264,7 @@ public class RecrutementController implements Initializable {
         // ===== INTERVIEW ID COLUMN =====
         colIdEntretien
                 .setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getInterviewId()).asObject());
-        colIdEntretien.setCellFactory(param -> new TableCell<>() {
+        colIdEntretien.setCellFactory(param -> new TableCell<RecrutementTableRow, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
@@ -287,16 +289,40 @@ public class RecrutementController implements Initializable {
             }
         });
 
-        // ===== ACTIONS COLUMN =====
-        colActions.setCellFactory(param -> new TableCell<>() {
-            private final Button btnEdit = new Button("✏️");
-            private final Button btnDelete = new Button("🗑️");
-            private final HBox hbox = new HBox(8, btnEdit, btnDelete);
+        colActions.setCellFactory(param -> new TableCell<RecrutementTableRow, Void>() {
+            private final Button btnEdit = new Button();
+            private final Button btnDelete = new Button();
+            private final HBox hbox = new HBox(btnEdit, btnDelete);
 
             {
-                btnEdit.getStyleClass().add("btn-action");
-                btnDelete.getStyleClass().add("btn-delete");
-                hbox.setAlignment(Pos.CENTER_LEFT);
+                // ── Edit / Delete icons ──────────────────────────────────
+                ImageView editIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/Edit.png")));
+                editIcon.setFitHeight(16);
+                editIcon.setFitWidth(16);
+                editIcon.setPreserveRatio(true);
+
+                ImageView deleteIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/delete.png")));
+                deleteIcon.setFitHeight(16);
+                deleteIcon.setFitWidth(16);
+                deleteIcon.setPreserveRatio(true);
+
+                btnEdit.setGraphic(editIcon);
+                btnDelete.setGraphic(deleteIcon);
+
+                String baseStyle = "-fx-padding: 4 4; -fx-cursor: hand; " +
+                        "-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;";
+                btnEdit.setStyle(baseStyle);
+                btnDelete.setStyle(baseStyle);
+
+                // ── Tooltips ─────────────────────────────────────────────
+                Tooltip.install(btnEdit, new Tooltip("Modifier le recrutement"));
+                Tooltip.install(btnDelete, new Tooltip("Supprimer le recrutement"));
+
+                // ── Container ────────────────────────────────────────────
+                hbox.setStyle("-fx-background-color: rgba(150,171,241,0.52); " +
+                        "-fx-padding: 4 6; -fx-border-radius: 4; -fx-background-radius: 4;");
+                hbox.setAlignment(Pos.CENTER);
+                hbox.setSpacing(6);
 
                 btnEdit.setOnAction(event -> {
                     if (getTableRow() != null && getTableRow().getItem() != null) {
@@ -348,7 +374,7 @@ public class RecrutementController implements Initializable {
         });
 
         // Set row styling
-        tableRecrutements.setRowFactory(param -> new TableRow<>() {
+        tableRecrutements.setRowFactory(param -> new TableRow<RecrutementTableRow>() {
             @Override
             protected void updateItem(RecrutementTableRow item, boolean empty) {
                 super.updateItem(item, empty);

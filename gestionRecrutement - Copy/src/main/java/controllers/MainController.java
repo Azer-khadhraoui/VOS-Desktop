@@ -36,6 +36,7 @@ import javafx.util.Duration;
 import services.ServiceContrat;
 import services.ServiceRecrutement;
 import services.PDFService;
+import services.GoogleCalendarService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -244,6 +245,7 @@ public class MainController implements Initializable {
     // Services
     private ServiceContrat serviceContrat = new ServiceContrat();
     private ServiceRecrutement serviceRecrutement = new ServiceRecrutement();
+    private GoogleCalendarService googleCalendarService = new GoogleCalendarService();
 
     // Modal states
     private ContratRow selectedContratRow = null;
@@ -568,7 +570,7 @@ public class MainController implements Initializable {
         colIdRecrutementContrat.setCellValueFactory(cellData -> cellData.getValue().idRecrutementProperty().asObject());
 
         // Style Type column with badge icons
-        colTypeContrat.setCellFactory(param -> new TableCell<>() {
+        colTypeContrat.setCellFactory(param -> new TableCell<ContratRow, String>() {
             @Override
             protected void updateItem(String value, boolean empty) {
                 super.updateItem(value, empty);
@@ -617,7 +619,7 @@ public class MainController implements Initializable {
         });
 
         // Style Période column with dates info
-        colDateDebut.setCellFactory(param -> new TableCell<>() {
+        colDateDebut.setCellFactory(param -> new TableCell<ContratRow, String>() {
             @Override
             protected void updateItem(String value, boolean empty) {
                 super.updateItem(value, empty);
@@ -646,7 +648,7 @@ public class MainController implements Initializable {
         });
 
         // Style Status column with colored badges
-        colStatus.setCellFactory(param -> new TableCell<>() {
+        colStatus.setCellFactory(param -> new TableCell<ContratRow, String>() {
             @Override
             protected void updateItem(String value, boolean empty) {
                 super.updateItem(value, empty);
@@ -685,7 +687,7 @@ public class MainController implements Initializable {
         });
 
         // Style Volume Horaire column
-        colVolumeHoraire.setCellFactory(param -> new TableCell<>() {
+        colVolumeHoraire.setCellFactory(param -> new TableCell<ContratRow, String>() {
             @Override
             protected void updateItem(String value, boolean empty) {
                 super.updateItem(value, empty);
@@ -699,7 +701,7 @@ public class MainController implements Initializable {
         });
 
         // Style Avantages column with colored badges
-        colAvantages.setCellFactory(param -> new TableCell<>() {
+        colAvantages.setCellFactory(param -> new TableCell<ContratRow, String>() {
             @Override
             protected void updateItem(String value, boolean empty) {
                 super.updateItem(value, empty);
@@ -743,7 +745,7 @@ public class MainController implements Initializable {
         });
 
         // Style Salaire column with currency formatting
-        colSalaire.setCellFactory(param -> new TableCell<>() {
+        colSalaire.setCellFactory(param -> new TableCell<ContratRow, Double>() {
             @Override
             protected void updateItem(Double value, boolean empty) {
                 super.updateItem(value, empty);
@@ -761,7 +763,7 @@ public class MainController implements Initializable {
         tableContrats.setStyle("-fx-fixed-cell-size: 75px;");
 
         // Configure Actions column with styled buttons
-        colActionsContrat.setCellFactory(param -> new TableCell<>() {
+        colActionsContrat.setCellFactory(param -> new TableCell<ContratRow, Void>() {
             private final Button btnEdit = new Button();
             private final Button btnDelete = new Button();
             private final Button btnPreview = new Button();
@@ -862,7 +864,7 @@ public class MainController implements Initializable {
         });
 
         // Add row styling with hover effect
-        tableContrats.setRowFactory(param -> new TableRow<>() {
+        tableContrats.setRowFactory(param -> new TableRow<ContratRow>() {
             @Override
             protected void updateItem(ContratRow item, boolean empty) {
                 super.updateItem(item, empty);
@@ -893,7 +895,7 @@ public class MainController implements Initializable {
     private void initializeRecrutementTable() {
         // ===== USER NAME COLUMN (Name + Count + Expansion Button) =====
         colUserName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getUserName()));
-        colUserName.setCellFactory(param -> new TableCell<>() {
+        colUserName.setCellFactory(param -> new TableCell<RecrutementTableRow, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -946,7 +948,7 @@ public class MainController implements Initializable {
         // ===== RECRUTEMENT COUNT COLUMN =====
         colRecrutementCount.setCellValueFactory(
                 data -> new SimpleIntegerProperty(data.getValue().getRecrutementCount()).asObject());
-        colRecrutementCount.setCellFactory(param -> new TableCell<>() {
+        colRecrutementCount.setCellFactory(param -> new TableCell<RecrutementTableRow, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
@@ -975,7 +977,7 @@ public class MainController implements Initializable {
 
         // ===== DECISION DATE COLUMN =====
         colDecisionDate.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecisionDate()));
-        colDecisionDate.setCellFactory(param -> new TableCell<>() {
+        colDecisionDate.setCellFactory(param -> new TableCell<RecrutementTableRow, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -1003,7 +1005,7 @@ public class MainController implements Initializable {
 
         // ===== DECISION FINALE COLUMN =====
         colDecisionFinale.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDecision()));
-        colDecisionFinale.setCellFactory(param -> new TableCell<>() {
+        colDecisionFinale.setCellFactory(param -> new TableCell<RecrutementTableRow, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -1046,7 +1048,7 @@ public class MainController implements Initializable {
         // ===== INTERVIEW ID COLUMN =====
         colIdEntretien
                 .setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getInterviewId()).asObject());
-        colIdEntretien.setCellFactory(param -> new TableCell<>() {
+        colIdEntretien.setCellFactory(param -> new TableCell<RecrutementTableRow, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
@@ -1072,7 +1074,7 @@ public class MainController implements Initializable {
         });
 
         // ===== ACTIONS COLUMN =====
-        colActions.setCellFactory(param -> new TableCell<>() {
+        colActions.setCellFactory(param -> new TableCell<RecrutementTableRow, Void>() {
             private final Button btnEdit = new Button("✏️");
             private final Button btnDelete = new Button("🗑️");
 
@@ -1131,7 +1133,7 @@ public class MainController implements Initializable {
         });
 
         // Set row styling
-        tableRecrutements.setRowFactory(param -> new TableRow<>() {
+        tableRecrutements.setRowFactory(param -> new TableRow<RecrutementTableRow>() {
             @Override
             protected void updateItem(RecrutementTableRow item, boolean empty) {
                 super.updateItem(item, empty);
@@ -3996,6 +3998,37 @@ public class MainController implements Initializable {
         hashPara.setAlignment(Element.ALIGN_CENTER);
         hashPara.setSpacingBefore(3);
         doc.add(hashPara);
+    }
+
+    @FXML
+    private void handleGoogleSync() {
+        // Run in background thread to avoid freezing UI
+        Thread syncThread = new Thread(() -> {
+            try {
+                List<Recrutement> recrutements = serviceRecrutement.afficher();
+                googleCalendarService.syncRecrutements(recrutements);
+                Platform.runLater(() -> {
+                    showAlert("Succès", "Synchronisation avec Google Calendar terminée avec succès !");
+                    // Ouvrir Google Calendar dans le navigateur
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported()
+                                && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                            java.awt.Desktop.getDesktop().browse(new java.net.URI("https://calendar.google.com/"));
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> showAlert("Erreur", "La synchronisation a échoué : " + e.getMessage()));
+            }
+        });
+        syncThread.setDaemon(true);
+        syncThread.start();
+
+        showAlert("Information",
+                "Synchronisation lancée en arrière-plan. Une fenêtre de connexion Google peut s'ouvrir dans votre navigateur.");
     }
 
     // Inner classes for table data
