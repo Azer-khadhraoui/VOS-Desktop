@@ -531,6 +531,11 @@ public class RecrutementController implements Initializable {
         selectedRecrutement = null;
         modalTitle.setText("Nouveau Recrutement");
         clearForm();
+
+        // ✅ Pre-set "En attente" and disable for new recruitments
+        cbDecisionFinale.setValue("En attente");
+        cbDecisionFinale.setDisable(true);
+
         modalOverlay.setVisible(true);
         modalOverlay.setManaged(true);
     }
@@ -541,6 +546,10 @@ public class RecrutementController implements Initializable {
 
         dpDateDecision.setValue(recrutement.getDate_decision().toLocalDate());
         cbDecisionFinale.setValue(recrutement.getDecision_finale());
+
+        // ✅ Re-enable for editing
+        cbDecisionFinale.setDisable(false);
+
         tfIdEntretien.setText(String.valueOf(recrutement.getId_entretien()));
         tfIdUtilisateur.setText(String.valueOf(recrutement.getId_utilisateur()));
 

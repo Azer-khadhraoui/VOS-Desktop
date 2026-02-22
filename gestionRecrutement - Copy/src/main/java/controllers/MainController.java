@@ -2343,6 +2343,11 @@ public class MainController implements Initializable {
 
         ComboBox<String> decisionCombo = new ComboBox<>();
         decisionCombo.setItems(FXCollections.observableArrayList("Accepté", "Refusé", "En attente"));
+
+        // ✅ Pre-set "En attente" and disable for new recruitments
+        decisionCombo.setValue("En attente");
+        decisionCombo.setDisable(true);
+
         decisionCombo.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white; -fx-control-inner-background: rgba(26,26,46,0.9);");
