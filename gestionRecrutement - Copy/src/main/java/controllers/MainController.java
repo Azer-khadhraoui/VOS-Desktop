@@ -273,9 +273,12 @@ public class MainController implements Initializable {
         setupTabVisibility();
 
         // Initialize stats if needed
-        if (pageStatRecrutements.isVisible()) {
+        if (pageStatRecrutements != null && pageStatRecrutements.isVisible()) {
             initializeStatistiques();
         }
+
+        // 🚀 Set default page to Recrutement after initialization
+        showPageRecrutement();
     }
 
     private void initializeSidebar() {
@@ -313,12 +316,18 @@ public class MainController implements Initializable {
             gestionsPane.setText("");
         if (statsPane != null)
             statsPane.setText("");
+
+        // Make navDashboard look like a title/non-clickable
+        if (navDashboard != null) {
+            navDashboard.setStyle("-fx-cursor: default; -fx-opacity: 0.8;");
+            navDashboard.setOnMouseClicked(null);
+        }
     }
 
     private void setupNavigation() {
-        // Dashboard
+        // Dashboard (Non-clickable title)
         if (navDashboard != null) {
-            navDashboard.setOnMouseClicked(e -> showPageDashboard());
+            navDashboard.setOnMouseClicked(null);
         }
 
         // Logout
@@ -1475,6 +1484,7 @@ public class MainController implements Initializable {
             pageRecrutement.setVisible(true);
             pageRecrutement.setManaged(true);
         }
+        setNavItemActive(menuRecrutement);
     }
 
     private void showPageOffres() {
