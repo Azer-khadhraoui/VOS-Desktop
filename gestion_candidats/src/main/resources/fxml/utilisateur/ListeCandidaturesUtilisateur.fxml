@@ -30,16 +30,23 @@
                 <padding>
                     <Insets top="10.0" left="6.0" right="6.0" />
                 </padding>
+                <HBox fx:id="navOffres" styleClass="sidebar-nav-item">
+                    <Label styleClass="sidebar-nav-icon" text="💼" />
+                    <Label fx:id="navOffresText" styleClass="sidebar-nav-label" text="Offres" />
+                </HBox>
+                <HBox fx:id="navMatchings" styleClass="sidebar-nav-item">
+                    <Label styleClass="sidebar-nav-icon" text="🎯" />
+                    <Label fx:id="navMatchingsText" styleClass="sidebar-nav-label" text="Offres Compatibles" />
+                </HBox>
+                <HBox fx:id="navPreferences" styleClass="sidebar-nav-item">
+                    <Label styleClass="sidebar-nav-icon" text="⭐"/>
+                    <Label fx:id="navPreferencesText" styleClass="sidebar-nav-label" text="Mes Préférences"/>
+                </HBox>
 
                 <HBox fx:id="navCandidatures" styleClass="sidebar-nav-item, sidebar-nav-item-active">
                     <Label styleClass="sidebar-nav-icon" text="📋" />
                     <Label fx:id="navCandidaturesText" styleClass="sidebar-nav-label"
                         text="Mes Candidatures" />
-                </HBox>
-
-                <HBox fx:id="navOffres" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="💼" />
-                    <Label fx:id="navOffresText" styleClass="sidebar-nav-label" text="Offres" />
                 </HBox>
 
                 <HBox fx:id="navForum" styleClass="sidebar-nav-item">
