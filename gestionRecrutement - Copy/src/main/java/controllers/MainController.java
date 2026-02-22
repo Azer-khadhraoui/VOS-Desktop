@@ -2307,6 +2307,14 @@ public class MainController implements Initializable {
                 .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
 
         DatePicker dateDecision = new DatePicker();
+        // ✅ Restrict date selection to today or future dates
+        dateDecision.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(java.time.LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+            }
+        });
         dateDecision.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +
                 "-fx-font-size: 13px; -fx-text-fill: white;");
@@ -3210,6 +3218,14 @@ public class MainController implements Initializable {
                 .setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;");
 
         DatePicker dateDecision = new DatePicker();
+        // ✅ Restrict date selection to today or future dates
+        dateDecision.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(java.time.LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+            }
+        });
         dateDecision.setValue(recrutement.getDate_decision().toLocalDate());
         dateDecision.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; " +
                 "-fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; " +

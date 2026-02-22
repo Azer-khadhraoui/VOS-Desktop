@@ -89,6 +89,15 @@ public class RecrutementController implements Initializable {
         cbDecisionFinale.setItems(FXCollections.observableArrayList(
                 "Accepté", "Refusé", "En attente"));
 
+        // ✅ Restrict date selection to today or future dates
+        dpDateDecision.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(java.time.LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+            }
+        });
+
         // Configurer les colonnes
         setupTableColumns();
 
