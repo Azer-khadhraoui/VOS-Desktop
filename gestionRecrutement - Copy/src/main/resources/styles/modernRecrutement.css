@@ -34,7 +34,7 @@
 .sidebar-nav-item {
     -fx-alignment: CENTER_LEFT;
     -fx-spacing: 12.0;
-    -fx-padding: 12 8;
+    -fx-padding: 12 18;
     -fx-background-color: transparent;
     -fx-background-radius: 8;
     -fx-cursor: hand;
@@ -71,7 +71,7 @@
     -fx-padding: 0;
     -fx-background-color: transparent;
     -fx-border-width: 0;
-    -fx-padding: 12 8;
+    /* Removed padding here to follow nav item pattern */
 }
 
 .sidebar-titled-pane:focused {
@@ -79,7 +79,7 @@
 }
 
 .sidebar-titled-pane>.title {
-    -fx-padding: 0 8;
+    -fx-padding: 12 18;
     -fx-background-color: transparent;
     -fx-text-fill: white;
     -fx-font-weight: 600;
@@ -88,7 +88,16 @@
     -fx-alignment: CENTER_LEFT;
 }
 
-.sidebar-titled-pane>.title .arrow {
+/* Hide disclosure arrow completely */
+.sidebar-titled-pane>.title>.arrow-button {
+    -fx-padding: 0;
+    -fx-max-width: 0;
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-opacity: 0;
+}
+
+.sidebar-titled-pane>.title>.arrow-button>.arrow {
     -fx-padding: 0;
     -fx-background-color: transparent;
 }
@@ -107,7 +116,6 @@
     -fx-padding: 0;
     -fx-background-color: transparent;
     -fx-border-width: 0;
-}
 }
 
 .sidebar-submenu-item {
@@ -134,6 +142,14 @@
     -fx-font-size: 13px;
     -fx-text-fill: #ffffff;
     -fx-font-weight: 500;
+}
+
+.sidebar-nav-label-large {
+    -fx-font-size: 16px;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 700;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.5;
 }
 
 

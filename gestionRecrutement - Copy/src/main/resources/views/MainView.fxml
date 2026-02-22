@@ -30,11 +30,10 @@
                 <Insets top="15.0" left="8.0" right="8.0"/>
             </padding>
 
-            <!-- Dashboard Title -->
-            <Label fx:id="lblDashboardSection" text="DASHBOARD" styleClass="sidebar-section-title"/>
+            <!-- Dashboard Section -->
             <HBox fx:id="navDashboard" styleClass="sidebar-nav-item, sidebar-nav-item-active">
                 <Label styleClass="sidebar-nav-icon" text="📊"/>
-                <Label fx:id="navDashboardText" styleClass="sidebar-nav-label" text="Dashboard"/>
+                <Label fx:id="lblDashboardSection" styleClass="sidebar-nav-label-large" text="DASHBOARD"/>
             </HBox>
 
             <!-- Spacer -->
@@ -42,22 +41,24 @@
 
             <!-- Gestions Section -->
             <Label fx:id="lblGestionsSection" text="GESTIONS" styleClass="sidebar-section-title"/>
-            <TitledPane fx:id="gestionsPane" text="Gestions" styleClass="sidebar-titled-pane" animated="true" collapsible="true">
+            <TitledPane fx:id="gestionsPane" styleClass="sidebar-titled-pane" animated="true" collapsible="true">
+                <graphic>
+                    <HBox spacing="10.0" alignment="CENTER_LEFT">
+                        <Label styleClass="sidebar-nav-icon" text="🛠️"/>
+                        <Label fx:id="lblGestionsText" styleClass="sidebar-nav-label" text="Gestions"/>
+                    </HBox>
+                </graphic>
                 <VBox spacing="4.0" style="-fx-padding: 8 0 0 0;">
                     <HBox fx:id="menuOffres" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuOffresClicked">
-                        <Label styleClass="sidebar-nav-icon" text="💼"/>
                         <Label styleClass="sidebar-nav-label" text="Offres d'emploi"/>
                     </HBox>
                     <HBox fx:id="menuEntretiens" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuEntretiensClicked">
-                        <Label styleClass="sidebar-nav-icon" text="🗣️"/>
                         <Label styleClass="sidebar-nav-label" text="Entretiens"/>
                     </HBox>
                     <HBox fx:id="menuRecrutement" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuRecrutementClicked">
-                        <Label styleClass="sidebar-nav-icon" text="📋"/>
                         <Label styleClass="sidebar-nav-label" text="Recrutement"/>
                     </HBox>
                     <HBox fx:id="menuAdministration" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuAdministrationClicked">
-                        <Label styleClass="sidebar-nav-icon" text="🔧"/>
                         <Label styleClass="sidebar-nav-label" text="Administration"/>
                     </HBox>
                 </VBox>
@@ -68,26 +69,27 @@
 
             <!-- Statistiques Section -->
             <Label fx:id="lblStatistiquesSection" text="STATISTIQUES" styleClass="sidebar-section-title"/>
-            <TitledPane fx:id="statsPane" text="Statistiques" styleClass="sidebar-titled-pane" animated="true" collapsible="true">
+            <TitledPane fx:id="statsPane" styleClass="sidebar-titled-pane" animated="true" collapsible="true">
+                <graphic>
+                    <HBox spacing="10.0" alignment="CENTER_LEFT">
+                        <Label styleClass="sidebar-nav-icon" text="📈"/>
+                        <Label fx:id="lblStatsText" styleClass="sidebar-nav-label" text="Statistiques"/>
+                    </HBox>
+                </graphic>
                 <VBox spacing="4.0" style="-fx-padding: 8 0 0 0;">
                     <HBox fx:id="menuCandidats" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuCandidatsClicked">
-                        <Label styleClass="sidebar-nav-icon" text="👤"/>
                         <Label styleClass="sidebar-nav-label" text="Gestion Candidats"/>
                     </HBox>
                     <HBox fx:id="menuStatEntretiens" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuStatEntretiensClicked">
-                        <Label styleClass="sidebar-nav-icon" text="💬"/>
                         <Label styleClass="sidebar-nav-label" text="Gestion Entretiens"/>
                     </HBox>
                     <HBox fx:id="menuStatOffres" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuStatOffresClicked">
-                        <Label styleClass="sidebar-nav-icon" text="📑"/>
                         <Label styleClass="sidebar-nav-label" text="Gestion Offres"/>
                     </HBox>
                     <HBox fx:id="menuStatRecrutements" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuStatRecrutementsClicked">
-                        <Label styleClass="sidebar-nav-icon" text="✅"/>
                         <Label styleClass="sidebar-nav-label" text="Gestion Recrutements"/>
                     </HBox>
                     <HBox fx:id="menuUtilisateurs" styleClass="sidebar-submenu-item" onMouseClicked="#onMenuUtilisateursClicked">
-                        <Label styleClass="sidebar-nav-icon" text="👨‍💼"/>
                         <Label styleClass="sidebar-nav-label" text="Gestion Utilisateurs"/>
                     </HBox>
                 </VBox>

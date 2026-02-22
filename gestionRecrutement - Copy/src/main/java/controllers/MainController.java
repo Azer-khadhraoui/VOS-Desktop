@@ -78,8 +78,6 @@ public class MainController implements Initializable {
 
     @FXML
     private HBox navDashboard;
-    @FXML
-    private Label navDashboardText;
 
     @FXML
     private TitledPane gestionsPane;
@@ -118,6 +116,11 @@ public class MainController implements Initializable {
     private HBox navLogout;
     @FXML
     private Label navLogoutText;
+
+    @FXML
+    private Label lblGestionsText;
+    @FXML
+    private Label lblStatsText;
 
     // ================================
     // NAVIGATION BUTTONS (OLD - DEPRECATED)
@@ -286,7 +289,7 @@ public class MainController implements Initializable {
             return;
 
         // Hide section titles initially (collapsed state)
-        Label[] sectionLabels = { lblDashboardSection, lblGestionsSection, lblStatistiquesSection };
+        Label[] sectionLabels = { lblGestionsSection, lblStatistiquesSection };
         for (Label label : sectionLabels) {
             if (label != null) {
                 label.setVisible(false);
@@ -295,7 +298,7 @@ public class MainController implements Initializable {
         }
 
         // Hide nav item labels initially
-        Label[] labels = { navDashboardText, navLogoutText };
+        Label[] labels = { navLogoutText, lblGestionsText, lblStatsText, lblDashboardSection };
         for (Label label : labels) {
             if (label != null) {
                 label.setVisible(false);
@@ -311,11 +314,14 @@ public class MainController implements Initializable {
             }
         });
 
-        // Hide TitledPane titles initially (only show icons when collapsed)
-        if (gestionsPane != null)
-            gestionsPane.setText("");
-        if (statsPane != null)
-            statsPane.setText("");
+        // TitledPane titles are now handled via graphic property with labels
+        // (lblGestionsText, lblStatsText)
+        if (gestionsPane != null) {
+            gestionsPane.setExpanded(false);
+        }
+        if (statsPane != null) {
+            statsPane.setExpanded(false);
+        }
 
         // Make navDashboard look like a title/non-clickable
         if (navDashboard != null) {
@@ -421,7 +427,7 @@ public class MainController implements Initializable {
         sidebarAnimation.play();
 
         // Show section titles
-        Label[] sectionLabels = { lblDashboardSection, lblGestionsSection, lblStatistiquesSection };
+        Label[] sectionLabels = { lblGestionsSection, lblStatistiquesSection };
         for (Label label : sectionLabels) {
             if (label != null) {
                 label.setVisible(true);
@@ -435,7 +441,7 @@ public class MainController implements Initializable {
         }
 
         // Fade in nav item labels
-        Label[] labels = { navDashboardText, navLogoutText };
+        Label[] labels = { navLogoutText, lblGestionsText, lblStatsText, lblDashboardSection };
         for (Label label : labels) {
             if (label != null) {
                 label.setVisible(true);
@@ -462,12 +468,6 @@ public class MainController implements Initializable {
                 }
             });
         }
-
-        // Show TitledPane titles
-        if (gestionsPane != null)
-            gestionsPane.setText("Gestions");
-        if (statsPane != null)
-            statsPane.setText("Statistiques");
     }
 
     private void collapseSidebar() {
@@ -487,7 +487,7 @@ public class MainController implements Initializable {
         }
 
         // Hide section titles
-        Label[] sectionLabels = { lblDashboardSection, lblGestionsSection, lblStatistiquesSection };
+        Label[] sectionLabels = { lblGestionsSection, lblStatistiquesSection };
         for (Label label : sectionLabels) {
             if (label != null) {
                 FadeTransition fadeOut = new FadeTransition(Duration.millis(150), label);
@@ -502,7 +502,7 @@ public class MainController implements Initializable {
         }
 
         // Fade out nav item labels
-        Label[] labels = { navDashboardText, navLogoutText };
+        Label[] labels = { navLogoutText, lblGestionsText, lblStatsText, lblDashboardSection };
         for (Label label : labels) {
             if (label != null) {
                 FadeTransition fadeOut = new FadeTransition(Duration.millis(150), label);
@@ -531,12 +531,6 @@ public class MainController implements Initializable {
                 }
             });
         }
-
-        // Hide TitledPane titles (show only icons)
-        if (gestionsPane != null)
-            gestionsPane.setText("");
-        if (statsPane != null)
-            statsPane.setText("");
 
         // Animate width collapse: 240px -> 60px
         sidebarAnimation = new Timeline(
