@@ -14,13 +14,11 @@ import javafx.stage.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.*;
-import services.AIService;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import services.EmailService;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.geometry.Pos;
-import javafx.geometry.Insets;
+
 import javafx.scene.Scene;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -37,6 +35,7 @@ import javafx.animation.Interpolator;
 import javafx.util.Duration;
 import services.ServiceContrat;
 import services.ServiceRecrutement;
+import services.PDFService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,8 +61,7 @@ import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
-import javafx.scene.text.TextAlignment;
-import javafx.scene.text.Font;
+
 import javafx.stage.FileChooser;
 
 public class MainController implements Initializable {
@@ -170,8 +168,6 @@ public class MainController implements Initializable {
     @FXML
     private Label valEntretiensMoyens;
 
-    private final AIService aiService = AIService.getInstance();
-    private final Gson gson = new Gson();
     @FXML
     private Label valEnAttenteCount;
     @FXML
@@ -1079,16 +1075,10 @@ public class MainController implements Initializable {
         colActions.setCellFactory(param -> new TableCell<>() {
             private final Button btnEdit = new Button("✏️");
             private final Button btnDelete = new Button("🗑️");
-            private final Button btnAI = new Button("✨");
-            private final HBox hbox = new HBox(8, btnEdit, btnDelete, btnAI);
 
             {
                 btnEdit.getStyleClass().add("btn-action");
                 btnDelete.getStyleClass().add("btn-delete");
-                btnAI.getStyleClass().add("btn-ai");
-                hbox.setAlignment(Pos.CENTER_LEFT);
-
-                Tooltip.install(btnAI, new Tooltip("Analyse AI Match"));
 
                 btnEdit.setOnAction(event -> {
                     if (getTableRow() != null && getTableRow().getItem() != null) {
@@ -1119,21 +1109,6 @@ public class MainController implements Initializable {
                         }
                     }
                 });
-
-                btnAI.setOnAction(event -> {
-                    if (getTableRow() != null && getTableRow().getItem() != null) {
-                        RecrutementTableRow row = getTableRow().getItem();
-                        if (!row.isGroupHeader()) {
-                            Recrutement rec = row.getParentGroup().getRecrutements().stream()
-                                    .filter(r -> r.getId_recrutement() == row.getRecruitmentId())
-                                    .findFirst()
-                                    .orElse(null);
-                            if (rec != null) {
-                                MainController.this.handleAIAnalysis(rec, row.getUserName());
-                            }
-                        }
-                    }
-                });
             }
 
             @Override
@@ -1148,6 +1123,8 @@ public class MainController implements Initializable {
                 if (row.isGroupHeader()) {
                     setGraphic(null);
                 } else {
+                    HBox hbox = new HBox(8, btnEdit, btnDelete);
+                    hbox.setAlignment(Pos.CENTER);
                     setGraphic(hbox);
                 }
             }
@@ -3383,6 +3360,10 @@ public class MainController implements Initializable {
                         idUtilisateur.getValue());
 
                 serviceRecrutement.modifier(r);
+
+                // ✅ Automated Email Flow (Accepté/Refusé)
+                automatedStatusEmailFlow(r, decisionCombo.getValue());
+
                 loadSampleRecrutementData();
                 tableRecrutements.setItems(recrutementData);
                 showAlert("Succès", "Recrutement modifié avec succès!");
@@ -3597,6 +3578,52 @@ public class MainController implements Initializable {
      * Saves a professional corporate contract PDF using OpenPDF with French legal
      * formatting.
      */
+    /**
+     * Automated flow to send emails when recruitment status changes to "Accepté" or
+     * "Refusé".
+     */
+    private void automatedStatusEmailFlow(Recrutement rec, String status) {
+        if (!status.equals("Accepté") && !status.equals("Refusé"))
+            return;
+
+        Platform.runLater(() -> {
+            try {
+                String candidateEmail = serviceRecrutement.getUserEmailById(rec.getId_utilisateur());
+                if (candidateEmail == null || candidateEmail.isEmpty()) {
+                    System.err.println("Email du candidat introuvable pour ID: " + rec.getId_utilisateur());
+                    return;
+                }
+
+                Map<String, String> ctx = serviceRecrutement.getAIContext(rec.getId_recrutement());
+                String candidateName = ctx.getOrDefault("candidate_name", "Candidat");
+                String jobTitle = ctx.getOrDefault("job_title", "N/A");
+
+                String emailType = status.equals("Accepté") ? "Acceptation" : "Refus";
+                String body = EmailService.getInstance().getTemplate(emailType, candidateName, jobTitle);
+
+                try {
+                    File attachment = null;
+                    if (status.equals("Accepté")) {
+                        attachment = PDFService.getInstance().generateTemporaryContractPDF(rec, ctx, false);
+                    }
+
+                    String subject = status.equals("Accepté") ? "Félicitations - Votre candidature chez VOS"
+                            : "Mise à jour de votre candidature chez VOS";
+                    EmailService.getInstance().sendEmail(candidateEmail, subject, body, attachment);
+
+                    Platform.runLater(() -> {
+                        System.out.println("Email automatique envoyé à " + candidateEmail);
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     private void downloadContratPdf(ContratRow contrat) {
         // Check if contract status is "Actif"
         if (!contrat.statusProperty().get().equals("Actif")) {
@@ -4018,172 +4045,4 @@ public class MainController implements Initializable {
         }
     }
 
-    private void handleAIAnalysis(Recrutement rec, String candidateName) {
-        // Create a custom loading stage
-        Stage loadingStage = new Stage();
-        loadingStage.initModality(Modality.APPLICATION_MODAL);
-        loadingStage.initStyle(StageStyle.UNDECORATED);
-
-        VBox loadingContent = new VBox(20);
-        loadingContent.setAlignment(Pos.CENTER);
-        loadingContent.setStyle(
-                "-fx-background-color: white; -fx-padding: 40; -fx-background-radius: 20; -fx-border-color: #9333EA; -fx-border-width: 2; -fx-border-radius: 20;");
-
-        Label spinner = new Label("✨");
-        spinner.getStyleClass().add("ai-loading-spinner");
-
-        Label loadingLabel = new Label("L'IA analyse le profil de " + candidateName + "...");
-        loadingLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #374151;");
-
-        loadingContent.getChildren().addAll(spinner, loadingLabel);
-        Scene loadingScene = new Scene(loadingContent);
-        loadingScene.getStylesheets().add(getClass().getResource("/styles/modernRecrutement.css").toExternalForm());
-        loadingStage.setScene(loadingScene);
-        loadingStage.show();
-
-        // Perform AI Analysis with enriched data
-        try {
-            Map<String, String> ctx = serviceRecrutement.getAIContext(rec.getId_recrutement());
-
-            String candidateInfo = "Nom: " + candidateName + "\n" +
-                    "Expérience: " + ctx.getOrDefault("candidate_exp", "Non spécifiée") + "\n" +
-                    "Domaine: " + ctx.getOrDefault("candidate_domain", "Non spécifié") + "\n" +
-                    "Dernier poste: " + ctx.getOrDefault("candidate_last_post", "Non spécifié") + "\n" +
-                    "Message/Motivation: " + ctx.getOrDefault("candidate_message", "Aucun");
-
-            String jobInfo = "Titre du poste: " + ctx.getOrDefault("job_title", "Inconnu") + "\n" +
-                    "Description: " + ctx.getOrDefault("job_desc", "Non spécifiée") + "\n" +
-                    "Compétences requises: " + ctx.getOrDefault("job_requirements", "Non spécifiées") + "\n" +
-                    "Expérience requise: " + ctx.getOrDefault("job_min_exp", "Non spécifiée");
-
-            aiService.analyzeMatch(candidateInfo, jobInfo).thenAccept(response -> {
-                Platform.runLater(() -> {
-                    loadingStage.close();
-                    showAIResultModal(candidateName, response);
-                });
-            }).exceptionally(ex -> {
-                Platform.runLater(() -> {
-                    loadingStage.close();
-                    showError("Erreur AI: " + ex.getMessage());
-                });
-                return null;
-            });
-        } catch (SQLException e) {
-            loadingStage.close();
-            showError("Erreur de base de données lors de la préparation de l'analyse: " + e.getMessage());
-        }
-    }
-
-    private void showAIResultModal(String candidateName, String jsonResponse) {
-        try {
-            JsonObject result = gson.fromJson(jsonResponse, JsonObject.class);
-
-            // Check for service-level errors
-            if (result.has("error")) {
-                showError("Erreur IA: " + result.get("error").getAsString());
-                return;
-            }
-
-            int score = result.has("score") ? result.get("score").getAsInt() : 0;
-            String analysis = result.has("analysis") ? result.get("analysis").getAsString()
-                    : "Aucune analyse disponible.";
-            String recommendation = result.has("recommendation") ? result.get("recommendation").getAsString()
-                    : "Pas de recommandation.";
-
-            Stage resultStage = new Stage();
-            resultStage.initModality(Modality.APPLICATION_MODAL);
-            resultStage.setTitle("Analyse IA - " + candidateName);
-
-            VBox root = new VBox();
-            root.getStyleClass().add("modal-content");
-            root.setSpacing(0);
-            root.setPadding(Insets.EMPTY);
-            root.setStyle("-fx-background-radius: 20; -fx-overflow: hidden; -fx-background-color: white;");
-
-            // Header
-            VBox header = new VBox();
-            header.getStyleClass().add("ai-modal-header");
-            Label titleLabel = new Label("Résultat de l'Analyse IA");
-            titleLabel.getStyleClass().add("ai-modal-title");
-            header.getChildren().add(titleLabel);
-
-            // Body
-            VBox body = new VBox(25);
-            body.setPadding(new Insets(30));
-            body.setAlignment(Pos.CENTER);
-            body.setPrefWidth(550); // Wider modal
-
-            // Score indicator
-            Label scoreLabel = new Label(score + "%");
-            scoreLabel.getStyleClass().add("ai-score-ring");
-            if (score >= 80)
-                scoreLabel.setStyle("-fx-text-fill: #10B981; -fx-font-size: 48px; -fx-font-weight: 900;");
-            else if (score >= 50)
-                scoreLabel.setStyle("-fx-text-fill: #F59E0B; -fx-font-size: 48px; -fx-font-weight: 900;");
-            else
-                scoreLabel.setStyle("-fx-text-fill: #EF4444; -fx-font-size: 48px; -fx-font-weight: 900;");
-
-            VBox candidateBox = new VBox(5);
-            candidateBox.setAlignment(Pos.CENTER);
-            Label candidateHeader = new Label("Analyse du Profil");
-            candidateHeader.setStyle(
-                    "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6B7280; -fx-text-transform: uppercase;");
-            Label candidateLabel = new Label(candidateName);
-            candidateLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #111827;");
-            candidateBox.getChildren().addAll(candidateHeader, candidateLabel);
-
-            // Analysis Area with ScrollPane
-            VBox analysisContainer = new VBox(10);
-            analysisContainer.setAlignment(Pos.TOP_LEFT);
-            Label analysisTitle = new Label("Résumé de l'IA:");
-            analysisTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
-
-            Label analysisText = new Label(analysis);
-            analysisText.setWrapText(true);
-            analysisText.setMaxWidth(480);
-            analysisText.setStyle("-fx-font-size: 14px; -fx-line-spacing: 5; -fx-text-fill: #4B5563;");
-
-            ScrollPane scrollPane = new ScrollPane(analysisText);
-            scrollPane.setFitToWidth(true);
-            scrollPane.setPrefHeight(120);
-            scrollPane.setStyle(
-                    "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
-
-            analysisContainer.getChildren().addAll(analysisTitle, scrollPane);
-
-            // Recommendation
-            VBox recContainer = new VBox(10);
-            recContainer.setAlignment(Pos.CENTER);
-            Label recLabel = new Label("💡 RECOMMANDATION");
-            recLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #9333EA;");
-
-            Label recBadge = new Label(recommendation);
-            recBadge.setWrapText(true);
-            recBadge.setTextAlignment(TextAlignment.CENTER);
-            recBadge.setMaxWidth(480);
-            recBadge.getStyleClass().add("ai-recommendation-badge");
-            recBadge.setPadding(new Insets(10, 20, 10, 20));
-            recBadge.setStyle(
-                    "-fx-background-color: #F3E8FF; -fx-text-fill: #6B21A8; -fx-background-radius: 12; -fx-font-weight: bold;");
-
-            recContainer.getChildren().addAll(recLabel, recBadge);
-
-            Button btnClose = new Button("Fermer l'Analyse");
-            btnClose.getStyleClass().add("btn-cancel");
-            btnClose.setPrefWidth(200);
-            btnClose.setPadding(new Insets(12, 0, 12, 0));
-            btnClose.setOnAction(e -> resultStage.close());
-
-            body.getChildren().addAll(scoreLabel, candidateBox, analysisContainer, recContainer, btnClose);
-            root.getChildren().addAll(header, body);
-
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/styles/modernRecrutement.css").toExternalForm());
-            resultStage.setScene(scene);
-            resultStage.show();
-
-        } catch (Exception e) {
-            showError("Erreur lors de l'affichage de l'analyse: " + e.getMessage());
-        }
-    }
 }

@@ -565,6 +565,10 @@ public class RecrutementController implements Initializable {
             if (selectedRecrutement == null) {
                 Recrutement newRecrutement = new Recrutement(dateDecision, decisionFinale, idEntretien, idUtilisateur);
                 serviceRecrutement.ajouter(newRecrutement);
+
+                // ✅ Automated Email Flow (Accepté/Refusé)
+                automatedStatusEmailFlow(newRecrutement, decisionFinale);
+
                 showMessage("Recrutement ajouté avec succès!", false);
             } else {
                 selectedRecrutement.setDate_decision(dateDecision);
@@ -572,6 +576,10 @@ public class RecrutementController implements Initializable {
                 selectedRecrutement.setId_entretien(idEntretien);
                 selectedRecrutement.setId_utilisateur(idUtilisateur);
                 serviceRecrutement.modifier(selectedRecrutement);
+
+                // ✅ Automated Email Flow (Accepté/Refusé)
+                automatedStatusEmailFlow(selectedRecrutement, decisionFinale);
+
                 showMessage("Recrutement modifié avec succès!", false);
             }
 
@@ -639,5 +647,43 @@ public class RecrutementController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void automatedStatusEmailFlow(Recrutement rec, String status) {
+        if (!status.equals("Accepté") && !status.equals("Refusé"))
+            return;
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                String candidateEmail = serviceRecrutement.getUserEmailById(rec.getId_utilisateur());
+                if (candidateEmail == null || candidateEmail.isEmpty())
+                    return;
+
+                java.util.Map<String, String> ctx = serviceRecrutement.getAIContext(rec.getId_recrutement());
+                String candidateName = ctx.getOrDefault("candidate_name", "Candidat");
+                String jobTitle = ctx.getOrDefault("job_title", "N/A");
+
+                String emailType = status.equals("Accepté") ? "Acceptation" : "Refus";
+                String body = services.EmailService.getInstance().getTemplate(emailType, candidateName, jobTitle);
+
+                try {
+                    java.io.File attachment = null;
+                    if (status.equals("Accepté")) {
+                        attachment = services.PDFService.getInstance().generateTemporaryContractPDF(rec, ctx, false);
+                    }
+
+                    String subject = status.equals("Accepté") ? "Félicitations - Votre candidature chez VOS"
+                            : "Mise à jour de votre candidature chez VOS";
+                    services.EmailService.getInstance().sendEmail(candidateEmail, subject, body, attachment);
+
+                    System.out.println("Email automatique envoyé à " + candidateEmail);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

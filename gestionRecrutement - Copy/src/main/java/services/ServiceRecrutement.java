@@ -131,6 +131,20 @@ public class ServiceRecrutement {
         return "Utilisateur #" + userId;
     }
 
+    // ✅ GET USER EMAIL BY ID
+    public String getUserEmailById(int userId) throws SQLException {
+        String req = "SELECT email FROM utilisateur WHERE id_utilisateur = ?";
+        try (PreparedStatement ps = conn.prepareStatement(req)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("email");
+                }
+            }
+        }
+        return null;
+    }
+
     // ✅ GET ALL RECRUITMENTS GROUPED BY USER
     public List<RecrutementGroup> afficherGroupedByUser() throws SQLException {
         // First, get all recruitments
@@ -159,12 +173,14 @@ public class ServiceRecrutement {
         Map<String, String> context = new HashMap<>();
 
         String req = "SELECT r.id_recrutement, r.decision_finale, " +
+                "u.nom as candidate_name, " +
                 "e.type_entretien, e.statut_entretien, e.type_test, " +
                 "c.message_candidat, c.niveau_experience, c.annees_experience, c.domaine_experience, c.dernier_poste, "
                 +
                 "o.titre as job_title, o.description as job_desc, o.type_contrat as job_contract, " +
                 "co.niveau_experience as req_exp, co.niveau_etude as req_study, co.competences_requises " +
                 "FROM recrutement r " +
+                "LEFT JOIN utilisateur u ON r.id_utilisateur = u.id_utilisateur " +
                 "LEFT JOIN entretien e ON r.id_entretien = e.id_entretien " +
                 "LEFT JOIN candidature c ON e.id_candidature = c.id_candidature " +
                 "LEFT JOIN offre_emploi o ON c.id_offre = o.id_offre " +
@@ -175,6 +191,7 @@ public class ServiceRecrutement {
             ps.setInt(1, recruitmentId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
+                    context.put("candidate_name", rs.getString("candidate_name"));
                     context.put("candidate_exp",
                             (rs.getString("niveau_experience") != null ? rs.getString("niveau_experience") : "Inconnu")
                                     +
@@ -185,6 +202,7 @@ public class ServiceRecrutement {
 
                     context.put("job_title", rs.getString("job_title"));
                     context.put("job_desc", rs.getString("job_desc"));
+                    context.put("job_contract", rs.getString("job_contract"));
                     context.put("job_requirements", rs.getString("competences_requises"));
                     context.put("job_min_exp", rs.getString("req_exp"));
 
