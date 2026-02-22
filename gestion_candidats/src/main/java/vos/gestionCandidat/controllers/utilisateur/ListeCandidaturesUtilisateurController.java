@@ -70,8 +70,21 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     private Label navForumText;
     @FXML
     private Label navProfilText;
+    @FXML private HBox navOffres;
+    @FXML private HBox navMatchings;
+    @FXML private HBox navPreferences;
+    @FXML private HBox navCandidatures;
     @FXML
     private TextField searchFieldTable;
+
+    private static final String USER_Preference
+            = "/fxml/utilisateur/ListePreferencesUtilisateur.fxml";
+    private static final String USER_Candidat
+            = "/fxml/utilisateur/ListeCandidaturesUtilisateur.fxml";
+    private static final String USER_MATCHING
+            = "/fxml/utilisateur/MatchingUtilisateur.fxml";
+    private static final String Offre
+            = "/fxml/utilisateur/Offre.fxml";
 
     /* ===================== STATE ===================== */
     private final CandidatureService service = new CandidatureService();
@@ -87,7 +100,9 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurerFiltre();
+        configurerNavigationSidebar();
         chargerDonnees();
+
     }
 
     /* ---------------------- Config filtre ---------------------- */
@@ -563,5 +578,86 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
             afficherAlerte(Alert.AlertType.ERROR, "Erreur",
                     "Impossible d'ouvrir les préférences : " + e.getMessage());
         }
+    }
+    private void configurerNavigationSidebar() {
+        navOffres.setOnMouseClicked(e -> navGoOffres());
+        navMatchings.setOnMouseClicked(e -> navGoMatching());
+        navPreferences.setOnMouseClicked(e -> navGoPreferences());
+        navCandidatures.setOnMouseClicked(e -> navGoCandidatures());
+    }
+    private void navGoOffres() {
+        chargerDansNouvelleScene(Offre,
+                "Offres d'emploi", 1300, 800,
+                loader -> {});
+    }
+
+    private void navGoMatching() {
+        chargerDansNouvelleScene(USER_MATCHING,
+                "Candidat #" + idUtilisateurCourant + " — Offres Compatibles",
+                1200, 800,
+                loader -> {
+                    MatchingUtilisateurController ctrl = loader.getController();
+                    ctrl.setIdUtilisateurConnecte(idUtilisateurCourant);
+                });
+    }
+
+    private void navGoPreferences() {
+        chargerDansNouvelleScene(USER_Preference,
+                "Candidat #" + idUtilisateurCourant + " — Mes Préférences",
+                1300, 800,
+                loader -> {
+                    ListePreferencesUtilisateurController ctrl = loader.getController();
+                    ctrl.initData(idUtilisateurCourant, this);
+                });
+    }
+
+    private void navGoCandidatures() {
+        // Page actuelle — simple rafraîchissement
+        chargerDansNouvelleScene(USER_Candidat,
+                "Candidat #" + idUtilisateurCourant + " — Mes Candidatures",
+                1300, 800,
+                loader -> {
+                    ListeCandidaturesUtilisateurController ctrl = loader.getController();
+                    ctrl.setIdUtilisateurCourant(idUtilisateurCourant);
+                });
+    }
+
+    /**
+     * Moteur de navigation — ouvre un FXML dans une nouvelle Stage.
+     */
+    private void chargerDansNouvelleScene(String chemin, String titre,
+                                          double largeur, double hauteur,
+                                          PostLoadCallback callback) {
+
+        URL url = getClass().getResource(chemin);
+        if (url == null) {
+            afficherAlerte(Alert.AlertType.ERROR, "Navigation impossible",
+                    "FXML introuvable : " + chemin);
+            System.err.println("[Navigation] Ressource null : " + chemin);
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            callback.apply(loader);
+
+            Stage stage = new Stage();
+            stage.setTitle(titre);
+            stage.setScene(new Scene(root));
+            stage.setWidth(largeur);
+            stage.setHeight(hauteur);
+            stage.centerOnScreen();
+            stage.show();
+
+        } catch (IOException e) {
+            afficherAlerte(Alert.AlertType.ERROR, "Erreur",
+                    "Chargement impossible : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FunctionalInterface
+    private interface PostLoadCallback {
+        void apply(FXMLLoader loader) throws IOException;
     }
 }
