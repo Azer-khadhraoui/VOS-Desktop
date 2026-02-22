@@ -1,5 +1,9 @@
 package vos.gestionCandidat.controllers;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,21 +13,18 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.services.CandidatureService;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class TestLauncherController implements Initializable {
 
     /* ══════════════════════════════════════════
        FXML
     ══════════════════════════════════════════ */
-    @FXML private TextField fieldUserId;
-    @FXML private Label     errorLabel;
+    @FXML
+    private TextField fieldUserId;
+    @FXML
+    private Label errorLabel;
 
     /* ══════════════════════════════════════════
        CHEMINS FXML
@@ -40,17 +41,19 @@ public class TestLauncherController implements Initializable {
                DetailCandidatureUtilisateur.fxml
            TestLauncher.fxml
     ══════════════════════════════════════════ */
-    private static final String ADMIN_LISTE =
-            "/fxml/admin/ListeCandidaturesAdmin.fxml";
-    private static final String ADMIN_FORM =
-            "/fxml/admin/FormCandidatureAdmin.fxml";
-    private static final String USER_LISTE =
-            "/fxml/utilisateur/ListeCandidaturesUtilisateur.fxml";
-    private static final String USER_FORM =
-            "/fxml/utilisateur/FormCandidatureUtilisateur.fxml";
-    private static final String USER_DETAIL =
-            "/fxml/utilisateur/DetailCandidatureUtilisateur.fxml";
+    private static final String ADMIN_LISTE
+            = "/fxml/admin/ListeCandidaturesAdmin.fxml";
+    private static final String ADMIN_FORM
+            = "/fxml/admin/FormCandidatureAdmin.fxml";
+    private static final String USER_LISTE
+            = "/fxml/utilisateur/ListeCandidaturesUtilisateur.fxml";
+    private static final String USER_FORM
+            = "/fxml/utilisateur/FormCandidatureUtilisateur.fxml";
+    private static final String USER_DETAIL
+            = "/fxml/utilisateur/DetailCandidatureUtilisateur.fxml";
 
+    private static final String USER_MATCHING
+            = "/fxml/utilisateur/MatchingUtilisateur.fxml";
     private final CandidatureService service = new CandidatureService();
 
     /* ══════════════════════════════════════════
@@ -66,11 +69,11 @@ public class TestLauncherController implements Initializable {
     /* ══════════════════════════════════════════
        BOUTONS ADMIN
     ══════════════════════════════════════════ */
-
     @FXML
     private void ouvrirAdminListe(ActionEvent event) {
         charger(ADMIN_LISTE, "Admin — Liste des Candidatures", 1400, 800,
-                loader -> { /* rien, initialize() charge tout seul */ });
+                loader -> {
+                    /* rien, initialize() charge tout seul */ });
     }
 
     @FXML
@@ -84,11 +87,12 @@ public class TestLauncherController implements Initializable {
     /* ══════════════════════════════════════════
        BOUTONS UTILISATEUR
     ══════════════════════════════════════════ */
-
     @FXML
     private void ouvrirUserListe(ActionEvent event) {
         int uid = parseUserId();
-        if (uid < 0) return;
+        if (uid < 0) {
+            return;
+        }
 
         charger(USER_LISTE, "Candidat #" + uid + " — Mes Candidatures", 1300, 800, loader -> {
             ListeCandidaturesUtilisateurController ctrl = loader.getController();
@@ -99,7 +103,9 @@ public class TestLauncherController implements Initializable {
     @FXML
     private void ouvrirUserForm(ActionEvent event) {
         int uid = parseUserId();
-        if (uid < 0) return;
+        if (uid < 0) {
+            return;
+        }
 
         charger(USER_FORM, "Candidat #" + uid + " — Nouvelle Candidature", 1100, 800, loader -> {
             FormCandidatureUtilisateurController ctrl = loader.getController();
@@ -110,7 +116,9 @@ public class TestLauncherController implements Initializable {
     @FXML
     private void ouvrirUserDetail(ActionEvent event) {
         int uid = parseUserId();
-        if (uid < 0) return;
+        if (uid < 0) {
+            return;
+        }
 
         Candidature c = service.getAll().stream()
                 .filter(x -> x.getIdUtilisateur() == uid)
@@ -133,10 +141,9 @@ public class TestLauncherController implements Initializable {
     /* ══════════════════════════════════════════
        MOTEUR DE CHARGEMENT
     ══════════════════════════════════════════ */
-
     private void charger(String chemin, String titre,
-                         double largeur, double hauteur,
-                         PostLoad callback) {
+            double largeur, double hauteur,
+            PostLoad callback) {
 
         URL url = getClass().getResource(chemin);
 
@@ -170,11 +177,13 @@ public class TestLauncherController implements Initializable {
     /* ══════════════════════════════════════════
        UTILITAIRES
     ══════════════════════════════════════════ */
-
     private int parseUserId() {
         try {
             int id = Integer.parseInt(fieldUserId.getText().trim());
-            if (id <= 0) { afficherErreur("ID utilisateur doit être > 0."); return -1; }
+            if (id <= 0) {
+                afficherErreur("ID utilisateur doit être > 0.");
+                return -1;
+            }
             cacherErreur();
             return id;
         } catch (NumberFormatException e) {
@@ -197,6 +206,21 @@ public class TestLauncherController implements Initializable {
 
     @FunctionalInterface
     private interface PostLoad {
+
         void apply(FXMLLoader loader) throws IOException;
     }
+
+    @FXML
+    private void ouvrirUserMatching(ActionEvent event) {
+        int uid = parseUserId();
+        if (uid < 0) {
+            return;
+        }
+
+        charger(TestLauncherController.USER_MATCHING, "Candidat #" + uid + " — Matching Offres", 1200, 800, loader -> {
+            MatchingUtilisateurController ctrl = loader.getController();
+            ctrl.setIdUtilisateurConnecte(uid);
+        });
+    }
+
 }
