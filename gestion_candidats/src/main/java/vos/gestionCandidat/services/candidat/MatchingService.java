@@ -1,7 +1,8 @@
-package vos.gestionCandidat.services;
+package vos.gestionCandidat.services.candidat;
 
 import vos.gestionCandidat.entities.MatchResult;
 import vos.gestionCandidat.entities.PreferenceCandidature;
+import vos.gestionCandidat.services.OffreEmploiServiceTemp;
 import vos.gestionCandidat.services.OffreEmploiServiceTemp.OffreAvecCriteres;
 
 import java.util.*;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class MatchingService {
 
-    private final OffreEmploiServiceTemp       offreService;
+    private final OffreEmploiServiceTemp offreService;
     private final PreferenceCandidatureService preferenceService;
 
     public MatchingService() {

@@ -19,7 +19,7 @@ import vos.gestionCandidat.controllers.utilisateur.FormCandidatureUtilisateurCon
 import vos.gestionCandidat.controllers.utilisateur.ListeCandidaturesUtilisateurController;
 import vos.gestionCandidat.controllers.utilisateur.MatchingUtilisateurController;
 import vos.gestionCandidat.entities.Candidature;
-import vos.gestionCandidat.services.CandidatureService;
+import vos.gestionCandidat.services.candidat.CandidatureService;
 
 public class TestLauncherController implements Initializable {
 

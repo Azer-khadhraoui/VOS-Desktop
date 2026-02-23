@@ -5,62 +5,13 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
 
-<BorderPane prefHeight="800.0" prefWidth="1300.0"
+<VBox prefHeight="800.0" prefWidth="1300.0"
     stylesheets="@../../css/modernRecrutement.css"
     xmlns="http://javafx.com/javafx/17"
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="vos.gestionCandidat.controllers.utilisateur.DetailCandidatureUtilisateurController">
 
-    <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0" minWidth="60.0" maxWidth="240.0"
-            onMouseEntered="#onSidebarEntered" onMouseExited="#onSidebarExited">
 
-            <VBox alignment="CENTER" styleClass="sidebar-logo">
-                <padding>
-                    <Insets top="15.0" bottom="15.0" />
-                </padding>
-                <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                    <image>
-                        <Image url="@../../images/VOSwhite.png" />
-                    </image>
-                </ImageView>
-            </VBox>
-
-            <VBox alignment="TOP_CENTER" spacing="12.0" VBox.vgrow="ALWAYS">
-                <padding>
-                    <Insets top="10.0" left="6.0" right="6.0" />
-                </padding>
-
-                <HBox fx:id="navCandidatures" styleClass="sidebar-nav-item, sidebar-nav-item-active">
-                    <Label styleClass="sidebar-nav-icon" text="📋" />
-                    <Label fx:id="navCandidaturesText" styleClass="sidebar-nav-label"
-                        text="Mes Candidatures" />
-                </HBox>
-
-                <HBox fx:id="navOffres" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="💼" />
-                    <Label fx:id="navOffresText" styleClass="sidebar-nav-label" text="Offres" />
-                </HBox>
-
-                <HBox fx:id="navForum" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="💬" />
-                    <Label fx:id="navForumText" styleClass="sidebar-nav-label" text="Forum" />
-                </HBox>
-            </VBox>
-
-            <VBox VBox.vgrow="ALWAYS" />
-
-            <HBox fx:id="navProfil" styleClass="sidebar-nav-item">
-                <Label styleClass="sidebar-nav-icon" text="👤" />
-                <Label fx:id="navProfilText" styleClass="sidebar-nav-label" text="Mon Profil" />
-            </HBox>
-
-            <VBox style="-fx-min-height: 8.0;" />
-        </VBox>
-    </left>
-
-    <center>
-        <VBox spacing="0" VBox.vgrow="ALWAYS">
             <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
                 <padding>
                     <Insets top="20.0" right="30.0" bottom="20.0" left="30.0" />
@@ -227,6 +178,4 @@
                     </VBox>
                 </ScrollPane>
             </HBox>
-        </VBox>
-    </center>
-</BorderPane>
+</VBox>

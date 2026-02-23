@@ -23,8 +23,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import vos.gestionCandidat.entities.MatchResult;
 import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.MatchingService;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
+import vos.gestionCandidat.services.candidat.MatchingService;
+import vos.gestionCandidat.services.candidat.PreferenceCandidatureService;
 
 public class MatchingUtilisateurController implements Initializable {
 
@@ -55,17 +55,7 @@ public class MatchingUtilisateurController implements Initializable {
     private ComboBox<String> cmbFiltreNiveau;
     @FXML
     private Slider sliderScoreMin;
-
-    @FXML
-    private VBox sidebar;
-    @FXML
-    private Label navMatchingsText;
-    @FXML
-    private Label navOffresText;
-    @FXML
-    private Label navForumText;
-    @FXML
-    private Label navProfilText;
+   
     @FXML private VBox mainView;
     // ─── Services ─────────────────────────────────────────────────────────────
     // NOTE : Plus besoin de CandidatureService — on n'utilise que les préférences
@@ -376,69 +366,6 @@ public class MatchingUtilisateurController implements Initializable {
         }
         return "#BDC3C7";
     }
-    // ─── SIDEBAR ANIMATIONS ───────────────────────────────────────────
 
-    @FXML
-    private void onSidebarEntered() {
-        expandSidebar();
-    }
-
-    @FXML
-    private void onSidebarExited() {
-        collapseSidebar();
-    }
-
-    private void expandSidebar() {
-        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(
-                        javafx.util.Duration.millis(300),
-                        new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 240)
-                )
-        );
-        timeline.play();
-        fadeInLabels();
-    }
-
-    private void collapseSidebar() {
-        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(
-                        javafx.util.Duration.millis(300),
-                        new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 60)
-                )
-        );
-        timeline.play();
-        fadeOutLabels();
-    }
-
-    private void fadeInLabels() {
-        java.util.List<Label> labels = java.util.Arrays.asList(
-                navMatchingsText, navOffresText, navForumText, navProfilText
-        );
-        for (Label label : labels) {
-            javafx.animation.Timeline fade = new javafx.animation.Timeline(
-                    new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(200),
-                            new javafx.animation.KeyValue(label.opacityProperty(), 1.0),
-                            new javafx.animation.KeyValue(label.maxWidthProperty(), 150)
-                    )
-            );
-            fade.play();
-        }
-    }
-
-    private void fadeOutLabels() {
-        java.util.List<Label> labels = java.util.Arrays.asList(
-                navMatchingsText, navOffresText, navForumText, navProfilText
-        );
-        for (Label label : labels) {
-            javafx.animation.Timeline fade = new javafx.animation.Timeline(
-                    new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(200),
-                            new javafx.animation.KeyValue(label.opacityProperty(), 0.0),
-                            new javafx.animation.KeyValue(label.maxWidthProperty(), 0)
-                    )
-            );
-            fade.play();
-        }
-    }
+    
 }

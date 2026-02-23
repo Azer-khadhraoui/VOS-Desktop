@@ -30,8 +30,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import vos.gestionCandidat.entities.Candidature;
-import vos.gestionCandidat.services.CandidatureService;
-import vos.gestionCandidat.services.PdfService;
+import vos.gestionCandidat.services.candidat.CandidatureService;
+import vos.gestionCandidat.services.candidat.PdfService;
 
 public class DetailCandidatureUtilisateurController implements Initializable {
 
@@ -73,16 +73,7 @@ public class DetailCandidatureUtilisateurController implements Initializable {
     @FXML
     private TextArea lblMessage;
 
-    @FXML
-    private VBox sidebar;
-    @FXML
-    private Label navCandidaturesText;
-    @FXML
-    private Label navOffresText;
-    @FXML
-    private Label navForumText;
-    @FXML
-    private Label navProfilText;
+   
 
 
     private final CandidatureService service = new CandidatureService();
@@ -409,69 +400,4 @@ public class DetailCandidatureUtilisateurController implements Initializable {
         alert.showAndWait();
     }
 
-    /* ===================== SIDEBAR ANIMATIONS ===================== */
-
-    @FXML
-    private void onSidebarEntered() {
-        expandSidebar();
-    }
-
-    @FXML
-    private void onSidebarExited() {
-        collapseSidebar();
-    }
-
-    private void expandSidebar() {
-        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(
-                        javafx.util.Duration.millis(300),
-                        new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 240)
-                )
-        );
-        timeline.play();
-        fadeInLabels();
-    }
-
-    private void collapseSidebar() {
-        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(
-                        javafx.util.Duration.millis(300),
-                        new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 60)
-                )
-        );
-        timeline.play();
-        fadeOutLabels();
-    }
-
-    private void fadeInLabels() {
-        java.util.List<Label> labels = java.util.Arrays.asList(
-                navCandidaturesText, navOffresText, navForumText, navProfilText
-        );
-        for (Label label : labels) {
-            javafx.animation.Timeline fade = new javafx.animation.Timeline(
-                    new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(200),
-                            new javafx.animation.KeyValue(label.opacityProperty(), 1.0),
-                            new javafx.animation.KeyValue(label.maxWidthProperty(), 150)
-                    )
-            );
-            fade.play();
-        }
-    }
-
-    private void fadeOutLabels() {
-        java.util.List<Label> labels = java.util.Arrays.asList(
-                navCandidaturesText, navOffresText, navForumText, navProfilText
-        );
-        for (Label label : labels) {
-            javafx.animation.Timeline fade = new javafx.animation.Timeline(
-                    new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(200),
-                            new javafx.animation.KeyValue(label.opacityProperty(), 0.0),
-                            new javafx.animation.KeyValue(label.maxWidthProperty(), 0)
-                    )
-            );
-            fade.play();
-        }
-    }
 }

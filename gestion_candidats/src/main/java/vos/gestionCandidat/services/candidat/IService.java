@@ -1,4 +1,4 @@
-package vos.gestionCandidat.services;
+package vos.gestionCandidat.services.candidat;
 
 import java.util.List;
 

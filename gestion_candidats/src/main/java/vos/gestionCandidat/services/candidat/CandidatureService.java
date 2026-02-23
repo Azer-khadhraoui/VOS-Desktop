@@ -1,13 +1,18 @@
-package vos.gestionCandidat.services;
+package vos.gestionCandidat.services.candidat;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.utils.MyDataBase;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 public class CandidatureService implements IService<Candidature> {
     private Connection connection;
     private EmailService emailService;
@@ -188,7 +193,7 @@ public class CandidatureService implements IService<Candidature> {
     }
 
 
-/*
+
     public List<Candidature> getCandidaturesByUtilisateur(int idUtilisateur) {
         String requete = "SELECT * FROM candidature WHERE id_utilisateur = ?";
         List<Candidature> candidatures = new ArrayList<>();
@@ -222,7 +227,6 @@ public class CandidatureService implements IService<Candidature> {
 
         return candidatures;
     }
-*/
 
     /**
      * Méthode supplémentaire : Récupérer les candidatures par offre

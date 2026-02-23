@@ -15,7 +15,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
+import vos.gestionCandidat.services.candidat.PreferenceCandidatureService;
 
 public class ListePreferencesAdminController implements Initializable {
 

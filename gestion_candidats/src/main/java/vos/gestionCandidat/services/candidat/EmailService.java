@@ -1,4 +1,4 @@
-package vos.gestionCandidat.services;
+package vos.gestionCandidat.services.candidat;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;

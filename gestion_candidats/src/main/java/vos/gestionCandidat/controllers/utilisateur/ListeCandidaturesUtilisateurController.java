@@ -30,9 +30,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.CandidatureService;
-import vos.gestionCandidat.services.PdfService;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
+import vos.gestionCandidat.services.candidat.CandidatureService;
+import vos.gestionCandidat.services.candidat.PdfService;
+import vos.gestionCandidat.services.candidat.PreferenceCandidatureService;
 
 public class ListeCandidaturesUtilisateurController implements Initializable {
 
@@ -46,52 +46,25 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     private Label heroEnAttente;
     @FXML
     private Label heroAcceptee;
-
-    // Search / filter
     @FXML
     private TextField searchField;
     @FXML
     private ComboBox<String> filterStatut;
-
-    // Dynamic cards container
     @FXML
     private VBox cardsContainer;
     @FXML
     private VBox emptyState;
+    @FXML private VBox mainView;
 
     // Sidebar
-    @FXML
-    private VBox sidebar;
-    @FXML
-    private Label navCandidaturesText;
-    @FXML
-    private Label navOffresText;
-    @FXML
-    private Label navForumText;
-    @FXML
-    private Label navProfilText;
-    @FXML private HBox navOffres;
-    @FXML private HBox navMatchings;
-    @FXML private HBox navPreferences;
-    @FXML private HBox navCandidatures;
-    @FXML
-    private TextField searchFieldTable;
-
-    private static final String USER_Preference
-            = "/fxml/utilisateur/ListePreferencesUtilisateur.fxml";
-    private static final String USER_Candidat
-            = "/fxml/utilisateur/ListeCandidaturesUtilisateur.fxml";
-    private static final String USER_MATCHING
-            = "/fxml/utilisateur/MatchingUtilisateur.fxml";
-    private static final String Offre
-            = "/fxml/utilisateur/Offre.fxml";
+    @FXML private VBox sidebar;
+    @FXML private Label navForumText;
+    @FXML private TextField searchFieldTable;
 
     /* ===================== STATE ===================== */
     private final CandidatureService service = new CandidatureService();
-    private final PdfService pdfService = new PdfService();  // ✅ AJOUT : Service PDF
-    private List<Candidature> toutesLesCandidatures;
-
-    // ⚠️  En production, récupérer l'ID depuis la session utilisateur courante
+    private final PdfService pdfService = new PdfService();  
+    private List<Candidature> tousLesCandidatures;
     private int idUtilisateurCourant = 3;
 
     private static final SimpleDateFormat SDF = new SimpleDateFormat("dd MMM yyyy");
@@ -100,7 +73,7 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurerFiltre();
-        configurerNavigationSidebar();
+        setupSearch();
         chargerDonnees();
 
     }
@@ -116,13 +89,28 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
 
     /* ===================== CHARGEMENT DONNÉES ===================== */
     private void chargerDonnees() {
-        // Récupère uniquement les candidatures de l'utilisateur courant
-        toutesLesCandidatures = service.getAll().stream()
-                .filter(c -> c.getIdUtilisateur() == idUtilisateurCourant)
-                .collect(Collectors.toList());
-
-        mettreAJourStats(toutesLesCandidatures);
-        afficherCartes(toutesLesCandidatures);
+        try {
+            tousLesCandidatures = service.getCandidaturesByUtilisateur(idUtilisateurCourant);
+            afficherCartes(tousLesCandidatures);
+            mettreAJourStats(tousLesCandidatures);
+        } catch (Exception e) {
+            System.err.println("[ListeCandidaturesUtilisateurController] Erreur: " + e.getMessage());
+        }
+    }
+    private void setupSearch() {
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal == null || newVal.isEmpty()) {
+                    afficherCartes(tousLesCandidatures);
+                } else {
+                    List<Candidature> filtered = tousLesCandidatures.stream()
+                        .filter(c -> String.valueOf(c.getIdOffre()).contains(newVal) ||
+                                (c.getStatut() != null && c.getStatut().toLowerCase().contains(newVal.toLowerCase())))
+                        .collect(Collectors.toList());
+                    afficherCartes(filtered);
+                }
+            });
+        }
     }
 
     private void mettreAJourStats(List<Candidature> liste) {
@@ -137,10 +125,10 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
     }
 
     /* ===================== CONSTRUCTION DES CARDS ===================== */
-    private void afficherCartes(List<Candidature> liste) {
+    private void afficherCartes(List<Candidature> candidatures) {
         cardsContainer.getChildren().clear();
 
-        if (liste.isEmpty()) {
+        if (candidatures.isEmpty()) {
             emptyState.setVisible(true);
             emptyState.setManaged(true);
             return;
@@ -149,8 +137,9 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
         emptyState.setVisible(false);
         emptyState.setManaged(false);
 
-        for (Candidature c : liste) {
-            cardsContainer.getChildren().add(creerCarte(c));
+        for (Candidature c : candidatures) {
+            Node card = creerCarte(c);
+            cardsContainer.getChildren().add(card);
         }
     }
 
@@ -293,14 +282,14 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
 
     /* ===================== FILTRES ===================== */
     private void appliquerFiltres() {
-        if (toutesLesCandidatures == null) {
+        if (tousLesCandidatures == null) {
             return;
         }
 
         String texte = searchField.getText().toLowerCase().trim();
         String statut = filterStatut.getValue();
 
-        List<Candidature> filtrées = toutesLesCandidatures.stream()
+        List<Candidature> filtrées = tousLesCandidatures.stream()
                 .filter(c -> {
                     boolean matchTexte = texte.isEmpty()
                             || safeContains(c.getDomaineExperience(), texte)
@@ -481,7 +470,6 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
                 )
         );
         timeline.play();
-        fadeInLabels();
     }
 
     private void collapseSidebar() {
@@ -492,40 +480,10 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
                 )
         );
         timeline.play();
-        fadeOutLabels();
     }
 
-    private void fadeInLabels() {
-        java.util.List<Label> labels = java.util.Arrays.asList(
-                navCandidaturesText, navOffresText, navForumText, navProfilText
-        );
-        for (Label label : labels) {
-            javafx.animation.Timeline fade = new javafx.animation.Timeline(
-                    new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(200),
-                            new javafx.animation.KeyValue(label.opacityProperty(), 1.0),
-                            new javafx.animation.KeyValue(label.maxWidthProperty(), 150)
-                    )
-            );
-            fade.play();
-        }
-    }
+    
 
-    private void fadeOutLabels() {
-        java.util.List<Label> labels = java.util.Arrays.asList(
-                navCandidaturesText, navOffresText, navForumText, navProfilText
-        );
-        for (Label label : labels) {
-            javafx.animation.Timeline fade = new javafx.animation.Timeline(
-                    new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(200),
-                            new javafx.animation.KeyValue(label.opacityProperty(), 0.0),
-                            new javafx.animation.KeyValue(label.maxWidthProperty(), 0)
-                    )
-            );
-            fade.play();
-        }
-    }
 
     private void ouvrirPreferences(Candidature candidature) {
         try {
@@ -579,49 +537,7 @@ public class ListeCandidaturesUtilisateurController implements Initializable {
                     "Impossible d'ouvrir les préférences : " + e.getMessage());
         }
     }
-    private void configurerNavigationSidebar() {
-        navOffres.setOnMouseClicked(e -> navGoOffres());
-        navMatchings.setOnMouseClicked(e -> navGoMatching());
-        navPreferences.setOnMouseClicked(e -> navGoPreferences());
-        navCandidatures.setOnMouseClicked(e -> navGoCandidatures());
-    }
-    private void navGoOffres() {
-        chargerDansNouvelleScene(Offre,
-                "Offres d'emploi", 1300, 800,
-                loader -> {});
-    }
-
-    private void navGoMatching() {
-        chargerDansNouvelleScene(USER_MATCHING,
-                "Candidat #" + idUtilisateurCourant + " — Offres Compatibles",
-                1200, 800,
-                loader -> {
-                    MatchingUtilisateurController ctrl = loader.getController();
-                    ctrl.setIdUtilisateurConnecte(idUtilisateurCourant);
-                });
-    }
-
-    private void navGoPreferences() {
-        chargerDansNouvelleScene(USER_Preference,
-                "Candidat #" + idUtilisateurCourant + " — Mes Préférences",
-                1300, 800,
-                loader -> {
-                    ListePreferencesUtilisateurController ctrl = loader.getController();
-                    ctrl.initData(idUtilisateurCourant, this);
-                });
-    }
-
-    private void navGoCandidatures() {
-        // Page actuelle — simple rafraîchissement
-        chargerDansNouvelleScene(USER_Candidat,
-                "Candidat #" + idUtilisateurCourant + " — Mes Candidatures",
-                1300, 800,
-                loader -> {
-                    ListeCandidaturesUtilisateurController ctrl = loader.getController();
-                    ctrl.setIdUtilisateurCourant(idUtilisateurCourant);
-                });
-    }
-
+  
     /**
      * Moteur de navigation — ouvre un FXML dans une nouvelle Stage.
      */

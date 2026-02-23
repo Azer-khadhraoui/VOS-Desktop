@@ -37,7 +37,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import vos.gestionCandidat.entities.Candidature;
-import vos.gestionCandidat.services.CandidatureService;
+import vos.gestionCandidat.services.candidat.CandidatureService;
 
 public class ListeCandidaturesAdminController implements Initializable {
 

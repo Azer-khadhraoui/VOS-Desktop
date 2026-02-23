@@ -8,7 +8,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import vos.gestionCandidat.entities.Candidature;
-import vos.gestionCandidat.services.CandidatureService;
+import vos.gestionCandidat.services.candidat.CandidatureService;
 
 import java.io.File;
 import java.net.URL;

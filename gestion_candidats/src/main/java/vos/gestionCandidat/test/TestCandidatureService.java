@@ -3,8 +3,8 @@ package vos.gestionCandidat.test;
 
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.CandidatureService;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
+import vos.gestionCandidat.services.candidat.CandidatureService;
+import vos.gestionCandidat.services.candidat.PreferenceCandidatureService;
 
 import java.util.Date;
 import java.util.List;

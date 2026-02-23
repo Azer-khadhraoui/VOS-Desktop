@@ -18,7 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import vos.gestionCandidat.entities.Candidature;
 import vos.gestionCandidat.entities.PreferenceCandidature;
-import vos.gestionCandidat.services.PreferenceCandidatureService;
+import vos.gestionCandidat.services.candidat.PreferenceCandidatureService;
 
 public class FormPreferenceUtilisateurController implements Initializable {
 

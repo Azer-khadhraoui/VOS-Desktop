@@ -1,4 +1,4 @@
-package vos.gestionCandidat.services;
+package vos.gestionCandidat.services.candidat;
 
 import java.io.File;
 import java.net.URL;
@@ -17,6 +17,8 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.VerticalAlignment;
 
 import vos.gestionCandidat.entities.Candidature;
+import vos.gestionCandidat.services.OffreEmploiService;
+import vos.gestionCandidat.services.UtilisateurService;
 
 /**
  * Service pour générer des fichiers PDF pour les candidatures Utilise la

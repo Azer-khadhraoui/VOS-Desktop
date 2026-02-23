@@ -5,69 +5,14 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
 
-<BorderPane prefHeight="800.0" prefWidth="1300.0"
+<VBox spacing="0" VBox.vgrow="ALWAYS"
     stylesheets="@../../css/modernRecrutement.css"
     xmlns="http://javafx.com/javafx/17"
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="vos.gestionCandidat.controllers.utilisateur.ListeCandidaturesUtilisateurController">
 
-    <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0" minWidth="60.0" maxWidth="240.0"
-            onMouseEntered="#onSidebarEntered" onMouseExited="#onSidebarExited">
+    
 
-            <VBox alignment="CENTER" styleClass="sidebar-logo">
-                <padding>
-                    <Insets top="15.0" bottom="15.0" />
-                </padding>
-                <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                    <image>
-                        <Image url="@../../images/VOSwhite.png" />
-                    </image>
-                </ImageView>
-            </VBox>
-
-            <VBox alignment="TOP_CENTER" spacing="12.0" VBox.vgrow="ALWAYS">
-                <padding>
-                    <Insets top="10.0" left="6.0" right="6.0" />
-                </padding>
-                <HBox fx:id="navOffres" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="💼" />
-                    <Label fx:id="navOffresText" styleClass="sidebar-nav-label" text="Offres" />
-                </HBox>
-                <HBox fx:id="navMatchings" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="🎯" />
-                    <Label fx:id="navMatchingsText" styleClass="sidebar-nav-label" text="Offres Compatibles" />
-                </HBox>
-                <HBox fx:id="navPreferences" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="⭐"/>
-                    <Label fx:id="navPreferencesText" styleClass="sidebar-nav-label" text="Mes Préférences"/>
-                </HBox>
-
-                <HBox fx:id="navCandidatures" styleClass="sidebar-nav-item, sidebar-nav-item-active">
-                    <Label styleClass="sidebar-nav-icon" text="📋" />
-                    <Label fx:id="navCandidaturesText" styleClass="sidebar-nav-label"
-                        text="Mes Candidatures" />
-                </HBox>
-
-                <HBox fx:id="navForum" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="💬" />
-                    <Label fx:id="navForumText" styleClass="sidebar-nav-label" text="Forum" />
-                </HBox>
-            </VBox>
-
-            <VBox VBox.vgrow="ALWAYS" />
-
-            <HBox fx:id="navProfil" styleClass="sidebar-nav-item">
-                <Label styleClass="sidebar-nav-icon" text="👤" />
-                <Label fx:id="navProfilText" styleClass="sidebar-nav-label" text="Mon Profil" />
-            </HBox>
-
-            <VBox style="-fx-min-height: 8.0;" />
-        </VBox>
-    </left>
-
-    <center>
-        <VBox spacing="0" VBox.vgrow="ALWAYS">
             <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
                 <padding>
                     <Insets top="20.0" right="30.0" bottom="20.0" left="30.0" />
@@ -79,8 +24,7 @@
                 <Region HBox.hgrow="ALWAYS" />
 
                 <HBox spacing="15.0" alignment="CENTER_LEFT">
-                    <Button text="⭐ Voir mes préférences" onAction="#allerAuxPreferencesUtilisateur"
-                        style="-fx-background-color: linear-gradient(to right, #6366f1 0%, #8b5cf6 100%); -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 10 22; -fx-font-weight: 700; -fx-font-size: 13px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.35), 10, 0, 0, 3);" />
+                
 
                     <Region HBox.hgrow="ALWAYS" />
                     <StackPane
@@ -179,6 +123,4 @@
                     </VBox>
                 </VBox>
             </ScrollPane>
-        </VBox>
-    </center>
-</BorderPane>
+</VBox>
