@@ -1,12 +1,22 @@
 package controllers;
 
-import javafx.animation.*;
+import entities.Utilisateur;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.RotateTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
@@ -18,7 +28,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import services.ServiceUtilisateur;
 import utilis.UserSession;
-import entities.Utilisateur;
 
 public class SigninController {
 
@@ -76,9 +85,9 @@ public class SigninController {
             // Déterminer le chemin FXML selon le rôle
             String fxmlPath;
             if ("ADMIN_RH".equals(user.getRole()) || "ADMIN_TECHNIQUE".equals(user.getRole())) {
-                fxmlPath = "/AdministrationView.fxml";
+                fxmlPath = "/fxml/admin/AdminView.fxml";
             } else {
-                fxmlPath = "/OffresView.fxml";
+                fxmlPath = "/fxml/utilisateur/MainView.fxml"; 
             }
             
             // Lancer l'animation avec le logo
@@ -226,7 +235,7 @@ public class SigninController {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
                 Parent root = loader.load();
-                Scene newScene = new Scene(root, 1440, 1024);
+                Scene newScene = new Scene(root, 1440, 768.0);
                 
                 // Animation de transition finale
                 animateSceneTransition(stage, newScene);

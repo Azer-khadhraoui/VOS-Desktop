@@ -1,14 +1,14 @@
 package services;
 
-import entities.OffreEmploi;
-import utilis.MyConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.ArrayList;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import entities.OffreEmploi;
+import utilis.MyConnection;
 
 public class OffreEmploiService {
 
@@ -220,6 +220,51 @@ public class OffreEmploiService {
         }
 
         return offres;
+    }
+    public OffreEmploi getOffreById(int idOffre) {
+        String sql = "SELECT * FROM offre_emploi WHERE id_offre = ?";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idOffre);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    OffreEmploi offre = new OffreEmploi();
+                    offre.setIdOffre(rs.getInt("id_offre"));
+                    offre.setTitre(rs.getString("titre"));
+                    offre.setDescription(rs.getString("description"));
+                    offre.setTypeContrat(rs.getString("type_contrat"));
+                    offre.setStatutOffre(rs.getString("statut_offre"));
+                    offre.setDatePublication(rs.getDate("date_publication"));
+                    offre.setIdUtilisateur(rs.getInt("id_utilisateur"));
+                    offre.setWorkPreference(rs.getString("work_preference"));
+                    offre.setLieu(rs.getString("lieu"));
+                    
+                    return offre;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving offre by ID: " + e.getMessage());
+        }
+        
+        return null;
+    }
+    public String getTitreOffre(int idOffre) {
+        String sql = "SELECT titre FROM offre_emploi WHERE id_offre = ?";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idOffre);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("titre");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving offre title: " + e.getMessage());
+        }
+        
+        return "Offre non disponible";
     }
 
 

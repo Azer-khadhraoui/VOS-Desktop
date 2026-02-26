@@ -1,23 +1,31 @@
 package controllers;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import entities.Utilisateur;
-import javafx.animation.*;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import services.ServiceUtilisateur;
 import utilis.UserSession;
-
-import java.io.File;
-import java.io.FileInputStream;
 
 public class ProfilController {
 
@@ -415,7 +423,7 @@ public class ProfilController {
     @FXML
     public void retournerOffres() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/OffresView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/AdminView.fxml"));
             Parent root = loader.load();
             Scene scene = lblNom.getScene();
             scene.setRoot(root);

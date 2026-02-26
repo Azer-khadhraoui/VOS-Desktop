@@ -6,47 +6,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.*?>
 
-<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@AdministrationView.css" 
+<VBox prefHeight="800.0"  prefWidth="1400.0" stylesheets="@AdministrationView.css" 
             xmlns="http://javafx.com/javafx/17" 
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="controllers.StatistiquesController">
 
-    <!-- SIDEBAR -->
-    <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="80.0">
-            <VBox alignment="CENTER" styleClass="sidebar-logo">
-                <ImageView fitHeight="55" fitWidth="55" preserveRatio="true">
-                    <Image url="@img/VOSwhiteslogan.png"/>
-                </ImageView>
-            </VBox>
 
-            <VBox fx:id="navContainer" alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
-                <padding>
-                    <Insets top="30.0"/>
-                </padding>
-
-                <HBox fx:id="btnStatistiques" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="📊" styleClass="sidebar-nav-icon"/>
-                    <Label text="Statistiques" styleClass="sidebar-nav-label"/>
-                </HBox>
-                <HBox fx:id="btnUtilisateurs" styleClass="sidebar-nav-item,sidebar-nav-active" alignment="CENTER_LEFT" spacing="15.0" onMouseClicked="#goToAdmin">
-                    <Label text="👥" styleClass="sidebar-nav-icon"/>
-                    <Label text="Utilisateurs" styleClass="sidebar-nav-label"/>
-                </HBox>
-                <HBox fx:id="btnOffres" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="💼" styleClass="sidebar-nav-icon"/>
-                    <Label text="Offres" styleClass="sidebar-nav-label"/>
-                </HBox>
-                <HBox fx:id="logoutBtn" styleClass="sidebar-nav-item,sidebar-nav-logout" alignment="CENTER_LEFT" spacing="15.0" onMouseClicked="#logout">
-                    <Label text="➡️" styleClass="sidebar-nav-icon"/>
-                    <Label text="Déconnexion" styleClass="sidebar-nav-label"/>
-                </HBox>
-            </VBox>
-        </VBox>
-    </left>
-
-    <!-- CONTENT -->
-    <center>
         <VBox style="-fx-background-color: #F5F7FA;">
             
             <!-- HEADER -->
@@ -173,6 +138,5 @@
             </ScrollPane>
 
         </VBox>
-    </center>
 
-</BorderPane>
+</VBox>

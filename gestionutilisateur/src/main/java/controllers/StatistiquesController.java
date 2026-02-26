@@ -1,25 +1,5 @@
 package controllers;
 
-import entities.Utilisateur;
-import javafx.animation.FadeTransition;
-import javafx.animation.Timeline;
-import javafx.animation.KeyFrame;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.chart.*;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
-import javafx.util.Duration;
-import services.ServiceUtilisateur;
-import utilis.UserSession;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -28,6 +8,29 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import entities.Utilisateur;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.util.Duration;
+import services.ServiceUtilisateur;
+import utilis.UserSession;
 
 public class StatistiquesController {
 
@@ -41,8 +44,8 @@ public class StatistiquesController {
     @FXML private PieChart pieChart;
     @FXML private VBox activityContainer;
     
-    @FXML private VBox sidebar, navContainer;
-    @FXML private HBox btnStatistiques, btnUtilisateurs, btnOffres, logoutBtn;
+    // @FXML private VBox sidebar, navContainer;
+    // @FXML private HBox btnStatistiques, btnUtilisateurs, btnOffres, logoutBtn;
     
     private ServiceUtilisateur serviceUtilisateur = new ServiceUtilisateur();
     private Timeline autoRefreshTimeline;
@@ -50,27 +53,26 @@ public class StatistiquesController {
 
     @FXML
     public void initialize() {
-        initializeSidebar();
+        // initializeSidebar();
         loadCurrentUser();
         loadStatistics();
-        setupSidebarAnimations();
         setupAutoRefresh();
         System.out.println("=== STATISTIQUES VIEW CHARGÉE ===");
     }
     
-    private void initializeSidebar() {
-        // Masquer les labels au démarrage
-        for (javafx.scene.Node node : navContainer.getChildren()) {
-            if (node instanceof HBox) {
-                HBox hbox = (HBox) node;
-                for (javafx.scene.Node child : hbox.getChildren()) {
-                    if (child instanceof Label && ((Label) child).getStyleClass().contains("sidebar-nav-label")) {
-                        child.setOpacity(0.0);
-                    }
-                }
-            }
-        }
-    }
+    // private void initializeSidebar() {
+    //     // Masquer les labels au démarrage
+    //     for (javafx.scene.Node node : navContainer.getChildren()) {
+    //         if (node instanceof HBox) {
+    //             HBox hbox = (HBox) node;
+    //             for (javafx.scene.Node child : hbox.getChildren()) {
+    //                 if (child instanceof Label && ((Label) child).getStyleClass().contains("sidebar-nav-label")) {
+    //                     child.setOpacity(0.0);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     private void setupAutoRefresh() {
         // Auto-refresh toutes les 30 secondes
@@ -402,79 +404,5 @@ public class StatistiquesController {
         }
     }
 
-    private void setupSidebarAnimations() {
-        // Animation d'expansion/rétrécissement du sidebar
-        sidebar.setOnMouseEntered(event -> {
-            isSidebarHovered = true;
-            
-            // Expand width
-            javafx.animation.Timeline expandTimeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(
-                    javafx.util.Duration.millis(300),
-                    new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 250)
-                )
-            );
-            expandTimeline.play();
-            
-            // Fade in labels
-            for (javafx.scene.Node node : navContainer.getChildren()) {
-                if (node instanceof HBox) {
-                    HBox hbox = (HBox) node;
-                    for (javafx.scene.Node child : hbox.getChildren()) {
-                        if (child instanceof Label && ((Label) child).getStyleClass().contains("sidebar-nav-label")) {
-                            Label label = (Label) child;
-                            FadeTransition fade = new FadeTransition(javafx.util.Duration.millis(300), label);
-                            fade.setFromValue(0.0);
-                            fade.setToValue(1.0);
-                            fade.play();
-                        }
-                    }
-                }
-            }
-        });
-
-        sidebar.setOnMouseExited(event -> {
-            isSidebarHovered = false;
-            
-            // Delay before collapsing
-            javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.millis(100));
-            pause.setOnFinished(e -> {
-                if (!isSidebarHovered) {
-                    // Collapse width
-                    javafx.animation.Timeline collapseTimeline = new javafx.animation.Timeline(
-                        new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(300),
-                            new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 80)
-                        )
-                    );
-                    collapseTimeline.play();
-                    
-                    // Fade out labels
-                    for (javafx.scene.Node node : navContainer.getChildren()) {
-                        if (node instanceof HBox) {
-                            HBox hbox = (HBox) node;
-                            for (javafx.scene.Node child : hbox.getChildren()) {
-                                if (child instanceof Label && ((Label) child).getStyleClass().contains("sidebar-nav-label")) {
-                                    Label label = (Label) child;
-                                    FadeTransition fade = new FadeTransition(javafx.util.Duration.millis(300), label);
-                                    fade.setFromValue(1.0);
-                                    fade.setToValue(0.0);
-                                    fade.play();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            pause.play();
-        });
-        
-        // Animation hover pour les items individuels
-        HBox[] navItems = {btnStatistiques, btnUtilisateurs, btnOffres};
-        for (HBox item : navItems) {
-            item.setOnMouseEntered(e -> {
-                isSidebarHovered = true;
-            });
-        }
-    }
+  
 }

@@ -6,72 +6,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.shape.*?>
 
-<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@modernuser.css" 
+<VBox prefHeight="800.0"  prefWidth="1400.0" stylesheets="@modernuser.css" 
             xmlns="http://javafx.com/javafx/17" 
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="controllers.ProfilController">
 
-    <!-- ================= LEFT SIDEBAR ================= -->
-    <left>
-        <VBox styleClass="sidebar"
-              spacing="25"
-              alignment="TOP_CENTER"
-              prefWidth="90">
 
-            <padding>
-                <Insets top="25" right="15" bottom="25" left="15"/>
-            </padding>
-
-            <!-- Logo -->
-            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
-                <image>
-                    <Image url="@/org/example/images/VOS 1.png"/>
-                </image>
-            </ImageView>
-
-            <!-- Navigation -->
-            <VBox spacing="20"
-                  alignment="TOP_CENTER"
-                  VBox.vgrow="ALWAYS">
-
-                <VBox alignment="CENTER" style="-fx-padding: 13;">
-                    <ImageView fitWidth="24" fitHeight="24" preserveRatio="true">
-                        <image>
-                            <Image url="@/org/example/images/iconoir_bag.png"/>
-                        </image>
-                    </ImageView>
-                </VBox>
-
-                <Button styleClass="sidebar-btn" onAction="#retournerOffres">
-                    <graphic>
-                        <ImageView fitWidth="24" fitHeight="24" preserveRatio="true">
-                            <image>
-                                <Image url="@/org/example/images/bxs_chat.png"/>
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
-            </VBox>
-
-            <!-- Profile (active) -->
-            <Button styleClass="sidebar-btn">
-                <graphic>
-                    <Label text="👤" styleClass="sidebar-icon"/>
-                </graphic>
-            </Button>
-
-            <!-- Logout -->
-            <Button styleClass="sidebar-btn" onAction="#logout">
-                <graphic>
-                    <Label text="🚪" styleClass="sidebar-icon"/>
-                </graphic>
-            </Button>
-
-        </VBox>
-    </left>
-
-    <!-- CONTENU PRINCIPAL -->
-    <center>
         <VBox style="-fx-background-color: #F5F7FA;">
             
             <!-- HEADER -->
@@ -269,6 +209,5 @@
             </ScrollPane>
 
         </VBox>
-    </center>
 
-</BorderPane>
+</VBox>

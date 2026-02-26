@@ -1,44 +1,39 @@
 package controllers;
 
+import java.util.List;
+
+import entities.CritereOffre;
+import entities.OffreEmploi;
+import entities.Utilisateur;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.GridPane;
-import entities.OffreEmploi;
-import entities.CritereOffre;
-import services.OffreEmploiService;
-import services.CritereOffreService;
-import javafx.geometry.Pos;
-import javafx.geometry.Orientation;
-import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.Priority;
 import javafx.scene.control.Separator;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ButtonBar;
-import javafx.animation.FadeTransition;
-import javafx.animation.TranslateTransition;
-import javafx.animation.ParallelTransition;
-import javafx.util.Duration;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Line;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.Group;
-import javafx.stage.Screen;
-import javafx.stage.Window;
-
-import java.util.List;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
+import services.CritereOffreService;
+import services.OffreEmploiService;
+import utilis.UserSession;
 
 public class OffresController {
 
@@ -97,6 +92,13 @@ public class OffresController {
     private CheckBox filterJavaScript;
     @FXML
     private Button applyFiltersBtn;
+     @FXML
+    private Label headerNom;
+
+    @FXML
+    private Label headerInitiale;
+    @FXML
+    private Label headerRole;
     
     @FXML
     private Button filterButton;
@@ -105,6 +107,8 @@ public class OffresController {
     private final CritereOffreService critereService = new CritereOffreService();
     private List<OffreEmploi> allOffres;
     private OffreEmploi selectedOffre;
+    private int idUtilisateurCourant;
+
 
     /**
      * Méthode d'initialisation du contrôleur JavaFX.
@@ -132,6 +136,16 @@ public class OffresController {
         if (applyFiltersBtn != null) {
             applyFiltersBtn.setOnAction(e -> applyFilters());
         }
+        Utilisateur userConnecte = UserSession.getInstance().getCurrentUser();
+        if (userConnecte != null) {
+            idUtilisateurCourant = userConnecte.getId_utilisateur();
+            System.out.println("✅ Utilisateur connecté : ID=" + idUtilisateurCourant);
+        } else {
+            System.out.println("❌ Aucun utilisateur connecté !");
+            idUtilisateurCourant = -1; // Fallback (par défaut)
+        }
+        headerNom.setText(userConnecte.getPrenom() + " " + userConnecte.getNom());
+        headerRole.setText(userConnecte.getRole());
     }
 
     /**
@@ -232,9 +246,9 @@ public class OffresController {
         Button applyBtn = new Button("Postuler");
         applyBtn.getStyleClass().add("apply-btn");
         applyBtn.setOnAction(e -> {
-            e.consume(); // Prevent card click
-            // Handle apply action
-        });
+        e.consume(); // Prevent card click
+        ouvrirFormulaireCandidature(offre);  // ✅ NOUVEAU
+    });
 
         footer.getChildren().addAll(workPref, spacer, applyBtn);
 
@@ -245,6 +259,59 @@ public class OffresController {
 
         return card;
     }
+    private void ouvrirFormulaireCandidature(OffreEmploi offre) {
+    try {
+        // Récupérer l'utilisateur connecté
+        Utilisateur userConnecte = UserSession.getInstance().getCurrentUser();
+        
+        if (userConnecte == null) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.WARNING);
+            alert.setTitle("Non connecté");
+            alert.setHeaderText("⚠️ Authentification requise");
+            alert.setContentText("Vous devez être connecté pour postuler à une offre.");
+            alert.showAndWait();
+            return;
+        }
+        
+        // Charger le FXML du formulaire de candidature
+        javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+            getClass().getResource("/fxml/utilisateur/FormCandidatureUtilisateur.fxml"));
+        javafx.scene.Parent root = loader.load();
+        
+        // Récupérer le contrôleur du formulaire
+        controllers.utilisateur.FormCandidatureUtilisateurController ctrl = 
+            loader.getController();
+        
+        // Passer l'ID de l'offre, le contrôleur parent (ListeCandidaturesUtilisateurController)
+        // et l'ID de l'utilisateur connecté
+        int idUtilisateur = userConnecte.getId_utilisateur();
+        int idOffre = offre.getIdOffre();
+        
+        System.out.println("✅ Ouverture formulaire candidature");
+        System.out.println("   - ID Offre: " + idOffre);
+        System.out.println("   - ID Utilisateur: " + idUtilisateur);
+        
+        // Initialiser le formulaire avec l'offre
+        ctrl.initDataAvecOffre(idOffre, null, idUtilisateur);
+        
+        // Créer et afficher la fenêtre modale
+        javafx.stage.Stage stage = new javafx.stage.Stage();
+        stage.setTitle("Postuler à une offre");
+        stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        stage.setScene(new javafx.scene.Scene(root, 1100, 800));
+        stage.showAndWait();
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+            javafx.scene.control.Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText("❌ Impossible d'ouvrir le formulaire");
+        alert.setContentText("Erreur : " + e.getMessage());
+        alert.showAndWait();
+    }
+}
     
     /**
      * Crée une carte compacte pour la barre latérale de la vue détaillée.
@@ -493,6 +560,10 @@ public class OffresController {
         buttonContainer.setAlignment(Pos.CENTER_RIGHT);
         buttonContainer.setStyle("-fx-padding: 10 0;");
         buttonContainer.getChildren().add(applyBtn);
+        applyBtn.setOnAction(e -> {
+        e.consume(); // Prevent card click
+        ouvrirFormulaireCandidature(offre);  // ✅ NOUVEAU
+    }); 
         
         // Separator
         Separator divider = new Separator();
@@ -1267,7 +1338,7 @@ public class OffresController {
             
             // Switch scene
             javafx.stage.Stage stage = (javafx.stage.Stage) mainStack.getScene().getWindow();
-            javafx.scene.Scene scene = new javafx.scene.Scene(root, 1440, 1024);
+            javafx.scene.Scene scene = new javafx.scene.Scene(root, 1440, 768.0);
             stage.setScene(scene);
             stage.setTitle("Mon Profil - VOS");
             stage.centerOnScreen();

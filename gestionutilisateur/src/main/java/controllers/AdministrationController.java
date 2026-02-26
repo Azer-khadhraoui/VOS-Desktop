@@ -32,12 +32,8 @@ public class AdministrationController {
     @FXML private Label lblUserName, lblUserRole;
     @FXML private StackPane userAvatarContainer;
     @FXML private Label lblUserAvatar;
-    @FXML private VBox sidebar;
     @FXML private VBox navContainer;
-    @FXML private javafx.scene.layout.HBox logoutBtn;
-    @FXML private javafx.scene.layout.HBox btnStatistiques;
-    @FXML private javafx.scene.layout.HBox btnOffres;
-    @FXML private javafx.scene.layout.HBox btnServices;
+    
     
     @FXML private ComboBox<String> filterRole;
     @FXML private Label lblTotalCount;
@@ -78,8 +74,6 @@ public class AdministrationController {
 
     @FXML
     public void initialize() {
-        setupSidebarHoverAnimation();
-        setupNavItemsHoverAnimation();
         setupTable();
         setupComboBox();
         setupFilters();
@@ -96,10 +90,7 @@ public class AdministrationController {
         deleteModalOverlay.setPrefSize(1440, 1024);
         
         // Add navigation handlers
-        logoutBtn.setOnMouseClicked(event -> logout());
-        btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
-        btnOffres.setOnMouseClicked(event -> goToOffres());
-        btnServices.setOnMouseClicked(event -> goToServices());
+       
     }
 
     private void loadCurrentUser() {
@@ -113,100 +104,9 @@ public class AdministrationController {
         }
     }
 
-    private void setupSidebarHoverAnimation() {
-        sidebar.setOnMouseEntered(event -> {
-            isSidebarHovered = true;
-            
-            // Expand width
-            javafx.animation.Timeline expandTimeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(
-                    javafx.util.Duration.millis(300),
-                    new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 250)
-                )
-            );
-            expandTimeline.play();
-            
-            // Fade in labels
-            for (javafx.scene.Node node : navContainer.getChildren()) {
-                if (node instanceof javafx.scene.layout.HBox) {
-                    javafx.scene.layout.HBox hbox = (javafx.scene.layout.HBox) node;
-                    for (javafx.scene.Node child : hbox.getChildren()) {
-                        if (child instanceof Label && ((Label) child).getStyleClass().contains("nav-item-label")) {
-                            Label label = (Label) child;
-                            javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(javafx.util.Duration.millis(300), label);
-                            fade.setFromValue(0.0);
-                            fade.setToValue(1.0);
-                            fade.play();
-                        }
-                    }
-                }
-            }
-        });
+   
+    
 
-        sidebar.setOnMouseExited(event -> {
-            isSidebarHovered = false;
-            
-            // Delay before collapsing to make sure we're not over another element
-            javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.millis(100));
-            pause.setOnFinished(e -> {
-                if (!isSidebarHovered) {
-                    // Collapse width
-                    javafx.animation.Timeline collapseTimeline = new javafx.animation.Timeline(
-                        new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(300),
-                            new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 60)
-                        )
-                    );
-                    collapseTimeline.play();
-                    
-                    // Fade out labels
-                    for (javafx.scene.Node node : navContainer.getChildren()) {
-                        if (node instanceof javafx.scene.layout.HBox) {
-                            javafx.scene.layout.HBox hbox = (javafx.scene.layout.HBox) node;
-                            for (javafx.scene.Node child : hbox.getChildren()) {
-                                if (child instanceof Label && ((Label) child).getStyleClass().contains("nav-item-label")) {
-                                    Label label = (Label) child;
-                                    javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(javafx.util.Duration.millis(300), label);
-                                    fade.setFromValue(1.0);
-                                    fade.setToValue(0.0);
-                                    fade.play();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            pause.play();
-        });
-    }
-    
-    private void setupNavItemsHoverAnimation() {
-        for (javafx.scene.Node node : navContainer.getChildren()) {
-            if (node instanceof javafx.scene.layout.HBox) {
-                javafx.scene.layout.HBox hbox = (javafx.scene.layout.HBox) node;
-                
-                hbox.setOnMouseEntered(event -> {
-                    isSidebarHovered = true;
-                    for (javafx.scene.Node child : hbox.getChildren()) {
-                        if (child instanceof Label && ((Label) child).getStyleClass().contains("nav-item-label")) {
-                            Label label = (Label) child;
-                            label.setStyle("-fx-text-fill: #FF9900;");
-                        }
-                    }
-                });
-                
-                hbox.setOnMouseExited(event -> {
-                    for (javafx.scene.Node child : hbox.getChildren()) {
-                        if (child instanceof Label && ((Label) child).getStyleClass().contains("nav-item-label")) {
-                            Label label = (Label) child;
-                            label.setStyle("-fx-text-fill: #111827;");
-                        }
-                    }
-                });
-            }
-        }
-    }
-    
     private void loadUserAvatar(String imagePath) {
         if (imagePath == null || imagePath.trim().isEmpty()) {
             return;

@@ -1,33 +1,33 @@
 package controllers;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import entities.Utilisateur;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import utilis.UserSession;
-
-import java.io.File;
-import java.io.FileInputStream;
 
 public class ServicesController {
 
-    @FXML private VBox sidebar;
-    @FXML private VBox navContainer;
+    // @FXML private VBox sidebar;
+    // @FXML private VBox navContainer;
     @FXML private Label lblUserName, lblUserRole;
     @FXML private StackPane userAvatarContainer;
     @FXML private Label lblUserAvatar;
-    @FXML private HBox btnStatistiques;
-    @FXML private HBox btnOffres;
-    @FXML private HBox btnServices;
-    @FXML private HBox logoutBtn;
+    // @FXML private HBox btnStatistiques;
+    // @FXML private HBox btnOffres;
+    // @FXML private HBox btnServices;
+    // @FXML private HBox logoutBtn;
     
     @FXML private VBox cardCongé, cardDemission;
     @FXML private Button btnCongé, btnDemission;
@@ -38,14 +38,14 @@ public class ServicesController {
     @FXML
     public void initialize() {
         loadCurrentUser();
-        setupSidebarHoverAnimation();
-        setupNavItemsHoverAnimation();
+        // setupSidebarHoverAnimation();
+        // setupNavItemsHoverAnimation();
         setupCardHoverAnimations();
         setupButtonHandlers();
         
         // Add navigation handlers
-        logoutBtn.setOnMouseClicked(event -> logout());
-        btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
+        // logoutBtn.setOnMouseClicked(event -> logout());
+        // btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
     }
 
     private void loadCurrentUser() {
@@ -114,56 +114,56 @@ public class ServicesController {
         btnDemission.setOnAction(event -> goToDemission());
     }
 
-    private void setupSidebarHoverAnimation() {
-        sidebar.setOnMouseEntered(event -> {
-            isSidebarHovered = true;
-            javafx.animation.Timeline expandTimeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(
-                    javafx.util.Duration.millis(300),
-                    new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 250)
-                )
-            );
-            expandTimeline.play();
-        });
+    // private void setupSidebarHoverAnimation() {
+    //     sidebar.setOnMouseEntered(event -> {
+    //         isSidebarHovered = true;
+    //         javafx.animation.Timeline expandTimeline = new javafx.animation.Timeline(
+    //             new javafx.animation.KeyFrame(
+    //                 javafx.util.Duration.millis(300),
+    //                 new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 250)
+    //             )
+    //         );
+    //         expandTimeline.play();
+    //     });
 
-        sidebar.setOnMouseExited(event -> {
-            isSidebarHovered = false;
-            javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.millis(100));
-            pause.setOnFinished(e -> {
-                if (!isSidebarHovered) {
-                    javafx.animation.Timeline collapseTimeline = new javafx.animation.Timeline(
-                        new javafx.animation.KeyFrame(
-                            javafx.util.Duration.millis(300),
-                            new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 80)
-                        )
-                    );
-                    collapseTimeline.play();
-                }
-            });
-            pause.play();
-        });
-    }
+    //     sidebar.setOnMouseExited(event -> {
+    //         isSidebarHovered = false;
+    //         javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.millis(100));
+    //         pause.setOnFinished(e -> {
+    //             if (!isSidebarHovered) {
+    //                 javafx.animation.Timeline collapseTimeline = new javafx.animation.Timeline(
+    //                     new javafx.animation.KeyFrame(
+    //                         javafx.util.Duration.millis(300),
+    //                         new javafx.animation.KeyValue(sidebar.prefWidthProperty(), 80)
+    //                     )
+    //                 );
+    //                 collapseTimeline.play();
+    //             }
+    //         });
+    //         pause.play();
+    //     });
+    // }
 
-    private void setupNavItemsHoverAnimation() {
-        for (javafx.scene.Node node : navContainer.getChildren()) {
-            if (node instanceof HBox) {
-                HBox navItem = (HBox) node;
-                navItem.setOnMouseEntered(event -> {
-                    javafx.animation.TranslateTransition translate = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(150), navItem);
-                    translate.setFromX(0);
-                    translate.setToX(10);
-                    translate.play();
-                });
+    // private void setupNavItemsHoverAnimation() {
+    //     for (javafx.scene.Node node : navContainer.getChildren()) {
+    //         if (node instanceof HBox) {
+    //             HBox navItem = (HBox) node;
+    //             navItem.setOnMouseEntered(event -> {
+    //                 javafx.animation.TranslateTransition translate = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(150), navItem);
+    //                 translate.setFromX(0);
+    //                 translate.setToX(10);
+    //                 translate.play();
+    //             });
 
-                navItem.setOnMouseExited(event -> {
-                    javafx.animation.TranslateTransition translate = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(150), navItem);
-                    translate.setFromX(10);
-                    translate.setToX(0);
-                    translate.play();
-                });
-            }
-        }
-    }
+    //             navItem.setOnMouseExited(event -> {
+    //                 javafx.animation.TranslateTransition translate = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(150), navItem);
+    //                 translate.setFromX(10);
+    //                 translate.setToX(0);
+    //                 translate.play();
+    //             });
+    //         }
+    //     }
+    // }
 
     @FXML
     public void goToDemission() {
@@ -199,42 +199,42 @@ public class ServicesController {
         }
     }
 
-    @FXML
-    public void goToStatistiques() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
-            Parent root = loader.load();
-            Scene scene = btnStatistiques.getScene();
-            scene.setRoot(root);
-            System.out.println("✓ Navigation vers Statistiques");
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Erreur");
-            alert.setContentText("Impossible d'ouvrir les statistiques: " + e.getMessage());
-            alert.showAndWait();
-        }
-    }
+    // @FXML
+    // public void goToStatistiques() {
+    //     try {
+    //         FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
+    //         Parent root = loader.load();
+    //         Scene scene = btnStatistiques.getScene();
+    //         scene.setRoot(root);
+    //         System.out.println("✓ Navigation vers Statistiques");
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         Alert alert = new Alert(Alert.AlertType.ERROR);
+    //         alert.setTitle("Erreur");
+    //         alert.setContentText("Impossible d'ouvrir les statistiques: " + e.getMessage());
+    //         alert.showAndWait();
+    //     }
+    // }
 
-    @FXML
-    public void logout() {
-        try {
-            UserSession.getInstance().clearSession();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) btnDemission.getScene().getWindow();
-            Scene newScene = new Scene(root, 1440, 1024);
-            stage.setScene(newScene);
-            stage.setResizable(false);
-            stage.setTitle("Connexion - VOS");
-            stage.centerOnScreen();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Erreur");
-            alert.setHeaderText("Erreur de déconnexion");
-            alert.setContentText("Impossible de se déconnecter: " + e.getMessage());
-            alert.showAndWait();
-        }
-    }
+    // @FXML
+    // public void logout() {
+    //     try {
+    //         UserSession.getInstance().clearSession();
+    //         FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
+    //         Parent root = loader.load();
+    //         Stage stage = (Stage) btnDemission.getScene().getWindow();
+    //         Scene newScene = new Scene(root, 1440, 1024);
+    //         stage.setScene(newScene);
+    //         stage.setResizable(false);
+    //         stage.setTitle("Connexion - VOS");
+    //         stage.centerOnScreen();
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         Alert alert = new Alert(Alert.AlertType.ERROR);
+    //         alert.setTitle("Erreur");
+    //         alert.setHeaderText("Erreur de déconnexion");
+    //         alert.setContentText("Impossible de se déconnecter: " + e.getMessage());
+    //         alert.showAndWait();
+    //     }
+    // }
 }

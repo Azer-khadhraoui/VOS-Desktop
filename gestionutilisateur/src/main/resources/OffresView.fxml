@@ -6,72 +6,32 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17"
+<VBox spacing="0" VBox.vgrow="ALWAYS"
+            xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.OffresController"
             stylesheets="@/org/example/styles/styleoffre.css">
 
-    <!-- ================= LEFT SIDEBAR ================= -->
-    <left>
-        <VBox styleClass="sidebar"
-              spacing="25"
-              alignment="TOP_CENTER"
-              prefWidth="90">
 
-            <padding>
-                <Insets top="25" right="15" bottom="25" left="15"/>
-            </padding>
+            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0" />
+                </padding>
+            
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox spacing="15.0" alignment="CENTER_LEFT">
+                    <StackPane
+                        style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-background-radius: 20; -fx-pref-width: 40; -fx-pref-height: 40;">
+                        <Label fx:id="headerInitiale" text="U"
+                            style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
+                    </StackPane>
+                    <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <Label fx:id="headerNom" text="Utilisateur" styleClass="user-name" />
+                        <Label fx:id="headerRole" text="Candidat" styleClass="user-role" />
+                    </VBox>
+                </HBox>
+            </HBox>
 
-            <!-- Logo -->
-            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
-                <image>
-                    <Image url="@/org/example/images/VOS 1.png"/>
-                </image>
-            </ImageView>
-
-            <!-- Navigation -->
-            <VBox spacing="20"
-                  alignment="TOP_CENTER"
-                  VBox.vgrow="ALWAYS">
-
-                <VBox alignment="CENTER" style="-fx-padding: 13;">
-                    <ImageView fitWidth="24" fitHeight="24" preserveRatio="true">
-                        <image>
-                            <Image url="@/org/example/images/iconoir_bag.png"/>
-                        </image>
-                    </ImageView>
-                </VBox>
-
-                <Button styleClass="sidebar-btn">
-                    <graphic>
-                        <ImageView fitWidth="24" fitHeight="24" preserveRatio="true">
-                            <image>
-                                <Image url="@/org/example/images/bxs_chat.png"/>
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
-            </VBox>
-
-            <!-- Profile -->
-            <Button fx:id="profileButton" styleClass="sidebar-btn" onAction="#showProfile">
-                <graphic>
-                    <Label text="👤" styleClass="sidebar-icon"/>
-                </graphic>
-            </Button>
-
-            <!-- Logout -->
-            <Button fx:id="logoutButton" styleClass="sidebar-btn" onAction="#logout">
-                <graphic>
-                    <Label text="🚪" styleClass="sidebar-icon"/>
-                </graphic>
-            </Button>
-
-        </VBox>
-    </left>
-
-    <!-- ================= MAIN CONTENT ================= -->
-    <center>
         <StackPane fx:id="mainStack">
             
             <!-- ================= GRID VIEW ================= -->
@@ -190,6 +150,5 @@
             </HBox>
 
         </StackPane>
-    </center>
 
-</BorderPane>
+</VBox>

@@ -6,54 +6,13 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 
-<StackPane prefHeight="1024.0" prefWidth="1440.0"
-           minHeight="1024.0" minWidth="1440.0"
-           maxHeight="1024.0" maxWidth="1440.0" 
+<VBox prefHeight="800.0"  prefWidth="1400.0"
            xmlns="http://javafx.com/javafx/17" 
            xmlns:fx="http://javafx.com/fxml/1" 
            fx:controller="controllers.ServicesController">
 
-<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@AdministrationView.css">
+<BorderPane prefHeight="800.0" prefWidth="1400.0" stylesheets="@AdministrationView.css">
 
-    <!-- LEFT SIDEBAR -->
-    <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="80.0">
-            <!-- Logo -->
-            <VBox alignment="CENTER" styleClass="sidebar-logo">
-                <ImageView fitHeight="55" fitWidth="55" preserveRatio="true">
-                    <Image url="@img/VOSwhiteslogan.png"/>
-                </ImageView>
-            </VBox>
-
-            <!-- Navigation Icons -->
-            <VBox fx:id="navContainer" alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
-                <padding>
-                    <Insets top="30.0"/>
-                </padding>
-
-                <HBox fx:id="btnStatistiques" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="📊" styleClass="sidebar-nav-icon"/>
-                    <Label text="Statistiques" styleClass="sidebar-nav-label"/>
-                </HBox>
-                <HBox fx:id="btnOffres" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="💼" styleClass="sidebar-nav-icon"/>
-                    <Label text="Offres" styleClass="sidebar-nav-label"/>
-                </HBox>
-                <HBox fx:id="btnServices" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="🛠️" styleClass="sidebar-nav-icon"/>
-                    <Label text="Services" styleClass="sidebar-nav-label"/>
-                </HBox>
-                <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="⚙️" styleClass="sidebar-nav-icon"/>
-                    <Label text="Paramètres" styleClass="sidebar-nav-label"/>
-                </HBox>
-                <HBox fx:id="logoutBtn" styleClass="sidebar-nav-item,sidebar-nav-logout" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="➡️" styleClass="sidebar-nav-icon"/>
-                    <Label text="Déconnexion" styleClass="sidebar-nav-label"/>
-                </HBox>
-            </VBox>
-        </VBox>
-    </left>
 
     <!-- MAIN CONTENT -->
     <center>
@@ -133,4 +92,4 @@
 
 </BorderPane>
 
-</StackPane>
+</VBox>
