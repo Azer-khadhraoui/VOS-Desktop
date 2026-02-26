@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+
+<BorderPane prefHeight="800.0" prefWidth="1400.0" stylesheets="@../styles/modern.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
+
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="80.0">
+            <!-- Logo -->
+            <VBox alignment="CENTER" styleClass="logo-container">
+                <ImageView fitHeight="50.0" fitWidth="50.0" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/vos-logo.png"/>
+                    </image>
+                </ImageView>
+            </VBox>
+
+            <!-- Navigation Icons -->
+            <VBox alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="30.0"/>
+                </padding>
+
+                <Button styleClass="nav-icon" text="📊"/>
+                <Button styleClass="nav-icon" text="💼"/>
+                <Button styleClass="nav-icon" text="ℹ️"/>
+                <Button styleClass="nav-icon" text="👤"/>
+                <Button styleClass="nav-icon" text="⚙️"/>
+                <Button styleClass="nav-icon" text="➡️"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <VBox>
+            <!-- TOP HEADER BAR -->
+            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0"/>
+                </padding>
+
+                <!-- Search Bar -->
+                <TextField promptText="🔍 Rechercher..." styleClass="search-bar" prefWidth="400.0"/>
+
+                <!-- Spacer -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Dark/Light Toggle -->
+                <HBox spacing="10.0" alignment="CENTER">
+                    <Label text="🌙" styleClass="toggle-icon"/>
+                    <ToggleButton styleClass="theme-toggle"/>
+                    <Label text="☀️" styleClass="toggle-icon"/>
+                </HBox>
+
+                <!-- User Profile -->
+                <HBox spacing="15.0" alignment="CENTER">
+                    <Label text="👤" styleClass="user-avatar"/>
+                    <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <Label text="Admin User" styleClass="user-name"/>
+                        <Label text="Admin" styleClass="user-role"/>
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <!-- TABS CONTENT -->
+            <TabPane styleClass="modern-tabs" VBox.vgrow="ALWAYS">
+                <tabs>
+                    <!-- Entretiens Tab -->
+                    <Tab text="Gestion des Entretiens" closable="false">
+                        <VBox spacing="25.0">
+                            <padding>
+                                <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                            </padding>
+
+                            <!-- Page Header -->
+                            <HBox alignment="CENTER_LEFT" spacing="20.0">
+                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                    <Label text="📋 Gestion des Entretiens" styleClass="page-title"/>
+                                    <Label text="Gérez vos entretiens" styleClass="page-subtitle"/>
+                                </VBox>
+                                <Button text="➕ Ajouter Entretien" onAction="#ajouterEntretien" styleClass="btn-add"/>
+                            </HBox>
+
+                            <!-- Table -->
+                            <TableView fx:id="tableEntretiens" styleClass="modern-table" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colIdEntretien" text="ID" prefWidth="60.0"/>
+                                    <TableColumn fx:id="colDateEntretien" text="Date" prefWidth="110.0"/>
+                                    <TableColumn fx:id="colHeureEntretien" text="Heure" prefWidth="90.0"/>
+                                    <TableColumn fx:id="colTypeEntretien" text="Type" prefWidth="110.0"/>
+                                    <TableColumn fx:id="colStatutEntretien" text="Statut" prefWidth="110.0"/>
+                                    <TableColumn fx:id="colLieuEntretien" text="Lieu" prefWidth="200.0"/>
+                                    <TableColumn fx:id="colTypeTest" text="Type Test" prefWidth="180.0"/>
+                                    <TableColumn fx:id="colActions" text="Actions" prefWidth="130.0"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Evaluations Tab -->
+                    <Tab text="Gestion des Évaluations" closable="false">
+                        <VBox spacing="25.0">
+                            <padding>
+                                <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                            </padding>
+
+                            <!-- Page Header -->
+                            <HBox alignment="CENTER_LEFT" spacing="20.0">
+                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                    <Label text="⭐ Gestion des Évaluations" styleClass="page-title"/>
+                                    <Label text="Gérez vos évaluations" styleClass="page-subtitle"/>
+                                </VBox>
+                                <Button text="➕ Ajouter Évaluation" onAction="#ajouterEvaluation" styleClass="btn-add"/>
+                            </HBox>
+
+                            <!-- Table -->
+                            <TableView fx:id="tableEvaluations" styleClass="modern-table" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colIdEvaluation" text="ID" prefWidth="60.0"/>
+                                    <TableColumn fx:id="colScoreTest" text="Score" prefWidth="100.0"/>
+                                    <TableColumn fx:id="colNoteEntretien" text="Note" prefWidth="100.0"/>
+                                    <TableColumn fx:id="colCommentaire" text="Commentaire" prefWidth="300.0"/>
+                                    <TableColumn fx:id="colDecision" text="Décision" prefWidth="120.0"/>
+                                    <TableColumn fx:id="colIdEntretienEval" text="ID Entretien" prefWidth="120.0"/>
+                                    <TableColumn fx:id="colActionsEval" text="Actions" prefWidth="130.0"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+                </tabs>
+            </TabPane>
+        </VBox>
+    </center>
+</BorderPane>
