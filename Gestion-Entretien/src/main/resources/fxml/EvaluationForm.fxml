@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<StackPane prefHeight="600.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.EvaluationFormController">
+
+    <VBox alignment="CENTER" maxWidth="520.0" minWidth="520.0" spacing="0.0"
+          style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1a1a2e, #16213e); -fx-background-radius: 28; -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.5), 60, 0, 0, 0);">
+
+        <!-- Header -->
+        <VBox alignment="CENTER" spacing="8.0"
+              style="-fx-background-color: transparent; -fx-padding: 30 30 20 30;">
+            <ImageView fitHeight="80.0" fitWidth="180.0" preserveRatio="true">
+                <Image url="@../images/vos-logo.png"/>
+            </ImageView>
+            <Label text="⭐ Évaluation d'Entretien"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Label text="Remplissez les informations d'évaluation"
+                   style="-fx-font-size: 13px; -fx-text-fill: #9CA3AF;"/>
+        </VBox>
+
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="18.0" style="-fx-padding: 10 35 30 35;">
+
+                <VBox spacing="14.0">
+                    <!-- Score Test -->
+                    <VBox spacing="5.0">
+                        <Label text="📊 SCORE DU TEST" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;"/>
+                        <TextField fx:id="scoreField" promptText="85.5"
+                                   style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; -fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; -fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;"/>
+                    </VBox>
+
+                    <!-- Note Entretien -->
+                    <VBox spacing="5.0">
+                        <Label text="⭐ NOTE DE L'ENTRETIEN (sur 5)" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;"/>
+                        <TextField fx:id="noteField" promptText="4"
+                                   style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; -fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; -fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;"/>
+                    </VBox>
+
+                    <!-- Commentaire -->
+                    <VBox spacing="5.0">
+                        <Label text="💬 COMMENTAIRE" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;"/>
+                        <TextArea fx:id="commentaireField" promptText="Excellent candidat avec de bonnes compétences..."
+                                  prefRowCount="4"
+                                  style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; -fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; -fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;"/>
+                    </VBox>
+
+                    <!-- Décision -->
+                    <VBox spacing="5.0">
+                        <Label text="✅ DÉCISION" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;"/>
+                        <ComboBox fx:id="decisionField" promptText="Sélectionnez la décision" prefWidth="450.0"
+                                  style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; -fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 8 10; -fx-font-size: 13px;"/>
+                    </VBox>
+
+                    <!-- ID Entretien -->
+                    <VBox spacing="5.0">
+                        <Label text="🔗 ID ENTRETIEN" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #667eea; -fx-letter-spacing: 1;"/>
+                        <TextField fx:id="idEntretienField" promptText="3"
+                                   style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10; -fx-border-color: rgba(102,126,234,0.3); -fx-border-radius: 10; -fx-padding: 12 14; -fx-font-size: 13px; -fx-text-fill: white; -fx-prompt-text-fill: #6B7280;"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Buttons -->
+                <HBox spacing="12.0" alignment="CENTER" style="-fx-padding: 15 0 0 0;">
+                    <Button text="Annuler" onAction="#handleCancel"
+                            style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 14 30; -fx-background-radius: 12; -fx-border-color: rgba(156,163,175,0.3); -fx-border-radius: 12; -fx-cursor: hand;"/>
+                    <Button text="✨ Enregistrer" onAction="#handleSave"
+                            style="-fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #667eea, #f093fb); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 14 40; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 15, 0, 0, 5);"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+</StackPane>
