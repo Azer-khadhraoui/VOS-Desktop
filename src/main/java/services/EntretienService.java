@@ -1,0 +1,237 @@
+package services;
+
+import entities.Entretien;
+import entities.Utilisateur;
+import utils.MyConnection;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class EntretienService {
+    private Connection connection;
+    private UtilisateurService utilisateurService = new UtilisateurService();
+
+    public EntretienService() {
+        connection = MyConnection.getInstance();
+    }
+
+    // CREATE
+    public void addEntretien(Entretien entretien) {
+        // Essayer d'abord avec la colonne questions_entretien
+        String sql = "INSERT INTO entretien (date_entretien, heure_entretien, type_entretien, " +
+                "statut_entretien, lieu, type_test, id_candidature, id_utilisateur, questions_entretien, lien_reunion) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        PreparedStatement pst = null;
+
+        try {
+            pst = connection.prepareStatement(sql);
+            pst.setDate(1, entretien.getDateEntretien());
+            pst.setTime(2, entretien.getHeureEntretien());
+            pst.setString(3, entretien.getTypeEntretien());
+            pst.setString(4, entretien.getStatutEntretien());
+            pst.setString(5, entretien.getLieu());
+            pst.setString(6, entretien.getTypeTest());
+            pst.setInt(7, entretien.getIdCandidature());
+            pst.setInt(8, entretien.getIdUtilisateur());
+            pst.setString(9, entretien.getQuestionsEntretien());
+            pst.setString(10, entretien.getLienReunion());
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            if (e.getMessage().contains("questions_entretien") || e.getMessage().contains("lien_reunion")) {
+                try {
+                    if (pst != null) pst.close();
+                    sql = "INSERT INTO entretien (date_entretien, heure_entretien, type_entretien, " +
+                            "statut_entretien, lieu, type_test, id_candidature, id_utilisateur) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    pst = connection.prepareStatement(sql);
+                    pst.setDate(1, entretien.getDateEntretien());
+                    pst.setTime(2, entretien.getHeureEntretien());
+                    pst.setString(3, entretien.getTypeEntretien());
+                    pst.setString(4, entretien.getStatutEntretien());
+                    pst.setString(5, entretien.getLieu());
+                    pst.setString(6, entretien.getTypeTest());
+                    pst.setInt(7, entretien.getIdCandidature());
+                    pst.setInt(8, entretien.getIdUtilisateur());
+                    pst.executeUpdate();
+                } catch (SQLException e2) {
+                    System.err.println("Error adding entretien: " + e2.getMessage());
+                    return;
+                }
+            } else {
+                System.err.println("Error adding entretien: " + e.getMessage());
+                return;
+            }
+        } finally {
+            try {
+                if (pst != null) pst.close();
+            } catch (SQLException e) {
+                // Ignorer
+            }
+        }
+
+        System.out.println("Entretien added successfully!");
+
+        // ===== EMAIL : Notifier le candidat =====
+        if ("Planifié".equalsIgnoreCase(entretien.getStatutEntretien())
+                || "Confirmé".equalsIgnoreCase(entretien.getStatutEntretien())) {
+            Utilisateur candidat = utilisateurService.getCandidatByCandidature(entretien.getIdCandidature());
+            if (candidat != null) {
+                EmailService.envoyerConvocationEntretien(entretien, candidat, "");
+            }
+        }
+    }
+
+    // READ ALL
+    public List<Entretien> getAllEntretiens() {
+        List<Entretien> entretiens = new ArrayList<>();
+        String sql = "SELECT * FROM entretien";
+
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Entretien e = new Entretien(
+                        rs.getInt("id_entretien"),
+                        rs.getDate("date_entretien"),
+                        rs.getTime("heure_entretien"),
+                        rs.getString("type_entretien"),
+                        rs.getString("statut_entretien"),
+                        rs.getString("lieu"),
+                        rs.getString("type_test"),
+                        rs.getInt("id_candidature"),
+                        rs.getInt("id_utilisateur")
+                );
+                // Charger les questions si la colonne existe
+                try {
+                    e.setQuestionsEntretien(rs.getString("questions_entretien"));
+                } catch (SQLException ex) { /* colonne absente, ignorer */ }
+                // Charger le lien réunion si la colonne existe
+                try {
+                    e.setLienReunion(rs.getString("lien_reunion"));
+                } catch (SQLException ex) { /* colonne absente, ignorer */ }
+                entretiens.add(e);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching entretiens: " + e.getMessage());
+        }
+
+        return entretiens;
+    }
+
+    // READ BY ID
+    public Entretien getEntretienById(int id) {
+        String query = "SELECT * FROM entretien WHERE id_entretien = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Entretien e = new Entretien(
+                        rs.getInt("id_entretien"),
+                        rs.getDate("date_entretien"),
+                        rs.getTime("heure_entretien"),
+                        rs.getString("type_entretien"),
+                        rs.getString("statut_entretien"),
+                        rs.getString("lieu"),
+                        rs.getString("type_test"),
+                        rs.getInt("id_candidature"),
+                        rs.getInt("id_utilisateur")
+                );
+                // Charger les questions si la colonne existe
+                try {
+                    e.setQuestionsEntretien(rs.getString("questions_entretien"));
+                } catch (SQLException ex) { /* colonne absente, ignorer */ }
+                // Charger le lien réunion si la colonne existe
+                try {
+                    e.setLienReunion(rs.getString("lien_reunion"));
+                } catch (SQLException ex) { /* colonne absente, ignorer */ }
+                return e;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching entretien by ID: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // UPDATE
+    public void updateEntretien(Entretien entretien) {
+        // Essayer d'abord avec la colonne questions_entretien
+        String sql = "UPDATE entretien SET date_entretien = ?, heure_entretien = ?, " +
+                "type_entretien = ?, statut_entretien = ?, lieu = ?, type_test = ?, " +
+                "id_candidature = ?, id_utilisateur = ?, questions_entretien = ?, lien_reunion = ? WHERE id_entretien = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(sql)) {
+            pst.setDate(1, entretien.getDateEntretien());
+            pst.setTime(2, entretien.getHeureEntretien());
+            pst.setString(3, entretien.getTypeEntretien());
+            pst.setString(4, entretien.getStatutEntretien());
+            pst.setString(5, entretien.getLieu());
+            pst.setString(6, entretien.getTypeTest());
+            pst.setInt(7, entretien.getIdCandidature());
+            pst.setInt(8, entretien.getIdUtilisateur());
+            pst.setString(9, entretien.getQuestionsEntretien());
+            pst.setString(10, entretien.getLienReunion());
+            pst.setInt(11, entretien.getIdEntretien());
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            // Si la colonne n'existe pas, utiliser l'ancienne requête
+            if (e.getMessage().contains("questions_entretien")) {
+                sql = "UPDATE entretien SET date_entretien = ?, heure_entretien = ?, " +
+                        "type_entretien = ?, statut_entretien = ?, lieu = ?, type_test = ?, " +
+                        "id_candidature = ?, id_utilisateur = ? WHERE id_entretien = ?";
+                try (PreparedStatement pst = connection.prepareStatement(sql)) {
+                    pst.setDate(1, entretien.getDateEntretien());
+                    pst.setTime(2, entretien.getHeureEntretien());
+                    pst.setString(3, entretien.getTypeEntretien());
+                    pst.setString(4, entretien.getStatutEntretien());
+                    pst.setString(5, entretien.getLieu());
+                    pst.setString(6, entretien.getTypeTest());
+                    pst.setInt(7, entretien.getIdCandidature());
+                    pst.setInt(8, entretien.getIdUtilisateur());
+                    pst.setInt(9, entretien.getIdEntretien());
+                    pst.executeUpdate();
+                } catch (SQLException e2) {
+                    System.err.println("Error updating entretien: " + e2.getMessage());
+                    return;
+                }
+            } else {
+                System.err.println("Error updating entretien: " + e.getMessage());
+                return;
+            }
+        }
+
+        System.out.println("Entretien updated successfully!");
+
+        // ===== EMAIL : Si statut → Terminé, notifier l'admin pour évaluation =====
+        if ("Terminé".equalsIgnoreCase(entretien.getStatutEntretien())) {
+            Utilisateur admin    = utilisateurService.getUtilisateurById(entretien.getIdUtilisateur());
+            Utilisateur candidat = utilisateurService.getCandidatByCandidature(entretien.getIdCandidature());
+            if (admin != null && candidat != null) {
+                EmailService.envoyerRappelEvaluationAdmin(entretien, admin, candidat);
+            }
+        }
+        // ===== EMAIL : Si statut → Confirmé, notifier le candidat =====
+        else if ("Confirmé".equalsIgnoreCase(entretien.getStatutEntretien())) {
+            Utilisateur candidat = utilisateurService.getCandidatByCandidature(entretien.getIdCandidature());
+            if (candidat != null) {
+                EmailService.envoyerConvocationEntretien(entretien, candidat, "");
+            }
+        }
+    }
+
+    // DELETE
+    public void deleteEntretien(int id) {
+        String sql = "DELETE FROM entretien WHERE id_entretien = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(sql)) {
+            pst.setInt(1, id);
+            pst.executeUpdate();
+            System.out.println("Entretien deleted successfully!");
+        } catch (SQLException e) {
+            System.err.println("Error deleting entretien: " + e.getMessage());
+        }
+    }
+}

@@ -1,0 +1,78 @@
+/* SIMPLE WORKING CSS - NO MORE PROBLEMS */
+
+/* Buttons */
+.btn-primary {
+    -fx-background-color: #4A90E2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 11 24;
+    -fx-background-radius: 8;
+}
+
+.btn-warning {
+    -fx-background-color: #7C8AFF;
+    -fx-text-fill: white;
+    -fx-padding: 11 24;
+    -fx-background-radius: 8;
+}
+
+.btn-danger {
+    -fx-background-color: #E74C3C;
+    -fx-text-fill: white;
+    -fx-padding: 11 24;
+    -fx-background-radius: 8;
+}
+
+.btn-success {
+    -fx-background-color: #27AE60;
+    -fx-text-fill: white;
+    -fx-padding: 11 24;
+    -fx-background-radius: 8;
+}
+
+.btn-save {
+    -fx-background-color: #27AE60;
+    -fx-text-fill: white;
+    -fx-pref-width: 150;
+    -fx-pref-height: 44;
+}
+
+.btn-cancel {
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+    -fx-pref-width: 150;
+    -fx-pref-height: 44;
+}
+
+.form-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
+}
+
+/* TABLE - FORCE BLACK TEXT - CRITICAL */
+.table-view {
+    -fx-background-color: white;
+}
+
+.table-cell {
+    -fx-text-fill: BLACK;
+    -fx-font-size: 13px;
+}
+
+.table-row-cell {
+    -fx-text-fill: BLACK;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #CCE5FF;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #F0F8FF;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: BLACK;
+    -fx-font-weight: bold;
+}

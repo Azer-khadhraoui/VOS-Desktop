@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.EvaluationsDialogController"
+      styleClass="eval-dialog" prefWidth="750" prefHeight="650"
+      stylesheets="@/styles/eval-dialog.css">
+
+    <!-- Header -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="15">
+        <padding>
+            <Insets top="25" right="30" bottom="25" left="30"/>
+        </padding>
+
+        <Label text="📋" styleClass="header-icon"/>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label fx:id="lblEntretienInfo" text="Entretien #3 - RH" styleClass="dialog-title"/>
+            <Label fx:id="lblEntretienDetails" text="📅 2026-03-21 à 10:00:00 • 📍 Bureau RH - Salle A" styleClass="dialog-subtitle"/>
+        </VBox>
+        <Label fx:id="lblEvalCount" text="1 Évaluation" styleClass="eval-count-badge"/>
+    </HBox>
+
+    <!-- Content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="eval-scroll">
+        <VBox fx:id="evaluationsContainer" spacing="0" styleClass="eval-container">
+            <padding>
+                <Insets top="30" right="30" bottom="30" left="30"/>
+            </padding>
+            <!-- Les évaluations seront ajoutées ici dynamiquement -->
+        </VBox>
+    </ScrollPane>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="15">
+        <padding>
+            <Insets top="20" right="30" bottom="20" left="30"/>
+        </padding>
+        <Button text="✨ Fermer" onAction="#handleClose" styleClass="btn-close"/>
+    </HBox>
+
+</VBox>

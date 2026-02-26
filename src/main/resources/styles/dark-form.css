@@ -1,0 +1,182 @@
+/* DARK FORM - EXACTLY LIKE YOUR COLLEAGUE! */
+
+.dark-form-container {
+    -fx-background-color: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    -fx-padding: 0;
+}
+
+/* HEADER */
+.form-header-dark {
+    -fx-padding: 35 30 25 30;
+    -fx-border-color: transparent transparent rgba(139, 92, 246, 0.3) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.form-logo-text {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.8), 15, 0, 0, 0);
+}
+
+.form-title-icon {
+    -fx-font-size: 22px;
+}
+
+.form-title-dark {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.form-subtitle-dark {
+    -fx-font-size: 13px;
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+}
+
+/* BODY */
+.form-body-dark {
+    -fx-padding: 30 30 20 30;
+}
+
+/* LABELS */
+.field-label-dark {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #8b9dc3;
+    -fx-letter-spacing: 0.5px;
+}
+
+/* DARK FIELDS */
+.dark-field {
+    -fx-background-color: rgba(30, 41, 59, 0.6);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(139, 92, 246, 0.3);
+    -fx-border-radius: 10;
+    -fx-border-width: 1.5;
+    -fx-padding: 14 18;
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.4);
+}
+
+.dark-field:focused {
+    -fx-border-color: #8b5cf6;
+    -fx-background-color: rgba(30, 41, 59, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 12, 0, 0, 0);
+}
+
+/* DARK COMBO */
+.dark-combo {
+    -fx-background-color: rgba(30, 41, 59, 0.6);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(139, 92, 246, 0.3);
+    -fx-border-radius: 10;
+    -fx-border-width: 1.5;
+    -fx-padding: 14 18;
+    -fx-font-size: 14px;
+}
+
+.dark-combo .list-cell {
+    -fx-text-fill: white;
+    -fx-background-color: #1e293b;
+}
+
+.dark-combo:focused {
+    -fx-border-color: #8b5cf6;
+    -fx-background-color: rgba(30, 41, 59, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 12, 0, 0, 0);
+}
+
+.dark-combo .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.dark-combo .arrow {
+    -fx-background-color: #8b9dc3;
+}
+
+/* DATE PICKER */
+.date-picker {
+    -fx-background-color: transparent;
+}
+
+.date-picker .text-field {
+    -fx-background-color: rgba(30, 41, 59, 0.6);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(139, 92, 246, 0.3);
+    -fx-border-radius: 10;
+    -fx-border-width: 1.5;
+    -fx-padding: 14 18;
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.4);
+}
+
+.date-picker .text-field:focused {
+    -fx-border-color: #8b5cf6;
+    -fx-background-color: rgba(30, 41, 59, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 12, 0, 0, 0);
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.date-picker .arrow {
+    -fx-background-color: #8b9dc3;
+}
+
+/* FOOTER */
+.form-footer-dark {
+    -fx-padding: 25 30 35 30;
+}
+
+/* CANCEL BUTTON */
+.btn-dark-cancel {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.7);
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-padding: 14 35;
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
+}
+
+.btn-dark-cancel:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+    -fx-text-fill: white;
+}
+
+.btn-dark-cancel:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+/* SAVE BUTTON */
+.btn-dark-save {
+    -fx-background-color: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 14 40;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 20, 0, 0, 5);
+}
+
+.btn-dark-save:hover {
+    -fx-background-color: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.8), 25, 0, 0, 8);
+}
+
+.btn-dark-save:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
