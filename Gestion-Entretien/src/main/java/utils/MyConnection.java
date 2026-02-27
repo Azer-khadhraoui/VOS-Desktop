@@ -1,8 +1,10 @@
 package utils;
+//Singleton = Une SEULE instance de classe pour toute l'application
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+
+import java.sql.Connection; // Interface représentant une connexion BDD
+import java.sql.DriverManager; // Gestionnaire de drivers JDBC (établit la connexion)
+import java.sql.SQLException; // Exception lancée en cas d'erreur SQL
 
 public class MyConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/vos";

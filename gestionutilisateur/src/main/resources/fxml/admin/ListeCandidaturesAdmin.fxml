@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+
+<VBox prefHeight="800.0" prefWidth="1400.0"
+    stylesheets="@../../css/modernRecrutement.css"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="controllers.admin.ListeCandidaturesAdminController">
+
+
+        <VBox>
+            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0" />
+                </padding>
+
+                <!-- Search Bar -->
+                <TextField fx:id="searchField" promptText="🔍 Rechercher..." styleClass="search-bar"
+                    prefWidth="400.0" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <HBox spacing="15.0" alignment="CENTER">
+                    <StackPane fx:id="userAvatarContainer" styleClass="user-avatar-container">
+                        <Label fx:id="lblUserAvatar" text="👤" styleClass="user-avatar"/>
+                    </StackPane>
+                    <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <Label fx:id="lblUserName" text="Admin" styleClass="user-name"/>
+                        <Label fx:id="lblUserRole" text="ADMIN" styleClass="user-role"/>
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <VBox spacing="0" VBox.vgrow="ALWAYS" style="-fx-background-color: white;">
+                <padding>
+                    <Insets top="30.0" right="30.0" bottom="30.0" left="30.0" />
+                </padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-padding: 0 0 25 0;">
+                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                        <Label text="📋 Liste des Candidatures" styleClass="page-title" />
+                        <Label fx:id="subtitleLabel" text="Gérez toutes les candidatures reçues"
+                            styleClass="page-subtitle" />
+                    </VBox>
+                    <Button text="⭐ Voir Préférences" onAction="#allerAuxPreferencesAdmin"
+                        style="-fx-background-color: #fbbf24; -fx-text-fill: #92400e; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-weight: 700; -fx-font-size: 13px; -fx-cursor: hand;" />
+                    <!-- <Button text="➕ Ajouter Candidature" onAction="#ajouterCandidature"
+                        styleClass="btn-add" /> -->
+                </HBox>
+
+                <HBox spacing="16" style="-fx-padding: 0 0 25 0;">
+                    <VBox fx:id="statTotal" alignment="CENTER_LEFT" spacing="4"
+                        style="-fx-background-color: #f0f9ff; -fx-padding: 18 24; -fx-background-radius: 12; -fx-border-color: #bfdbfe; -fx-border-width: 1;"
+                        prefWidth="180" prefHeight="80">
+                        <Label text="Total"
+                            style="-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-font-weight: 600;" />
+                        <Label fx:id="lblTotal" text="0"
+                            style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
+                    </VBox>
+                    <VBox fx:id="statEnAttente" alignment="CENTER_LEFT" spacing="4"
+                        style="-fx-background-color: #fffbeb; -fx-padding: 18 24; -fx-background-radius: 12; -fx-border-color: #fcd34d; -fx-border-width: 1;"
+                        prefWidth="180" prefHeight="80">
+                        <Label text="En attente"
+                            style="-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-font-weight: 600;" />
+                        <Label fx:id="lblEnAttente" text="0"
+                            style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #f59e0b;" />
+                    </VBox>
+                    <VBox fx:id="statAcceptee" alignment="CENTER_LEFT" spacing="4"
+                        style="-fx-background-color: #f0fdf4; -fx-padding: 18 24; -fx-background-radius: 12; -fx-border-color: #bbf7d0; -fx-border-width: 1;"
+                        prefWidth="180" prefHeight="80">
+                        <Label text="Acceptées"
+                            style="-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-font-weight: 600;" />
+                        <Label fx:id="lblAcceptee" text="0"
+                            style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #10b981;" />
+                    </VBox>
+                    <VBox fx:id="statRefusee" alignment="CENTER_LEFT" spacing="4"
+                        style="-fx-background-color: #fef2f2; -fx-padding: 18 24; -fx-background-radius: 12; -fx-border-color: #fecaca; -fx-border-width: 1;"
+                        prefWidth="180" prefHeight="80">
+                        <Label text="Refusées"
+                            style="-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-font-weight: 600;" />
+                        <Label fx:id="lblRefusee" text="0"
+                            style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #ef4444;" />
+                    </VBox>
+                </HBox>
+
+                <VBox
+                    style="-fx-background-color: white; -fx-padding: 25 30; -fx-background-radius: 12; -fx-border-color: #e5e7eb; -fx-border-width: 1;"
+                    VBox.vgrow="ALWAYS">
+
+                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 18 0;">
+                        <Button text="🔄 Actualiser" onAction="#rafraichirCandidatures"
+                            styleClass="btn-secondary" />
+                        <Button text="📄 Exporter" onAction="#exporterCandidatures"
+                            styleClass="btn-secondary" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblNbResultats" text="0 résultat(s)"
+                            styleClass="result-counter" />
+                    </HBox>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 15 0;">
+                        <TextField fx:id="searchField" promptText="🔍 Rechercher dans le tableau..."
+                            style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #e2e8f0; -fx-pref-height: 36; -fx-padding: 0 12;"
+                            prefWidth="300.0" />
+                        <ComboBox fx:id="filterStatut" promptText="Tous les statuts" prefWidth="150"
+                            style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #e2e8f0; -fx-background-color: white;" />
+                    </HBox>
+
+                    <TableView fx:id="candidatureTable" styleClass="modern-table"
+                        VBox.vgrow="ALWAYS">
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="60.0" />
+                            <TableColumn fx:id="colDate" text="Date" prefWidth="100.0" />
+                            <TableColumn fx:id="colStatut" text="Statut" prefWidth="120.0" />
+                            <TableColumn fx:id="colNiveauExp" text="Niveau Exp." prefWidth="130.0" />
+                            <TableColumn fx:id="colAnneesExp" text="Années Exp." prefWidth="110.0" />
+                            <TableColumn fx:id="colDomaine" text="Domaine" prefWidth="140.0" />
+                            <TableColumn fx:id="colDernierPoste" text="Dernier Poste"
+                                prefWidth="150.0" />
+                            <TableColumn fx:id="colIdUtilisateur" text="Candidat" prefWidth="80.0" />
+                            <TableColumn fx:id="colIdOffre" text="Offre" prefWidth="70.0" />
+                            <TableColumn fx:id="colActions" text="Actions" prefWidth="140.0" />
+                        </columns>
+                        <placeholder>
+                            <Label text="Aucune candidature trouvée" />
+                        </placeholder>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </VBox>
+    </VBox>

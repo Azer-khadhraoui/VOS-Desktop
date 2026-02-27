@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+
+<VBox prefHeight="800.0" prefWidth="1300.0"
+    stylesheets="@../../css/modernRecrutement.css"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="controllers.utilisateur.DetailCandidatureUtilisateurController">
+
+
+            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0" />
+                </padding>
+
+                <Label text="Détail de la Candidature" styleClass="page-title"
+                    style="-fx-font-size: 20px;" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <HBox spacing="15.0" alignment="CENTER">
+                    <StackPane
+                        style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-background-radius: 20; -fx-pref-width: 40; -fx-pref-height: 40;">
+                        <Label text="U"
+                            style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
+                    </StackPane>
+                    <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <Label text="Utilisateur" styleClass="user-name" />
+                        <Label text="Candidat" styleClass="user-role" />
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <HBox fx:id="detailView" spacing="0" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: white;">
+
+                <VBox prefWidth="320" minWidth="320" maxWidth="320"
+                    style="-fx-background-color: #f8fafc; -fx-padding: 25 20 25 20; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0;">
+
+                    <Button text="← Retour à mes candidatures" onAction="#backToList"
+                        styleClass="back-button"
+                        style="-fx-background-color: transparent; -fx-text-fill: #2563eb; -fx-font-size: 14px; -fx-font-weight: 700; -fx-cursor: hand; -fx-border-color: transparent; -fx-padding: 0 0 14 0;" />
+
+                    <Label text="Mes candidatures" styleClass="sidebar-list-title"
+                        style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #0f172a; -fx-padding: 0 0 4 0;" />
+                    <Label text="Cliquez sur une candidature pour voir les détails."
+                        styleClass="sidebar-list-subtitle" wrapText="true"
+                        style="-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-padding: 0 0 14 0;"
+                        maxWidth="280" />
+
+                    <ScrollPane fx:id="listScroll" fitToWidth="true"
+                        style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                        VBox.vgrow="ALWAYS">
+                        <VBox fx:id="miniCardsList" spacing="10" style="-fx-padding: 4 0 0 0;" />
+                    </ScrollPane>
+                </VBox>
+
+                <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0;"
+                    HBox.hgrow="ALWAYS">
+                    <VBox fx:id="detailPanel" spacing="24"
+                        style="-fx-padding: 40 60 50 60; -fx-background-color: white;">
+
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label fx:id="badgeStatut" text="En attente"
+                                style="-fx-background-color: #fef3c7; -fx-text-fill: #d97706; -fx-background-radius: 20; -fx-padding: 6 18; -fx-font-size: 13px; -fx-font-weight: 700;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button text="📄 Générer PDF" onAction="#genererPDF"
+                                style="-fx-background-color: #fef08a; -fx-text-fill: #b45309; -fx-font-size: 13px; -fx-font-weight: 600; -fx-padding: 9 20; -fx-background-radius: 10; -fx-cursor: hand;" />
+                            <Button text="✏️ Modifier" onAction="#modifierCandidature"
+                                style="-fx-background-color: #eef2ff; -fx-text-fill: #2563eb; -fx-font-size: 13px; -fx-font-weight: 600; -fx-padding: 9 20; -fx-background-radius: 10; -fx-cursor: hand;" />
+                            <Button text="🗑 Supprimer" onAction="#supprimerCandidature"
+                                style="-fx-background-color: #fef2f2; -fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-font-weight: 600; -fx-padding: 9 20; -fx-background-radius: 10; -fx-cursor: hand;" />
+                        </HBox>
+
+                        <VBox spacing="6">
+                            <Label fx:id="titreCandidature" text="Candidature #1"
+                                style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #0f172a;" />
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <Label fx:id="offreTag" text="Offre #5"
+                                    style="-fx-background-color: linear-gradient(to right, #eef2ff 0%, #e0e7ff 100%); -fx-text-fill: #2563eb; -fx-background-radius: 8; -fx-padding: 6 14; -fx-font-size: 11px; -fx-font-weight: 700;" />
+                                <Label fx:id="dateLabel" text="📅 15 Feb 2025"
+                                    style="-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;" />
+                            </HBox>
+                        </VBox>
+
+                        <Separator style="-fx-background-color: #e2e8f0;" />
+
+                        <VBox spacing="14">
+                            <Label text="Expérience professionnelle"
+                                style="-fx-font-size: 17px; -fx-font-weight: 700; -fx-text-fill: #0f172a;" />
+
+                            <GridPane hgap="20" vgap="14">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                                </columnConstraints>
+
+                                <VBox styleClass="detail-criteria-item" spacing="4"
+                                    style="-fx-background-color: #f8fafc; -fx-background-radius: 12; -fx-padding: 14 16; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12;"
+                                    GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="Niveau d'expérience"
+                                        style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-font-weight: 600;" />
+                                    <Label fx:id="lblNiveauExp" text="—"
+                                        style="-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #0f172a;" />
+                                </VBox>
+
+                                <VBox styleClass="detail-criteria-item" spacing="4"
+                                    style="-fx-background-color: #f8fafc; -fx-background-radius: 12; -fx-padding: 14 16; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12;"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="Années d'expérience"
+                                        style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-font-weight: 600;" />
+                                    <Label fx:id="lblAnneesExp" text="—"
+                                        style="-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #0f172a;" />
+                                </VBox>
+
+                                <VBox styleClass="detail-criteria-item" spacing="4"
+                                    style="-fx-background-color: #f8fafc; -fx-background-radius: 12; -fx-padding: 14 16; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12;"
+                                    GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label text="Domaine d'expérience"
+                                        style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-font-weight: 600;" />
+                                    <Label fx:id="lblDomaine" text="—"
+                                        style="-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #0f172a;" />
+                                </VBox>
+
+                                <VBox styleClass="detail-criteria-item" spacing="4"
+                                    style="-fx-background-color: #f8fafc; -fx-background-radius: 12; -fx-padding: 14 16; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12;"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="Dernier poste"
+                                        style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-font-weight: 600;" />
+                                    <Label fx:id="lblDernierPoste" text="—"
+                                        style="-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #0f172a;" />
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+
+                        <VBox spacing="14">
+                            <Label text="Documents soumis"
+                                style="-fx-font-size: 17px; -fx-font-weight: 700; -fx-text-fill: #0f172a;" />
+                            <HBox spacing="14">
+                                <HBox fx:id="cvCard" spacing="12" alignment="CENTER_LEFT"
+                                    style="-fx-background-color: #eef2ff; -fx-background-radius: 12; -fx-padding: 14 18; -fx-cursor: hand; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 12;"
+                                    HBox.hgrow="ALWAYS">
+                                    <Label text="📄" style="-fx-font-size: 20px;" />
+                                    <VBox spacing="2">
+                                        <Label text="CV"
+                                            style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #2563eb;" />
+                                        <Label fx:id="lblCv" text="cv.pdf"
+                                            style="-fx-font-size: 11px; -fx-text-fill: #64748b;" />
+                                    </VBox>
+                                </HBox>
+                                <HBox fx:id="lettreCard" spacing="12" alignment="CENTER_LEFT"
+                                    style="-fx-background-color: #f0fdf4; -fx-background-radius: 12; -fx-padding: 14 18; -fx-cursor: hand; -fx-border-color: #bbf7d0; -fx-border-width: 1; -fx-border-radius: 12;"
+                                    HBox.hgrow="ALWAYS">
+                                    <Label text="📝" style="-fx-font-size: 20px;" />
+                                    <VBox spacing="2">
+                                        <Label text="Lettre"
+                                            style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #10b981;" />
+                                        <Label fx:id="lblLettre" text="lettre.pdf"
+                                            style="-fx-font-size: 11px; -fx-text-fill: #64748b;" />
+                                    </VBox>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="10">
+                            <Label text="Message du candidat"
+                                style="-fx-font-size: 17px; -fx-font-weight: 700; -fx-text-fill: #0f172a;" />
+                            <TextArea fx:id="lblMessage" editable="false" wrapText="true"
+                                prefRowCount="4"
+                                style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e2e8f0; -fx-background-color: #f8fafc; -fx-font-size: 14px; -fx-text-fill: #475569; -fx-padding: 14;" />
+                        </VBox>
+
+                    </VBox>
+                </ScrollPane>
+            </HBox>
+</VBox>

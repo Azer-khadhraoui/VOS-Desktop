@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<VBox prefHeight="800.0" prefWidth="1300.0"
+    stylesheets="@../../css/modernRecrutement.css"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="controllers.utilisateur.MatchingUtilisateurController">
+    
+            <!-- HEADER BAR -->
+            <!-- <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0" />
+                </padding>
+
+                <Label text="🎯 Offres compatibles avec mes préférences"
+                    style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #0f172a;" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <HBox spacing="15.0" alignment="CENTER_LEFT">
+                    <Button text="🔄 Actualiser" onAction="#onActualiser"
+                        style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-weight: 700; -fx-font-size: 13px; -fx-cursor: hand;" />
+                    <StackPane
+                        style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-background-radius: 20; -fx-pref-width: 40; -fx-pref-height: 40;">
+                        <Label text="U"
+                            style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
+                    </StackPane>
+                    <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <Label text="Utilisateur" styleClass="user-name" />
+                        <Label text="Candidat" styleClass="user-role" />
+                    </VBox>
+                </HBox>
+            </HBox> -->
+            
+            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="30.0" bottom="20.0" left="30.0" />
+                </padding>
+                <TextField fx:id="searchField" promptText="🔍 Rechercher..." styleClass="search-bar"
+                    prefWidth="400.0" />
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox spacing="15.0" alignment="CENTER_LEFT">
+                    <StackPane
+                        style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-background-radius: 20; -fx-pref-width: 40; -fx-pref-height: 40;">
+                        <Label fx:id="headerInitiale" text="U"
+                            style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
+                    </StackPane>
+                    <VBox alignment="CENTER_LEFT" spacing="2.0">
+                        <Label fx:id="headerNom" text="Utilisateur" styleClass="user-name" />
+                        <Label fx:id="headerRole" text="Candidat" styleClass="user-role" />
+                    </VBox>
+                </HBox>
+            </HBox>
+
+
+            <!-- SCROLLPANE PRINCIPAL -->
+            <ScrollPane fitToWidth="true"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                VBox.vgrow="ALWAYS">
+                <VBox fx:id="mainView" spacing="30" alignment="TOP_CENTER"
+                    style="-fx-padding: 30; -fx-background-color: white;">
+
+                    <!-- HERO SECTION -->
+                    <VBox styleClass="hero" spacing="16" alignment="CENTER" maxWidth="900"
+                        style="-fx-background-color: #1e3a8a; -fx-background-radius: 25; -fx-padding: 40 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 25, 0, 0, 10);">
+                        <Label text="Résultats du Matching"
+                            style="-fx-text-fill: white; -fx-font-size: 34px; -fx-font-weight: 800;" />
+                        <Label fx:id="heroSubtitle" text="Offres correspondant à vos préférences"
+                            style="-fx-text-fill: #cbd5e1; -fx-font-size: 16px;" />
+
+                        <HBox spacing="30" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+                            <VBox alignment="CENTER" spacing="4">
+                                <Label fx:id="lblNombreOffres" text="0"
+                                    style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                                <Label text="Offres compatibles"
+                                    style="-fx-text-fill: #93c5fd; -fx-font-size: 13px;" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- RÉSUMÉ DES PRÉFÉRENCES -->
+                    <VBox spacing="12" maxWidth="900"
+                        style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 15, 0, 0, 6); -fx-border-color: #e5e7eb; -fx-border-width: 1;">
+                        <Label text="📋 Vos préférences utilisées pour le matching"
+                            style="-fx-font-weight: 700; -fx-text-fill: #0f172a; -fx-font-size: 14px;" />
+                        <HBox spacing="16" alignment="TOP_LEFT" style="-fx-wrap-text: true;">
+                            <Label fx:id="lblProfilPoste"
+                                style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                            <Label fx:id="lblProfilContrat"
+                                style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                            <Label fx:id="lblProfilMode"
+                                style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                            <Label fx:id="lblProfilDispo"
+                                style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                            <Label fx:id="lblProfilMobilite"
+                                style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                        </HBox>
+                        <Label fx:id="lblProfilStatus"
+                            style="-fx-font-size: 12px; -fx-text-fill: #94a3b8;"/>
+                    </VBox>
+
+                    <!-- RECHERCHE & FILTRES -->
+                    <VBox styleClass="search-container" spacing="14" maxWidth="900"
+                        style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 15, 0, 0, 6); -fx-border-color: #e5e7eb; -fx-border-width: 1;">
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Niveau de compatibilité"
+                                    style="-fx-text-fill: #64748b; -fx-font-size: 12px; -fx-font-weight: 600;" />
+                                <ComboBox fx:id="cmbFiltreNiveau" onAction="#onFiltrerNiveau"
+                                    promptText="Tous"
+                                    style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-font-size: 14px; -fx-pref-width: 200;" />
+                            </VBox>
+                            <Separator orientation="VERTICAL" style="-fx-pref-height: 40;" />
+                            <VBox spacing="5">
+                                <Label text="Score minimum"
+                                    style="-fx-text-fill: #64748b; -fx-font-size: 12px; -fx-font-weight: 600;" />
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Slider fx:id="sliderScoreMin" min="0" max="100" value="0"
+                                        style="-fx-pref-width: 150px;"/>
+                                    <Label fx:id="lblScoreMinVal" text="0%"
+                                        style="-fx-font-size: 13px; -fx-text-fill: #0f172a; -fx-font-weight: bold; -fx-min-width: 40;" />
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- LISTE DES CARTES -->
+                    <VBox fx:id="vboxResultats" spacing="16" maxWidth="900"
+                        style="-fx-padding: 0 0 20 0;">
+                        <!-- Cards générées dynamiquement -->
+                    </VBox>
+
+                    <!-- ÉTAT VIDE -->
+                    <VBox fx:id="boxEtatVide" visible="false" managed="false"
+                        alignment="CENTER" spacing="16" maxWidth="900"
+                        style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 60 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 15, 0, 0, 5); -fx-border-color: #e5e7eb; -fx-border-width: 1;">
+                        <Label text="😔" style="-fx-font-size: 52px;" />
+                        <Label text="Aucune offre compatible trouvée"
+                            style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #0f172a;" />
+                        <Label text="Complétez vos préférences ou baissez le score minimum"
+                            style="-fx-font-size: 14px; -fx-text-fill: #64748b;" />
+                        <Button text="📝 Compléter mes préférences" onAction="#onCompleterProfil"
+                            style="-fx-background-color: linear-gradient(to right, #6366f1 0%, #8b5cf6 100%); -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 12 30; -fx-font-weight: 700; -fx-cursor: hand;" />
+                    </VBox>
+
+                    <!-- CHARGEMENT -->
+                    <HBox fx:id="boxChargement" alignment="CENTER" spacing="12"
+                        style="-fx-padding: 20; -fx-background-color: transparent;"
+                        visible="false" managed="false">
+                        <ProgressIndicator style="-fx-pref-width: 30; -fx-pref-height: 30;"/>
+                        <Label text="Analyse de vos préférences en cours..."
+                            style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;"/>
+                    </HBox>
+
+                </VBox>
+            </ScrollPane>
+</VBox>

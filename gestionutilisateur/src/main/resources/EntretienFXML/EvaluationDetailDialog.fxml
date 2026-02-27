@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.EvaluationDetailController"
+      styleClass="eval-dialog" prefWidth="600" prefHeight="450"
+      stylesheets="@/styles/eval-dialog.css">
+
+    <!-- Header -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="15">
+        <padding>
+            <Insets top="25" right="30" bottom="25" left="30"/>
+        </padding>
+
+        <Label text="⭐" styleClass="header-icon"/>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label fx:id="lblEvalTitle" text="Évaluation #5" styleClass="dialog-title"/>
+            <Label fx:id="lblEvalSubtitle" text="Entretien #3 - RH" styleClass="dialog-subtitle"/>
+        </VBox>
+        <Label fx:id="lblDecisionBadge" text="Accepté" styleClass="eval-count-badge"/>
+    </HBox>
+
+    <!-- Content -->
+    <VBox spacing="25" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="30" right="30" bottom="30" left="30"/>
+        </padding>
+
+        <!-- Scores Section -->
+        <HBox spacing="40" alignment="CENTER_LEFT">
+            <!-- Score -->
+            <VBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="📊 SCORE DU TEST" styleClass="field-label"/>
+                <Label fx:id="lblScore" text="85,0" styleClass="metric-value-large, score-value"/>
+            </VBox>
+
+            <!-- Note -->
+            <VBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="⭐ NOTE" styleClass="field-label"/>
+                <Label fx:id="lblNote" text="5/5" styleClass="metric-value-large, note-value"/>
+            </VBox>
+        </HBox>
+
+        <!-- Commentaire Section -->
+        <VBox spacing="8">
+            <Label text="💬 COMMENTAIRE" styleClass="field-label"/>
+            <VBox styleClass="comment-box">
+                <Label fx:id="lblCommentaire" text="Excellent candidat - Updated"
+                       styleClass="comment-text" wrapText="true"/>
+            </VBox>
+        </VBox>
+    </VBox>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="15">
+        <padding>
+            <Insets top="20" right="30" bottom="20" left="30"/>
+        </padding>
+        <Button text="✨ Fermer" onAction="#handleClose" styleClass="btn-close"/>
+    </HBox>
+
+</VBox>
