@@ -9,9 +9,15 @@ public class Utilisateur {
     private String role;
     private String nom;
     private String prenom;
+    private String signature_url;
 
     public Utilisateur(int id_utilisateur, String image_profil, String email,
-                       String mot_de_passe, String role, String nom, String prenom) {
+            String mot_de_passe, String role, String nom, String prenom) {
+        this(id_utilisateur, image_profil, email, mot_de_passe, role, nom, prenom, null);
+    }
+
+    public Utilisateur(int id_utilisateur, String image_profil, String email,
+            String mot_de_passe, String role, String nom, String prenom, String signature_url) {
         this.id_utilisateur = id_utilisateur;
         this.image_profil = image_profil;
         this.email = email;
@@ -19,6 +25,7 @@ public class Utilisateur {
         this.role = role;
         this.nom = nom;
         this.prenom = prenom;
+        this.signature_url = signature_url;
     }
 
     // ✅ Getters
@@ -49,6 +56,14 @@ public class Utilisateur {
 
     public String getPrenom() {
         return prenom;
+    }
+
+    public String getSignature_url() {
+        return signature_url;
+    }
+
+    public void setSignature_url(String signature_url) {
+        this.signature_url = signature_url;
     }
 
     @Override

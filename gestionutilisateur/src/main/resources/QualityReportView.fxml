@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.QualityReportController"
+      styleClass="quality-dialog" prefWidth="600" prefHeight="500"
+      stylesheets="@/styles/quality-report.css">
+
+    <!-- Header -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="15">
+        <padding>
+            <Insets top="20" right="25" bottom="20" left="25"/>
+        </padding>
+
+        <Label text="✨" styleClass="header-icon"/>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Analyse de Qualité" styleClass="dialog-title"/>
+            <Label fx:id="lblSummary" text="Vérification de la grammaire et du style" styleClass="dialog-subtitle"/>
+        </VBox>
+        <Label fx:id="lblScore" text="95%" styleClass="quality-badge"/>
+    </HBox>
+
+    <!-- Content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="quality-scroll">
+        <VBox fx:id="errorsContainer" spacing="15" styleClass="quality-container">
+            <padding>
+                <Insets top="20" right="25" bottom="20" left="25"/>
+            </padding>
+            <!-- Errors will be added here dynamically -->
+            <Label fx:id="lblNoErrors" text="✅ Aucune erreur détectée. Votre texte est parfait !" 
+                   styleClass="dialog-subtitle" visible="false" managed="false"/>
+        </VBox>
+    </ScrollPane>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="15">
+        <padding>
+            <Insets top="15" right="25" bottom="15" left="25"/>
+        </padding>
+        <Button text="Garder ce texte" onAction="#handleKeep" styleClass="btn-keep"/>
+        <Button text="🔄 Régénérer avec l'IA" onAction="#handleRegenerate" styleClass="btn-regenerate"/>
+    </HBox>
+
+</VBox>

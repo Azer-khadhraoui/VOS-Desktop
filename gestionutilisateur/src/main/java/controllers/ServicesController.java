@@ -15,19 +15,22 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import utilis.UserSession;
 
 public class ServicesController {
 
-    // @FXML private VBox sidebar;
-    // @FXML private VBox navContainer;
     @FXML private Label lblUserName, lblUserRole;
     @FXML private StackPane userAvatarContainer;
     @FXML private Label lblUserAvatar;
-    // @FXML private HBox btnStatistiques;
-    // @FXML private HBox btnOffres;
-    // @FXML private HBox btnServices;
-    // @FXML private HBox logoutBtn;
+    
+    // Navigation items
+    @FXML private HBox navStatistiques;
+    @FXML private HBox navOpportunites;
+    @FXML private HBox navServices;
+    @FXML private HBox navAdministration;
+    @FXML private HBox navDeconnexion;
     
     @FXML private VBox cardCongé, cardDemission;
     @FXML private Button btnCongé, btnDemission;
@@ -38,14 +41,9 @@ public class ServicesController {
     @FXML
     public void initialize() {
         loadCurrentUser();
-        // setupSidebarHoverAnimation();
-        // setupNavItemsHoverAnimation();
         setupCardHoverAnimations();
         setupButtonHandlers();
-        
-        // Add navigation handlers
-        // logoutBtn.setOnMouseClicked(event -> logout());
-        // btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
+        setupNavigationHandlers();
     }
 
     private void loadCurrentUser() {
@@ -112,6 +110,21 @@ public class ServicesController {
     private void setupButtonHandlers() {
         btnCongé.setOnAction(event -> goToDemandeConge());
         btnDemission.setOnAction(event -> goToDemission());
+    }
+    
+    private void setupNavigationHandlers() {
+        if (navStatistiques != null) {
+            navStatistiques.setOnMouseClicked(event -> goToStatistiques());
+        }
+        if (navOpportunites != null) {
+            navOpportunites.setOnMouseClicked(event -> goToOpportunites());
+        }
+        if (navAdministration != null) {
+            navAdministration.setOnMouseClicked(event -> goToAdministration());
+        }
+        if (navDeconnexion != null) {
+            navDeconnexion.setOnMouseClicked(event -> logout());
+        }
     }
 
     // private void setupSidebarHoverAnimation() {
@@ -199,42 +212,77 @@ public class ServicesController {
         }
     }
 
-    // @FXML
-    // public void goToStatistiques() {
-    //     try {
-    //         FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
-    //         Parent root = loader.load();
-    //         Scene scene = btnStatistiques.getScene();
-    //         scene.setRoot(root);
-    //         System.out.println("✓ Navigation vers Statistiques");
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         Alert alert = new Alert(Alert.AlertType.ERROR);
-    //         alert.setTitle("Erreur");
-    //         alert.setContentText("Impossible d'ouvrir les statistiques: " + e.getMessage());
-    //         alert.showAndWait();
-    //     }
-    // }
+    @FXML
+    public void goToStatistiques() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
+            Parent root = loader.load();
+            Scene scene = navStatistiques.getScene();
+            scene.setRoot(root);
+            System.out.println("✓ Navigation vers Statistiques");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setContentText("Impossible d'ouvrir les statistiques: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+    
+    @FXML
+    public void goToOpportunites() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/views/MainView.fxml"));
+            Parent root = loader.load();
+            Scene scene = navOpportunites.getScene();
+            scene.setRoot(root);
+            System.out.println("✓ Navigation vers Opportunités");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setContentText("Impossible d'ouvrir les opportunités: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+    
+    @FXML
+    public void goToAdministration() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdministrationView.fxml"));
+            Parent root = loader.load();
+            Scene scene = navAdministration.getScene();
+            scene.setRoot(root);
+            System.out.println("✓ Navigation vers Administration");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setContentText("Impossible d'ouvrir l'administration: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
 
-    // @FXML
-    // public void logout() {
-    //     try {
-    //         UserSession.getInstance().clearSession();
-    //         FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
-    //         Parent root = loader.load();
-    //         Stage stage = (Stage) btnDemission.getScene().getWindow();
-    //         Scene newScene = new Scene(root, 1440, 1024);
-    //         stage.setScene(newScene);
-    //         stage.setResizable(false);
-    //         stage.setTitle("Connexion - VOS");
-    //         stage.centerOnScreen();
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         Alert alert = new Alert(Alert.AlertType.ERROR);
-    //         alert.setTitle("Erreur");
-    //         alert.setHeaderText("Erreur de déconnexion");
-    //         alert.setContentText("Impossible de se déconnecter: " + e.getMessage());
-    //         alert.showAndWait();
-    //     }
-    // }
+    @FXML
+    public void logout() {
+        try {
+            UserSession.getInstance().clearSession();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
+            Parent root = loader.load();
+            javafx.stage.Stage stage = (Stage) navDeconnexion.getScene().getWindow();
+            Scene newScene = new Scene(root, 1440, 1024);
+            stage.setScene(newScene);
+            stage.setResizable(false);
+            stage.setTitle("Connexion - VOS");
+            stage.centerOnScreen();
+            System.out.println("✓ Déconnexion réussie");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Erreur de déconnexion");
+            alert.setContentText("Impossible de se déconnecter: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
 }

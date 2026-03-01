@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.chart.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.RecrutementModuleController" VBox.vgrow="ALWAYS" stylesheets="@../../css/modernRecrutement.css" spacing="15.0">
+    <!-- Search Row at Top -->
+    <HBox alignment="CENTER_LEFT" style="-fx-padding: 20 30 0 30;" spacing="15.0">
+        <TextField fx:id="searchRecrutement" promptText="🔍 Rechercher recrutement..." styleClass="search-bar" prefWidth="350.0"/>
+        <TextField fx:id="searchContrat" promptText="🔍 Rechercher contrat..." styleClass="search-bar" prefWidth="350.0" visible="false" managed="false"/>
+    </HBox>
+
+    <TabPane styleClass="modern-tabs" VBox.vgrow="ALWAYS">
+        <tabs>
+            <!-- Recrutements Tab -->
+            <Tab text="Gestion des Recrutements" closable="false">
+                <VBox spacing="25.0">
+                    <padding>
+                        <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                    </padding>
+
+                    <!-- Page Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="20.0">
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                            <Label text="👥 Gestion des Recrutements" styleClass="page-title"/>
+                            <Label text="Gérez vos recrutements" styleClass="page-subtitle"/>
+                        </VBox>
+                        <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                            <Button text="📅 Synchroniser Google" onAction="#handleGoogleSync" styleClass="btn-google-sync"/>
+                            <Button text="➕ Ajouter Recrutement" onAction="#ajouterRecrutement" styleClass="btn-add-main"/>
+                        </HBox>
+                    </HBox>
+
+
+
+                    <!-- Table -->
+                    <TableView fx:id="tableRecrutements" styleClass="modern-table" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                        <columns>
+                            <TableColumn fx:id="colUserName" text="👤 Utilisateur" prefWidth="200.0"/>
+                            <TableColumn fx:id="colRecrutementCount" text="📊 Nombre" prefWidth="100.0"/>
+                            <TableColumn fx:id="colDecisionDate" text="📅 Date" prefWidth="140.0"/>
+                            <TableColumn fx:id="colDecisionFinale" text="✅ Décision" prefWidth="140.0"/>
+                            <TableColumn fx:id="colIdEntretien" text="🔗 Entretien #" prefWidth="120.0"/>
+                            <TableColumn fx:id="colActions" text="⚙️ Actions" prefWidth="140.0"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- Contrats Tab -->
+            <Tab text="Gestion des Contrats" closable="false">
+                <VBox spacing="25.0">
+                    <padding>
+                        <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                    </padding>
+
+                    <!-- Page Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="20.0">
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                            <Label text="📄 Gestion des Contrats" styleClass="page-title"/>
+                            <Label text="Générez et gérez les contrats d'embauche" styleClass="page-subtitle"/>
+                        </VBox>
+                        <HBox spacing="15.0" alignment="CENTER_RIGHT">
+                            <ComboBox fx:id="cbTypeContratFilter" prefWidth="150.0" styleClass="combo-box-filter"/>
+                            <Button text="➕ Ajouter Contrat" onAction="#ajouterContrat" styleClass="btn-add"/>
+                        </HBox>
+                    </HBox>
+
+
+                    <!-- Table -->
+                    <TableView fx:id="tableContrats" styleClass="modern-table" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                        <columns>
+                            <TableColumn fx:id="colIdContrat" text="ID" visible="false"/>
+                            <TableColumn fx:id="colUserContrat" text="👤 Utilisateur" prefWidth="180.0"/>
+                            <TableColumn fx:id="colTypeContrat" text="📄 Type" prefWidth="120.0"/>
+                            <TableColumn fx:id="colDateDebut" text="📅 Période" prefWidth="180.0"/>
+                            <TableColumn fx:id="colStatus" text="✅ Statut" prefWidth="110.0"/>
+                            <TableColumn fx:id="colVolumeHoraire" text="⏰ Volume" prefWidth="110.0"/>
+                            <TableColumn fx:id="colAvantages" text="🎁 Avantages" prefWidth="130.0"/>
+                            <TableColumn fx:id="colSalaire" text="💰 Salaire" prefWidth="120.0"/>
+                            <TableColumn fx:id="colIdRecrutementContrat" text="Recrutement #" visible="false"/>
+                            <TableColumn fx:id="colActionsContrat" text="⚙️ Actions" prefWidth="180.0"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+            <!-- Statistiques Tab -->
+            <Tab text="Statistiques" closable="false">
+                <ScrollPane fx:id="pageStatRecrutements" fitToWidth="true" styleClass="modern-scroll-pane">
+                    <VBox spacing="30.0">
+                        <padding>
+                            <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+                        </padding>
+
+                        <!-- SECTION: STATISTIQUES RECRUTEMENTS -->
+                        <VBox spacing="20.0">
+                             <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="📊 Statistiques Recrutements" styleClass="section-header-title"/>
+                            </HBox>
+
+                            <!-- KPI Cards Row -->
+                            <GridPane hgap="20.0" vgap="20.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                                </columnConstraints>
+                                
+                                <VBox styleClass="stat-card" GridPane.columnIndex="0">
+                                    <Label text="Total Recrutements" styleClass="stat-card-label"/>
+                                    <Label fx:id="valTotalRecrutements" text="7" styleClass="stat-card-value"/>
+                                    <Label text="+12% vs mois dernier" styleClass="stat-card-trend-up"/>
+                                </VBox>
+                                
+                                <VBox styleClass="stat-card" GridPane.columnIndex="1">
+                                    <Label text="Taux d'acceptation" styleClass="stat-card-label"/>
+                                    <Label fx:id="valTauxAcceptation" text="43%" styleClass="stat-card-value"/>
+                                    <Label text="Stable" styleClass="stat-card-trend-neutral"/>
+                                </VBox>
+                                
+                                <VBox styleClass="stat-card" GridPane.columnIndex="2">
+                                    <Label text="Entretiens moyens" styleClass="stat-card-label"/>
+                                    <Label fx:id="valEntretiensMoyens" text="2.4" styleClass="stat-card-value"/>
+                                    <Label text="-5% vs mois dernier" styleClass="stat-card-trend-down"/>
+                                </VBox>
+                                
+                                <VBox styleClass="stat-card" GridPane.columnIndex="3">
+                                    <Label text="En attente" styleClass="stat-card-label" textFill="#f59e0b"/>
+                                    <Label fx:id="valEnAttenteCount" text="2" styleClass="stat-card-value" textFill="#f59e0b"/>
+                                    <Label text="Action requise" styleClass="stat-card-note"/>
+                                </VBox>
+                            </GridPane>
+
+                            <!-- Charts Row 1 -->
+                            <HBox spacing="20.0">
+                                <VBox styleClass="chart-container" HBox.hgrow="ALWAYS">
+                                    <Label text="Distribution des décisions" styleClass="chart-title"/>
+                                    <PieChart fx:id="chartDecisions" prefHeight="300.0"/>
+                                </VBox>
+                                <VBox styleClass="chart-container" HBox.hgrow="ALWAYS">
+                                    <Label text="Recrutements par utilisateur" styleClass="chart-title"/>
+                                    <BarChart fx:id="chartRecruteur" prefHeight="300.0">
+                                        <xAxis><CategoryAxis side="BOTTOM"/></xAxis>
+                                        <yAxis><NumberAxis side="LEFT"/></yAxis>
+                                    </BarChart>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Charts Row 2 -->
+                            <VBox styleClass="chart-container">
+                                <Label text="Recrutements par mois" styleClass="chart-title"/>
+                                <LineChart fx:id="chartRecrutementMois" prefHeight="300.0">
+                                    <xAxis><CategoryAxis side="BOTTOM"/></xAxis>
+                                    <yAxis><NumberAxis side="LEFT"/></yAxis>
+                                </LineChart>
+                            </VBox>
+                        </VBox>
+
+                        <Separator styleClass="section-separator"/>
+
+                        <!-- SECTION: STATISTIQUES CONTRATS -->
+                        <VBox spacing="20.0">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="📄 Statistiques Contrats" styleClass="section-header-title"/>
+                            </HBox>
+
+                            <!-- KPI Cards Row -->
+                            <GridPane hgap="20.0" vgap="20.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0"/>
+                                </columnConstraints>
+                                
+                                <VBox styleClass="stat-card" GridPane.columnIndex="0">
+                                    <Label text="Total Contrats" styleClass="stat-card-label"/>
+                                    <Label fx:id="valTotalContrats" text="3" styleClass="stat-card-value"/>
+                                    <Label text="Actifs" styleClass="stat-card-trend-up"/>
+                                </VBox>
+                                
+                                <VBox styleClass="stat-card" GridPane.columnIndex="1">
+                                    <Label text="Salaire moyen" styleClass="stat-card-label"/>
+                                    <Label fx:id="valSalaireMoyen" text="3850 DT" styleClass="stat-card-value"/>
+                                    <Label text="+8% vs année préc." styleClass="stat-card-trend-up"/>
+                                </VBox>
+                                
+                                <VBox styleClass="stat-card" GridPane.columnIndex="2">
+                                    <Label text="Volume horaire moy." styleClass="stat-card-label"/>
+                                    <Label fx:id="valVolumeMoyen" text="38h" styleClass="stat-card-value"/>
+                                    <Label text="Stable" styleClass="stat-card-trend-neutral"/>
+                                </VBox>
+                                
+                                <VBox styleClass="stat-card" GridPane.columnIndex="3">
+                                    <Label text="Contrats actifs" styleClass="stat-card-label" textFill="#10b981"/>
+                                    <Label fx:id="valContratsActifs" text="2" styleClass="stat-card-value" textFill="#10b981"/>
+                                    <Label text="En cours" styleClass="stat-card-note"/>
+                                </VBox>
+                            </GridPane>
+
+                            <!-- Charts Row 1 -->
+                            <HBox spacing="20.0">
+                                <VBox styleClass="chart-container" HBox.hgrow="ALWAYS">
+                                    <Label text="Répartition par type de contrat" styleClass="chart-title"/>
+                                    <PieChart fx:id="chartTypeContrat" prefHeight="300.0"/>
+                                </VBox>
+                                <VBox styleClass="chart-container" HBox.hgrow="ALWAYS">
+                                    <Label text="Salaires par type de contrat" styleClass="chart-title"/>
+                                    <BarChart fx:id="chartSalaireType" prefHeight="300.0">
+                                        <xAxis><CategoryAxis side="BOTTOM"/></xAxis>
+                                        <yAxis><NumberAxis side="LEFT"/></yAxis>
+                                    </BarChart>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Charts Row 2 -->
+                            <VBox styleClass="chart-container">
+                                <Label text="Statut des contrats" styleClass="chart-title"/>
+                                <PieChart fx:id="chartStatutContrat" prefHeight="300.0"/>
+                            </VBox>
+                        </VBox>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+        </tabs>
+    </TabPane>
+</VBox>

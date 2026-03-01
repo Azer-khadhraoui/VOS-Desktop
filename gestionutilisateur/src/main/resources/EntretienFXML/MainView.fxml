@@ -96,64 +96,70 @@
                         <tabs>
                             <!-- Entretiens Tab -->
                             <Tab text="Gestion des Entretiens" closable="false">
-                                <VBox spacing="25.0">
-                                    <padding>
-                                        <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
-                                    </padding>
-
+                                <VBox spacing="0" style="-fx-padding: 0; -fx-background-color: #f8fafc;">
                                     <!-- Page Header -->
-                                    <HBox alignment="CENTER_LEFT" spacing="20.0">
-                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <Label text="📋 Gestion des Entretiens" styleClass="page-title"/>
-                                            <Label text="Gérez vos entretiens" styleClass="page-subtitle"/>
-                                        </VBox>
-                                        <Button text="➕ Ajouter Entretien" onAction="#ajouterEntretien" styleClass="btn-add"/>
+                                    <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 30 40; -fx-background-color: #f8fafc;">
+                                        <HBox alignment="CENTER_LEFT" spacing="15" HBox.hgrow="ALWAYS">
+                                            <Label text="📋" style="-fx-font-size: 32px;"/>
+                                            <VBox spacing="2">
+                                                <Label text="Gestion des Entretiens" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                                <Label text="Gérez vos entretiens" style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                                            </VBox>
+                                        </HBox>
+                                        <Button text="+ Nouvel Entretien" onAction="#ajouterEntretien"
+                                                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 28; -fx-background-radius: 8; -fx-cursor: hand;"/>
                                     </HBox>
 
-                                    <!-- Table -->
-                                    <TableView fx:id="tableEntretiens" styleClass="modern-table" VBox.vgrow="ALWAYS">
-                                        <columns>
-                                            <TableColumn fx:id="colIdEntretien" text="ID" prefWidth="60.0"/>
-                                            <TableColumn fx:id="colDateEntretien" text="Date" prefWidth="110.0"/>
-                                            <TableColumn fx:id="colHeureEntretien" text="Heure" prefWidth="90.0"/>
-                                            <TableColumn fx:id="colTypeEntretien" text="Type" prefWidth="110.0"/>
-                                            <TableColumn fx:id="colStatutEntretien" text="Statut" prefWidth="110.0"/>
-                                            <TableColumn fx:id="colLieuEntretien" text="Lieu" prefWidth="200.0"/>
-                                            <TableColumn fx:id="colTypeTest" text="Type Test" prefWidth="180.0"/>
-                                            <TableColumn fx:id="colActions" text="Actions" prefWidth="250.0"/>
-                                        </columns>
-                                    </TableView>
+                                    <!-- Table Card -->
+                                    <VBox style="-fx-background-color: white; -fx-padding: 30 40; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                                        <TableView fx:id="tableEntretiens" styleClass="modern-table" VBox.vgrow="ALWAYS"
+                                                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 0;">
+                                            <columns>
+                                                <TableColumn fx:id="colIdEntretien" text="ID" prefWidth="60.0"/>
+                                                <TableColumn fx:id="colDateEntretien" text="Date" prefWidth="110.0"/>
+                                                <TableColumn fx:id="colHeureEntretien" text="Heure" prefWidth="90.0"/>
+                                                <TableColumn fx:id="colTypeEntretien" text="Type" prefWidth="110.0"/>
+                                                <TableColumn fx:id="colStatutEntretien" text="Statut" prefWidth="110.0"/>
+                                                <TableColumn fx:id="colLieuEntretien" text="Lieu" prefWidth="200.0"/>
+                                                <TableColumn fx:id="colTypeTest" text="Type Test" prefWidth="180.0"/>
+                                                <TableColumn fx:id="colActions" text="Actions" prefWidth="250.0"/>
+                                            </columns>
+                                        </TableView>
+                                    </VBox>
                                 </VBox>
                             </Tab>
 
                             <!-- Evaluations Tab -->
                             <Tab text="Gestion des Évaluations" closable="false">
-                                <VBox spacing="25.0">
-                                    <padding>
-                                        <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
-                                    </padding>
-
+                                <VBox spacing="0" style="-fx-padding: 0; -fx-background-color: #f8fafc;">
                                     <!-- Page Header -->
-                                    <HBox alignment="CENTER_LEFT" spacing="20.0">
-                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <Label text="⭐ Gestion des Évaluations" styleClass="page-title"/>
-                                            <Label text="Gérez vos évaluations" styleClass="page-subtitle"/>
-                                        </VBox>
-                                        <Button text="➕ Ajouter Évaluation" onAction="#ajouterEvaluation" styleClass="btn-add"/>
+                                    <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 30 40; -fx-background-color: #f8fafc;">
+                                        <HBox alignment="CENTER_LEFT" spacing="15" HBox.hgrow="ALWAYS">
+                                            <Label text="⭐" style="-fx-font-size: 32px;"/>
+                                            <VBox spacing="2">
+                                                <Label text="Gestion des Évaluations" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                                <Label text="Gérez vos évaluations" style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
+                                            </VBox>
+                                        </HBox>
+                                        <Button text="+ Nouvelle Évaluation" onAction="#ajouterEvaluation"
+                                                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 28; -fx-background-radius: 8; -fx-cursor: hand;"/>
                                     </HBox>
 
-                                    <!-- Table -->
-                                    <TableView fx:id="tableEvaluations" styleClass="modern-table" VBox.vgrow="ALWAYS">
-                                        <columns>
-                                            <TableColumn fx:id="colIdEvaluation" text="ID" prefWidth="60.0"/>
-                                            <TableColumn fx:id="colScoreTest" text="Score" prefWidth="100.0"/>
-                                            <TableColumn fx:id="colNoteEntretien" text="Note" prefWidth="100.0"/>
-                                            <TableColumn fx:id="colCommentaire" text="Commentaire" prefWidth="300.0"/>
-                                            <TableColumn fx:id="colDecision" text="Décision" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colIdEntretienEval" text="ID Entretien" prefWidth="120.0"/>
-                                            <TableColumn fx:id="colActionsEval" text="Actions" prefWidth="200.0"/>
-                                        </columns>
-                                    </TableView>
+                                    <!-- Table Card -->
+                                    <VBox style="-fx-background-color: white; -fx-padding: 30 40; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                                        <TableView fx:id="tableEvaluations" styleClass="modern-table" VBox.vgrow="ALWAYS"
+                                                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 0;">
+                                            <columns>
+                                                <TableColumn fx:id="colIdEvaluation" text="ID" prefWidth="60.0"/>
+                                                <TableColumn fx:id="colScoreTest" text="Score" prefWidth="100.0"/>
+                                                <TableColumn fx:id="colNoteEntretien" text="Note" prefWidth="100.0"/>
+                                                <TableColumn fx:id="colCommentaire" text="Commentaire" prefWidth="300.0"/>
+                                                <TableColumn fx:id="colDecision" text="Décision" prefWidth="120.0"/>
+                                                <TableColumn fx:id="colIdEntretienEval" text="ID Entretien" prefWidth="120.0"/>
+                                                <TableColumn fx:id="colActionsEval" text="Actions" prefWidth="200.0"/>
+                                            </columns>
+                                        </TableView>
+                                    </VBox>
                                 </VBox>
                             </Tab>
                         </tabs>

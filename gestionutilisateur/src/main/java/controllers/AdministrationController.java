@@ -29,43 +29,73 @@ import java.nio.file.StandardCopyOption;
 
 public class AdministrationController {
 
-    @FXML private TextField searchField;
-    @FXML private Label lblUserName, lblUserRole;
-    @FXML private StackPane userAvatarContainer;
-    @FXML private Label lblUserAvatar;
-    @FXML private VBox navContainer;
-    
-    
-    @FXML private VBox sidebar;
-    @FXML private ComboBox<String> filterRole;
-    @FXML private Label lblTotalCount;
-    
-    @FXML private TableView<Utilisateur> tableUsers;
-    @FXML private TableColumn<Utilisateur, Integer> colId;
-    @FXML private TableColumn<Utilisateur, String> colNom;
-    @FXML private TableColumn<Utilisateur, String> colPrenom;
-    @FXML private TableColumn<Utilisateur, String> colEmail;
-    @FXML private TableColumn<Utilisateur, String> colPassword;
-    @FXML private TableColumn<Utilisateur, String> colRole;
-    @FXML private TableColumn<Utilisateur, Void> colActions;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Label lblUserName, lblUserRole;
+    @FXML
+    private StackPane userAvatarContainer;
+    @FXML
+    private Label lblUserAvatar;
+    @FXML
+    private VBox navContainer;
 
-    @FXML private StackPane modalOverlay;
-    @FXML private VBox modalContent;
-    @FXML private Label modalTitle;
-    @FXML private TextField tfNom, tfPrenom, tfEmail;
-    @FXML private PasswordField tfPassword;
-    @FXML private ComboBox<String> cbRole;
-    @FXML private Button btnSave;
-    @FXML private Label lblModalMessage;
-    @FXML private StackPane profileImageContainer;
-    @FXML private Label lblProfileIcon;
-    
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private ComboBox<String> filterRole;
+    @FXML
+    private Label lblTotalCount;
+
+    @FXML
+    private TableView<Utilisateur> tableUsers;
+    @FXML
+    private TableColumn<Utilisateur, Integer> colId;
+    @FXML
+    private TableColumn<Utilisateur, String> colNom;
+    @FXML
+    private TableColumn<Utilisateur, String> colPrenom;
+    @FXML
+    private TableColumn<Utilisateur, String> colEmail;
+    @FXML
+    private TableColumn<Utilisateur, String> colPassword;
+    @FXML
+    private TableColumn<Utilisateur, String> colRole;
+    @FXML
+    private TableColumn<Utilisateur, Void> colActions;
+
+    @FXML
+    private StackPane modalOverlay;
+    @FXML
+    private VBox modalContent;
+    @FXML
+    private Label modalTitle;
+    @FXML
+    private TextField tfNom, tfPrenom, tfEmail;
+    @FXML
+    private PasswordField tfPassword;
+    @FXML
+    private ComboBox<String> cbRole;
+    @FXML
+    private Button btnSave;
+    @FXML
+    private Label lblModalMessage;
+    @FXML
+    private StackPane profileImageContainer;
+    @FXML
+    private Label lblProfileIcon;
+
     // Modal de suppression
-    @FXML private StackPane deleteModalOverlay;
-    @FXML private VBox deleteModalContent;
-    @FXML private Label lblDeleteIcon;
-    @FXML private Label lblDeleteUserInfo;
-    @FXML private Button btnConfirmDelete;
+    @FXML
+    private StackPane deleteModalOverlay;
+    @FXML
+    private VBox deleteModalContent;
+    @FXML
+    private Label lblDeleteIcon;
+    @FXML
+    private Label lblDeleteUserInfo;
+    @FXML
+    private Button btnConfirmDelete;
 
     private ServiceUtilisateur serviceUtilisateur = new ServiceUtilisateur();
     private Utilisateur selectedUser = null;
@@ -88,17 +118,15 @@ public class AdministrationController {
             sidebar.setVisible(false);
             sidebar.setManaged(false);
         }
-        
-        // Bind modal overlays to fill parent (1440x1024)
-        modalOverlay.setMinSize(1440, 1024);
-        modalOverlay.setMaxSize(1440, 1024);
-        modalOverlay.setPrefSize(1440, 1024);
-        deleteModalOverlay.setMinSize(1440, 1024);
-        deleteModalOverlay.setMaxSize(1440, 1024);
-        deleteModalOverlay.setPrefSize(1440, 1024);
-        
+
+        // Bind modal overlays to fill parent (responsive)
+        modalOverlay.prefWidthProperty().bind(((StackPane) modalOverlay.getParent()).widthProperty());
+        modalOverlay.prefHeightProperty().bind(((StackPane) modalOverlay.getParent()).heightProperty());
+        deleteModalOverlay.prefWidthProperty().bind(((StackPane) deleteModalOverlay.getParent()).widthProperty());
+        deleteModalOverlay.prefHeightProperty().bind(((StackPane) deleteModalOverlay.getParent()).heightProperty());
+
         // Add navigation handlers
-       
+
     }
 
     public void setEmbeddedMode(boolean embeddedMode) {
@@ -114,14 +142,11 @@ public class AdministrationController {
         if (currentUser != null) {
             lblUserName.setText(currentUser.getNom() + " " + currentUser.getPrenom());
             lblUserRole.setText(currentUser.getRole());
-            
+
             // Charger l'image de profil
             loadUserAvatar(currentUser.getImage_profil());
         }
     }
-
-   
-    
 
     private void loadUserAvatar(String imagePath) {
         if (imagePath == null || imagePath.trim().isEmpty()) {
@@ -135,17 +160,17 @@ public class AdministrationController {
                 imageView.setFitWidth(50);
                 imageView.setFitHeight(50);
                 imageView.setPreserveRatio(false);
-                
+
                 // Clip circulaire
                 javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(25, 25, 25);
                 imageView.setClip(clip);
-                
+
                 Image img = new Image(new FileInputStream(imgFile));
                 imageView.setImage(img);
-                
+
                 userAvatarContainer.getChildren().clear();
                 userAvatarContainer.getChildren().add(imageView);
-                
+
                 System.out.println("✓ Avatar chargé dans AdministrationView: " + imgFile.getAbsolutePath());
             } else {
                 System.err.println("⚠ Fichier avatar introuvable: " + imagePath);
@@ -164,9 +189,9 @@ public class AdministrationController {
 
         String fileName = direct.getName();
         Path[] candidates = new Path[] {
-            Paths.get(System.getProperty("user.dir"), "images", fileName),
-            Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "images", fileName),
-            Paths.get(System.getProperty("user.dir"), "target", "classes", "images", fileName)
+                Paths.get(System.getProperty("user.dir"), "images", fileName),
+                Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "images", fileName),
+                Paths.get(System.getProperty("user.dir"), "target", "classes", "images", fileName)
         };
 
         for (Path candidate : candidates) {
@@ -182,7 +207,7 @@ public class AdministrationController {
     private void setupComboBox() {
         cbRole.setItems(FXCollections.observableArrayList("CLIENT", "ADMIN_RH", "ADMIN_TECHNIQUE"));
         cbRole.setValue("CLIENT");
-        
+
         // Style the ComboBox button cell to show white text on dark background
         cbRole.setButtonCell(new javafx.scene.control.ListCell<String>() {
             @Override
@@ -196,7 +221,7 @@ public class AdministrationController {
                 }
             }
         });
-        
+
         // Style dropdown items
         cbRole.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
             @Override
@@ -215,9 +240,9 @@ public class AdministrationController {
 
     private void setupTable() {
         // Colonne ID
-        colId.setCellValueFactory(data -> 
-            new javafx.beans.property.SimpleIntegerProperty(data.getValue().getId_utilisateur()).asObject()
-        );
+        colId.setCellValueFactory(
+                data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getId_utilisateur())
+                        .asObject());
         colId.setCellFactory(col -> new TableCell<Utilisateur, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
@@ -232,9 +257,7 @@ public class AdministrationController {
         });
 
         // Colonne Nom avec photo de profil
-        colNom.setCellValueFactory(data -> 
-            new javafx.beans.property.SimpleStringProperty(data.getValue().getNom())
-        );
+        colNom.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getNom()));
         colNom.setCellFactory(col -> new TableCell<Utilisateur, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -246,14 +269,15 @@ public class AdministrationController {
                     Utilisateur user = getTableView().getItems().get(getIndex());
                     HBox hbox = new HBox(10);
                     hbox.setAlignment(Pos.CENTER_LEFT);
-                    
+
                     // Image de profil
                     ImageView imageView = new ImageView();
                     imageView.setFitWidth(35);
                     imageView.setFitHeight(35);
                     imageView.setPreserveRatio(true);
-                    imageView.setStyle("-fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 5, 0, 0, 1);");
-                    
+                    imageView.setStyle(
+                            "-fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 5, 0, 0, 1);");
+
                     try {
                         String imagePath = user.getImage_profil();
                         if (imagePath != null && !imagePath.isEmpty()) {
@@ -265,31 +289,34 @@ public class AdministrationController {
                                 System.out.println("⚠ Image non trouvée pour " + user.getNom() + ": " + imagePath);
                                 // Image par défaut (emoji)
                                 Label defaultIcon = new Label("👤");
-                                defaultIcon.setStyle("-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
+                                defaultIcon.setStyle(
+                                        "-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
                                 hbox.getChildren().add(defaultIcon);
                             }
                         } else {
                             System.out.println("⚠ Pas d'image pour " + user.getNom());
                             // Image par défaut (emoji)
                             Label defaultIcon = new Label("👤");
-                            defaultIcon.setStyle("-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
+                            defaultIcon.setStyle(
+                                    "-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
                             hbox.getChildren().add(defaultIcon);
                         }
                     } catch (Exception e) {
                         System.out.println("❌ Erreur chargement image pour " + user.getNom() + ": " + e.getMessage());
                         // Image par défaut en cas d'erreur
                         Label defaultIcon = new Label("👤");
-                        defaultIcon.setStyle("-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
+                        defaultIcon.setStyle(
+                                "-fx-font-size: 28px; -fx-background-color: #DBEAFE; -fx-background-radius: 50; -fx-padding: 3;");
                         hbox.getChildren().add(defaultIcon);
                     }
-                    
+
                     if (imageView.getImage() != null) {
                         hbox.getChildren().add(imageView);
                     }
-                    
+
                     Label nameLabel = new Label(item);
                     nameLabel.getStyleClass().add("name-cell");
-                    
+
                     hbox.getChildren().add(nameLabel);
                     setGraphic(hbox);
                     setText(null);
@@ -298,9 +325,8 @@ public class AdministrationController {
         });
 
         // Colonne Prénom
-        colPrenom.setCellValueFactory(data -> 
-            new javafx.beans.property.SimpleStringProperty(data.getValue().getPrenom())
-        );
+        colPrenom.setCellValueFactory(
+                data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getPrenom()));
         colPrenom.setCellFactory(col -> new TableCell<Utilisateur, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -315,9 +341,8 @@ public class AdministrationController {
         });
 
         // Colonne Email avec badge orange
-        colEmail.setCellValueFactory(data -> 
-            new javafx.beans.property.SimpleStringProperty(data.getValue().getEmail())
-        );
+        colEmail.setCellValueFactory(
+                data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEmail()));
         colEmail.setCellFactory(col -> new TableCell<Utilisateur, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -328,13 +353,13 @@ public class AdministrationController {
                 } else {
                     HBox hbox = new HBox(8);
                     hbox.setAlignment(Pos.CENTER_LEFT);
-                    
+
                     Label icon = new Label("📧");
                     icon.setStyle("-fx-font-size: 16px;");
-                    
+
                     Label emailBadge = new Label(item);
                     emailBadge.getStyleClass().add("email-badge");
-                    
+
                     hbox.getChildren().addAll(icon, emailBadge);
                     setGraphic(hbox);
                     setText(null);
@@ -343,9 +368,8 @@ public class AdministrationController {
         });
 
         // Colonne Mot de passe (masqué)
-        colPassword.setCellValueFactory(data -> 
-            new javafx.beans.property.SimpleStringProperty(data.getValue().getMot_de_passe())
-        );
+        colPassword.setCellValueFactory(
+                data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getMot_de_passe()));
         colPassword.setCellFactory(col -> new TableCell<Utilisateur, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -356,15 +380,15 @@ public class AdministrationController {
                 } else {
                     HBox hbox = new HBox(8);
                     hbox.setAlignment(Pos.CENTER_LEFT);
-                    
+
                     Label icon = new Label("🔒");
                     icon.setStyle("-fx-font-size: 14px;");
-                    
+
                     // Masquer le mot de passe
                     String masked = "•".repeat(Math.min(item.length(), 8));
                     Label passwordLabel = new Label(masked);
                     passwordLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #9CA3AF;");
-                    
+
                     hbox.getChildren().addAll(icon, passwordLabel);
                     setGraphic(hbox);
                     setText(null);
@@ -373,9 +397,7 @@ public class AdministrationController {
         });
 
         // Colonne Role avec badge gris
-        colRole.setCellValueFactory(data -> 
-            new javafx.beans.property.SimpleStringProperty(data.getValue().getRole())
-        );
+        colRole.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getRole()));
         colRole.setCellFactory(col -> new TableCell<Utilisateur, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -386,13 +408,13 @@ public class AdministrationController {
                 } else {
                     HBox hbox = new HBox(8);
                     hbox.setAlignment(Pos.CENTER_LEFT);
-                    
+
                     Label icon = new Label("👤");
                     icon.setStyle("-fx-font-size: 16px;");
-                    
+
                     Label roleBadge = new Label(item);
                     roleBadge.getStyleClass().add("role-badge");
-                    
+
                     hbox.getChildren().addAll(icon, roleBadge);
                     setGraphic(hbox);
                     setText(null);
@@ -438,7 +460,7 @@ public class AdministrationController {
                 } else {
                     Utilisateur user = getTableView().getItems().get(getIndex());
                     Utilisateur currentUser = UserSession.getInstance().getCurrentUser();
-                    
+
                     // Vérifier si c'est l'utilisateur connecté
                     if (currentUser != null && user.getId_utilisateur() == currentUser.getId_utilisateur()) {
                         // Désactiver le bouton de suppression pour soi-même
@@ -451,7 +473,7 @@ public class AdministrationController {
                         btnDelete.setStyle("-fx-font-size: 18px;");
                         Tooltip.uninstall(btnDelete, null);
                     }
-                    
+
                     setGraphic(hbox);
                 }
             }
@@ -468,33 +490,30 @@ public class AdministrationController {
         // Setup filter role combo box
         filterRole.setItems(FXCollections.observableArrayList("Tous", "CLIENT", "ADMIN_RH", "ADMIN_TECHNIQUE"));
         filterRole.setValue("Tous");
-        
+
         // Apply filters when selection changes
         filterRole.setOnAction(e -> applyFilters());
     }
 
     private void applyFilters() {
         ObservableList<Utilisateur> allUsers = FXCollections.observableArrayList(
-            serviceUtilisateur.afficherAll()
-        );
-        
+                serviceUtilisateur.afficherAll());
+
         // Filter by search query
         String query = searchField.getText();
         if (query != null && !query.isEmpty()) {
-            allUsers = allUsers.filtered(user -> 
-                user.getNom().toLowerCase().contains(query.toLowerCase()) ||
-                user.getPrenom().toLowerCase().contains(query.toLowerCase()) ||
-                user.getEmail().toLowerCase().contains(query.toLowerCase()) ||
-                user.getRole().toLowerCase().contains(query.toLowerCase())
-            );
+            allUsers = allUsers.filtered(user -> user.getNom().toLowerCase().contains(query.toLowerCase()) ||
+                    user.getPrenom().toLowerCase().contains(query.toLowerCase()) ||
+                    user.getEmail().toLowerCase().contains(query.toLowerCase()) ||
+                    user.getRole().toLowerCase().contains(query.toLowerCase()));
         }
-        
+
         // Filter by role
         String role = filterRole.getValue();
         if (role != null && !"Tous".equals(role)) {
             allUsers = allUsers.filtered(user -> user.getRole().equals(role));
         }
-        
+
         tableUsers.setItems(allUsers);
         updateUserCount(allUsers.size());
     }
@@ -504,7 +523,7 @@ public class AdministrationController {
         searchField.clear();
         filterRole.setValue("Tous");
         applyFilters();
-        
+
         System.out.println("🔄 Filtres réinitialisés");
     }
 
@@ -530,40 +549,39 @@ public class AdministrationController {
         clearForm();
         resetProfileImage();
         lblModalMessage.setText("");
-        
+
         // Afficher le modal
         modalOverlay.setVisible(true);
         modalOverlay.setManaged(true);
         modalOverlay.toFront();
-        
+
         // Animation simple d'ouverture
         modalContent.setOpacity(0);
         modalContent.setScaleX(0.9);
         modalContent.setScaleY(0.9);
-        
+
         FadeTransition fade = new FadeTransition(Duration.millis(300), modalContent);
         fade.setFromValue(0);
         fade.setToValue(1.0);
-        
+
         ScaleTransition scale = new ScaleTransition(Duration.millis(300), modalContent);
         scale.setFromX(0.9);
         scale.setFromY(0.9);
         scale.setToX(1.0);
         scale.setToY(1.0);
         scale.setInterpolator(Interpolator.EASE_OUT);
-        
+
         ParallelTransition parallel = new ParallelTransition(fade, scale);
         parallel.play();
     }
-    
+
     private void resetProfileImage() {
         try {
             if (profileImageContainer != null) {
                 profileImageContainer.setStyle(
-                    "-fx-background-color: #1a1a2e;" +
-                    "-fx-background-radius: 47;" +
-                    "-fx-min-width: 90; -fx-min-height: 90; -fx-max-width: 90; -fx-max-height: 90;"
-                );
+                        "-fx-background-color: #1a1a2e;" +
+                                "-fx-background-radius: 47;" +
+                                "-fx-min-width: 90; -fx-min-height: 90; -fx-max-width: 90; -fx-max-height: 90;");
             }
             if (lblProfileIcon != null) {
                 lblProfileIcon.setText("\uD83D\uDC64");
@@ -575,13 +593,13 @@ public class AdministrationController {
             System.err.println("Erreur lors de la réinitialisation de l'image: " + e.getMessage());
         }
     }
-    
+
     private void animateModalOpen() {
         // Position initiale : inverse de la fermeture
         modalContent.setScaleX(0.8);
         modalContent.setScaleY(0.8);
         modalContent.setOpacity(0);
-        
+
         // Animation de scale (zoom in)
         ScaleTransition scale = new ScaleTransition(Duration.millis(400), modalContent);
         scale.setFromX(0.8);
@@ -589,24 +607,24 @@ public class AdministrationController {
         scale.setToX(1.0);
         scale.setToY(1.0);
         scale.setInterpolator(Interpolator.SPLINE(0.25, 0.1, 0.25, 1.0)); // Ease out back
-        
+
         // Animation de fade in
         FadeTransition fade = new FadeTransition(Duration.millis(400), modalContent);
         fade.setFromValue(0);
         fade.setToValue(1.0);
         fade.setInterpolator(Interpolator.EASE_OUT);
-        
+
         // Animation du background overlay
         FadeTransition overlayFade = new FadeTransition(Duration.millis(300), modalOverlay);
         overlayFade.setFromValue(0);
         overlayFade.setToValue(1.0);
-        
+
         // Jouer toutes les animations ensemble
         ParallelTransition parallel = new ParallelTransition(scale, fade);
-        
+
         overlayFade.play();
         parallel.play();
-        
+
         // Petit effet de rebond à la fin
         parallel.setOnFinished(e -> {
             ScaleTransition bounce = new ScaleTransition(Duration.millis(150), modalContent);
@@ -622,61 +640,62 @@ public class AdministrationController {
     }
 
     private void editUser(Utilisateur user) {
-        if (user == null) return;
-        
+        if (user == null)
+            return;
+
         isEditMode = true;
         selectedUser = user;
         currentImageName = user.getImage_profil() != null ? user.getImage_profil() : "default.png";
-        
+
         System.out.println("DEBUG: Editing user - Image: " + currentImageName + ", Role: " + user.getRole());
-        
+
         // Update modal title and button text
         modalTitle.setText("✏️ Modifier l'utilisateur");
         btnSave.setText("🔄 Mettre à jour");
-        
+
         // Fill in the form fields
         tfNom.setText(user.getNom() != null ? user.getNom() : "");
         tfPrenom.setText(user.getPrenom() != null ? user.getPrenom() : "");
         tfEmail.setText(user.getEmail() != null ? user.getEmail() : "");
         tfPassword.setText(user.getMot_de_passe() != null ? user.getMot_de_passe() : "");
-        
+
         // Set ComboBox role - use only selection model for proper visual update
         String userRole = user.getRole() != null ? user.getRole() : "CLIENT";
         System.out.println("DEBUG: Setting ComboBox to: " + userRole);
         System.out.println("DEBUG: ComboBox items: " + cbRole.getItems());
         cbRole.getSelectionModel().select(userRole);
         System.out.println("DEBUG: ComboBox selected value: " + cbRole.getValue());
-        
+
         // Load profile image
         loadProfileImage(currentImageName);
-        
+
         // Clear message
         lblModalMessage.setText("");
-        
+
         // Reset modal content properties
         modalContent.setScaleX(1.0);
         modalContent.setScaleY(1.0);
         modalContent.setOpacity(1.0);
-        
+
         // Show modal with animation
         modalOverlay.setVisible(true);
         modalOverlay.setManaged(true);
         modalOverlay.toFront();
-        
+
         FadeTransition fade = new FadeTransition(Duration.millis(300), modalOverlay);
         fade.setFromValue(0.0);
         fade.setToValue(1.0);
-        
+
         ScaleTransition scale = new ScaleTransition(Duration.millis(300), modalContent);
         scale.setFromX(0.85);
         scale.setFromY(0.85);
         scale.setToX(1.0);
         scale.setToY(1.0);
-        
+
         ParallelTransition transition = new ParallelTransition(fade, scale);
         transition.play();
     }
-    
+
     private void loadProfileImage(String imagePath) {
         try {
             System.out.println("DEBUG: Loading image: " + imagePath);
@@ -684,8 +703,9 @@ public class AdministrationController {
                 resetProfileImage();
                 return;
             }
-            
-            // Gérer à la fois les chemins absolus et les noms de fichiers (rétro-compatibilité)
+
+            // Gérer à la fois les chemins absolus et les noms de fichiers
+            // (rétro-compatibilité)
             File imgFile;
             if (imagePath.contains("/") || imagePath.contains("\\")) {
                 // C'est un chemin absolu
@@ -696,19 +716,18 @@ public class AdministrationController {
             }
             System.out.println("DEBUG: Image path: " + imgFile.getAbsolutePath());
             System.out.println("DEBUG: Image exists: " + imgFile.exists());
-            
+
             if (imgFile.exists()) {
                 // Use CSS background-image - most reliable visual method
                 String imageUrl = imgFile.toURI().toString();
                 lblProfileIcon.setVisible(false);
                 lblProfileIcon.setManaged(false);
                 profileImageContainer.setStyle(
-                    "-fx-background-image: url('" + imageUrl + "');" +
-                    "-fx-background-size: cover;" +
-                    "-fx-background-position: center;" +
-                    "-fx-background-radius: 47;" +
-                    "-fx-min-width: 90; -fx-min-height: 90; -fx-max-width: 90; -fx-max-height: 90;"
-                );
+                        "-fx-background-image: url('" + imageUrl + "');" +
+                                "-fx-background-size: cover;" +
+                                "-fx-background-position: center;" +
+                                "-fx-background-radius: 47;" +
+                                "-fx-min-width: 90; -fx-min-height: 90; -fx-max-width: 90; -fx-max-height: 90;");
                 System.out.println("DEBUG: Image set via CSS background");
             } else {
                 resetProfileImage();
@@ -719,7 +738,7 @@ public class AdministrationController {
             resetProfileImage();
         }
     }
-    
+
     private void animateModalEdit() {
         // Petite pulsation pour indiquer le mode édition
         ScaleTransition pulse = new ScaleTransition(Duration.millis(300), modalContent);
@@ -741,48 +760,46 @@ public class AdministrationController {
             alert.setTitle("⚠️ Action interdite");
             alert.setHeaderText("Impossible de supprimer votre propre compte");
             alert.setContentText(
-                "🚫 Vous ne pouvez pas supprimer votre propre compte pour des raisons de sécurité.\n\n" +
-                "👥 Demandez à un autre administrateur de le faire si nécessaire."
-            );
+                    "🚫 Vous ne pouvez pas supprimer votre propre compte pour des raisons de sécurité.\n\n" +
+                            "👥 Demandez à un autre administrateur de le faire si nécessaire.");
             alert.showAndWait();
             return;
         }
-        
+
         userToDelete = user;
-        
+
         // Afficher les informations de l'utilisateur
         lblDeleteUserInfo.setText(
-            "👤 " + user.getNom() + " " + user.getPrenom() + "\n" +
-            "📧 " + user.getEmail() + "\n" +
-            "🎭 " + user.getRole()
-        );
-        
+                "👤 " + user.getNom() + " " + user.getPrenom() + "\n" +
+                        "📧 " + user.getEmail() + "\n" +
+                        "🎭 " + user.getRole());
+
         // Afficher le modal avec animation
         deleteModalOverlay.setVisible(true);
         deleteModalOverlay.setManaged(true);
         deleteModalOverlay.toFront();
-        
+
         // Animation d'ouverture
         deleteModalContent.setOpacity(0);
         deleteModalContent.setScaleX(0.7);
         deleteModalContent.setScaleY(0.7);
-        
+
         FadeTransition fade = new FadeTransition(Duration.millis(300), deleteModalContent);
         fade.setFromValue(0);
         fade.setToValue(1);
-        
+
         ScaleTransition scaleX = new ScaleTransition(Duration.millis(300), deleteModalContent);
         scaleX.setFromX(0.7);
         scaleX.setToX(1.0);
-        
+
         ScaleTransition scaleY = new ScaleTransition(Duration.millis(300), deleteModalContent);
         scaleY.setFromY(0.7);
         scaleY.setToY(1.0);
-        
+
         ParallelTransition parallel = new ParallelTransition(fade, scaleX, scaleY);
         parallel.setInterpolator(Interpolator.EASE_OUT);
         parallel.play();
-        
+
         // Animation de l'icône
         RotateTransition rotate = new RotateTransition(Duration.millis(400), lblDeleteIcon);
         rotate.setByAngle(15);
@@ -790,17 +807,17 @@ public class AdministrationController {
         rotate.setAutoReverse(true);
         rotate.play();
     }
-    
+
     @FXML
     private void closeDeleteModal() {
         // Animation de fermeture
         FadeTransition fade = new FadeTransition(Duration.millis(200), deleteModalContent);
         fade.setToValue(0);
-        
+
         ScaleTransition scale = new ScaleTransition(Duration.millis(200), deleteModalContent);
         scale.setToX(0.7);
         scale.setToY(0.7);
-        
+
         ParallelTransition parallel = new ParallelTransition(fade, scale);
         parallel.setOnFinished(e -> {
             deleteModalOverlay.setVisible(false);
@@ -809,22 +826,22 @@ public class AdministrationController {
         });
         parallel.play();
     }
-    
+
     @FXML
     private void confirmDelete() {
         if (userToDelete != null) {
             String nom = userToDelete.getNom();
             String prenom = userToDelete.getPrenom();
-            
+
             // Supprimer l'utilisateur
             serviceUtilisateur.supprimer(userToDelete.getId_utilisateur());
-            
+
             // Fermer le modal
             closeDeleteModal();
-            
+
             // Rafraîchir le tableau
             refreshTable();
-            
+
             // Animation de succès
             new Thread(() -> {
                 try {
@@ -834,9 +851,8 @@ public class AdministrationController {
                         success.setTitle("✅ Suppression réussie");
                         success.setHeaderText(null);
                         success.setContentText(
-                            "🎉 L'utilisateur " + nom + " " + prenom + " a été supprimé !\n\n" +
-                            "Les données ont été retirées de la base de données."
-                        );
+                                "🎉 L'utilisateur " + nom + " " + prenom + " a été supprimé !\n\n" +
+                                        "Les données ont été retirées de la base de données.");
                         success.showAndWait();
                     });
                 } catch (InterruptedException e) {
@@ -851,15 +867,15 @@ public class AdministrationController {
         FileChooser fc = new FileChooser();
         fc.setTitle("Choisir une photo de profil");
         fc.getExtensionFilters().add(
-            new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
-        );
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
 
         File file = fc.showOpenDialog(null);
 
         if (file != null) {
             try {
                 File folder = new File("images");
-                if (!folder.exists()) folder.mkdir();
+                if (!folder.exists())
+                    folder.mkdir();
 
                 // Générer un nom de fichier unique pour éviter les conflits
                 String originalName = file.getName();
@@ -869,7 +885,7 @@ public class AdministrationController {
                     extension = originalName.substring(i);
                     originalName = originalName.substring(0, i);
                 }
-                
+
                 // Nettoyer le nom de fichier (enlever les espaces et caractères spéciaux)
                 String cleanName = originalName.replaceAll("[^a-zA-Z0-9-_]", "_");
                 String uniqueName = cleanName + "_" + System.currentTimeMillis() + extension;
@@ -881,7 +897,7 @@ public class AdministrationController {
                 currentImageName = dest.toAbsolutePath().toString().replace("\\", "/");
                 System.out.println("✓ Image uploadée: " + currentImageName);
                 loadProfileImage(currentImageName);
-                
+
                 // Animation de confirmation
                 ScaleTransition scale = new ScaleTransition(Duration.millis(200), profileImageContainer);
                 scale.setFromX(0.9);
@@ -903,12 +919,12 @@ public class AdministrationController {
     @FXML
     public void saveUser() {
         // Validation des champs vides
-        if (tfNom.getText().trim().isEmpty() || tfPrenom.getText().trim().isEmpty() || 
-            tfEmail.getText().trim().isEmpty() || tfPassword.getText().trim().isEmpty()) {
-            
+        if (tfNom.getText().trim().isEmpty() || tfPrenom.getText().trim().isEmpty() ||
+                tfEmail.getText().trim().isEmpty() || tfPassword.getText().trim().isEmpty()) {
+
             lblModalMessage.setStyle("-fx-text-fill: #DC2626;");
             lblModalMessage.setText("❌ Veuillez remplir tous les champs !");
-            
+
             // Shake animation
             shakeAnimation(modalContent);
             return;
@@ -949,43 +965,41 @@ public class AdministrationController {
 
             // Ajouter nouveau utilisateur
             Utilisateur newUser = new Utilisateur(
-                0,
-                currentImageName,
-                tfEmail.getText(),
-                tfPassword.getText(),
-                cbRole.getValue(),
-                tfNom.getText(),
-                tfPrenom.getText()
-            );
+                    0,
+                    currentImageName,
+                    tfEmail.getText(),
+                    tfPassword.getText(),
+                    cbRole.getValue(),
+                    tfNom.getText(),
+                    tfPrenom.getText());
 
             serviceUtilisateur.ajouter(newUser);
-            
+
             lblModalMessage.setStyle("-fx-text-fill: #10B981;");
             lblModalMessage.setText("✅ Utilisateur ajouté avec succès !");
-            
+
         } else {
             // Modifier utilisateur existant
             Utilisateur updatedUser = new Utilisateur(
-                selectedUser.getId_utilisateur(),
-                currentImageName,
-                tfEmail.getText(),
-                tfPassword.getText(),
-                cbRole.getValue(),
-                tfNom.getText(),
-                tfPrenom.getText()
-            );
+                    selectedUser.getId_utilisateur(),
+                    currentImageName,
+                    tfEmail.getText(),
+                    tfPassword.getText(),
+                    cbRole.getValue(),
+                    tfNom.getText(),
+                    tfPrenom.getText());
 
             serviceUtilisateur.modifier(updatedUser);
-            
+
             lblModalMessage.setStyle("-fx-text-fill: #10B981;");
             lblModalMessage.setText("✅ Utilisateur modifié avec succès !");
         }
-        
+
         // Animation de succès
         animateSuccess();
 
         refreshTable();
-        
+
         // Fermer le modal après 1.5 secondes
         new Thread(() -> {
             try {
@@ -996,7 +1010,7 @@ public class AdministrationController {
             }
         }).start();
     }
-    
+
     private void shakeAnimation(javafx.scene.Node node) {
         TranslateTransition shake = new TranslateTransition(Duration.millis(50), node);
         shake.setFromX(0);
@@ -1005,7 +1019,7 @@ public class AdministrationController {
         shake.setAutoReverse(true);
         shake.play();
     }
-    
+
     private void animateSuccess() {
         // Animation de rebond
         ScaleTransition scale = new ScaleTransition(Duration.millis(300), modalContent);
@@ -1024,22 +1038,22 @@ public class AdministrationController {
         ScaleTransition scale = new ScaleTransition(Duration.millis(200), modalContent);
         scale.setToX(0.8);
         scale.setToY(0.8);
-        
+
         FadeTransition fade = new FadeTransition(Duration.millis(200), modalContent);
         fade.setToValue(0);
-        
+
         ParallelTransition parallel = new ParallelTransition(scale, fade);
         parallel.setOnFinished(e -> {
             modalOverlay.setVisible(false);
             modalOverlay.setManaged(false);
-            
+
             // Réinitialiser les propriétés
             modalContent.setScaleX(1.0);
             modalContent.setScaleY(1.0);
             modalContent.setOpacity(1.0);
         });
         parallel.play();
-        
+
         clearForm();
         lblModalMessage.setText("");
     }
@@ -1076,7 +1090,7 @@ public class AdministrationController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdminOffresView.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) tableUsers.getScene().getWindow();
             Scene newScene = new Scene(root, 1440, 1024);
             stage.setScene(newScene);
@@ -1114,7 +1128,7 @@ public class AdministrationController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/GestionEntretienView.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) tableUsers.getScene().getWindow();
             Scene newScene = new Scene(root, 1440, 1024);
             stage.setScene(newScene);
@@ -1134,10 +1148,10 @@ public class AdministrationController {
     public void logout() {
         try {
             UserSession.getInstance().clearSession();
-            
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) tableUsers.getScene().getWindow();
             Scene newScene = new Scene(root, 1440, 1024);
             stage.setScene(newScene);

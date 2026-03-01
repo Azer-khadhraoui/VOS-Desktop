@@ -15,21 +15,28 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import utilis.UserSession;
 
 public class MainViewController implements Initializable {
 
-    @FXML private StackPane contentArea;
-    @FXML private VBox sidebar;
-    @FXML private Label navOffresText, navMatchingsText, navPreferencesText, 
-                        navCandidaturesText, navForumText, navProfilText;
-    @FXML private HBox navOffres, navMatchings, navPreferences, navCandidatures, 
-                       navForum, navProfil,logoutBtn;
+    @FXML
+    private StackPane contentArea;
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private Label navOffresText, navMatchingsText, navPreferencesText,
+            navCandidaturesText, navForumText, navChatBotText, navProfilText;
+    @FXML
+    private HBox navOffres, navMatchings, navPreferences, navCandidatures,
+            navForum, navChatBot, navProfil, logoutBtn;
 
     // ✅ CHANGÉ : Pas d'ID hardcodé — récupérer de UserSession
     private int idUtilisateurCourant;
@@ -44,7 +51,7 @@ public class MainViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // ✅ ÉTAPE 1 : Récupérer l'utilisateur de la session
         Utilisateur userConnecte = UserSession.getInstance().getCurrentUser();
-        
+
         if (userConnecte != null) {
             idUtilisateurCourant = userConnecte.getId_utilisateur();
             System.out.println("✅ [MainViewController] Utilisateur en session : ID=" + idUtilisateurCourant);
@@ -53,7 +60,7 @@ public class MainViewController implements Initializable {
             idUtilisateurCourant = -1;
             return; // Ne pas continuer si pas d'utilisateur
         }
-        
+
         // Charger la page Offres par défaut
         logoutBtn.setOnMouseClicked(event -> logout());
         chargerPage("Offres");
@@ -87,12 +94,12 @@ public class MainViewController implements Initializable {
                     listeCandidaturesCtrl = (ListeCandidaturesUtilisateurController) pageController;
                     listeCandidaturesCtrl.setIdUtilisateurCourant(idUtilisateurCourant);
                     System.out.println("✅ ID passé à ListeCandidatures : " + idUtilisateurCourant);
-                    
+
                 } else if (pageController instanceof MatchingUtilisateurController) {
                     matchingCtrl = (MatchingUtilisateurController) pageController;
                     matchingCtrl.setIdUtilisateurConnecte(idUtilisateurCourant);
                     System.out.println("✅ ID passé à Matching : " + idUtilisateurCourant);
-                    
+
                 } else if (pageController instanceof ListePreferencesUtilisateurController) {
                     preferencesCtrl = (ListePreferencesUtilisateurController) pageController;
                     // ✅ ListePreferencesUtilisateurController.setIdUtilisateurCourant() si besoin
@@ -118,9 +125,13 @@ public class MainViewController implements Initializable {
         navPreferences.getStyleClass().remove("sidebar-nav-item-active");
         navCandidatures.getStyleClass().remove("sidebar-nav-item-active");
         navForum.getStyleClass().remove("sidebar-nav-item-active");
+        navChatBot.getStyleClass().remove("sidebar-nav-item-active");
         navProfil.getStyleClass().remove("sidebar-nav-item-active");
 
-        navButton.getStyleClass().add("sidebar-nav-item-active");
+        // Ajouter la classe active uniquement si navButton n'est pas null
+        if (navButton != null) {
+            navButton.getStyleClass().add("sidebar-nav-item-active");
+        }
     }
 
     // ============ ACTIONS NAVIGATION ============
@@ -155,6 +166,26 @@ public class MainViewController implements Initializable {
     }
 
     @FXML
+    private void navToChatBot() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ChatBotView.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Assistant RH IA - VOS");
+            stage.setWidth(900);
+            stage.setHeight(700);
+            stage.setScene(new Scene(root));
+            stage.setResizable(true);
+            stage.show();
+            marquerNavActif(null);
+            System.out.println("✅ ChatBot lancé");
+        } catch (IOException e) {
+            System.err.println("❌ Erreur chargement ChatBot: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void navToProfil() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ProfilView.fxml"));
@@ -184,9 +215,7 @@ public class MainViewController implements Initializable {
     private void expandSidebar() {
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.millis(300),
-                        new KeyValue(sidebar.prefWidthProperty(), 180)
-                )
-        );
+                        new KeyValue(sidebar.prefWidthProperty(), 180)));
         timeline.play();
         fadeInLabels();
     }
@@ -194,37 +223,31 @@ public class MainViewController implements Initializable {
     private void collapseSidebar() {
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.millis(300),
-                        new KeyValue(sidebar.prefWidthProperty(), 50)
-                )
-        );
+                        new KeyValue(sidebar.prefWidthProperty(), 50)));
         timeline.play();
         fadeOutLabels();
     }
 
     private void fadeInLabels() {
-        Label[] labels = {navOffresText, navMatchingsText, navPreferencesText, 
-                         navCandidaturesText, navForumText, navProfilText};
+        Label[] labels = { navOffresText, navMatchingsText, navPreferencesText,
+                navCandidaturesText, navForumText, navProfilText };
         for (Label label : labels) {
             Timeline fade = new Timeline(
                     new KeyFrame(Duration.millis(200),
                             new KeyValue(label.opacityProperty(), 1.0),
-                            new KeyValue(label.maxWidthProperty(), 150)
-                    )
-            );
+                            new KeyValue(label.maxWidthProperty(), 150)));
             fade.play();
         }
     }
 
     private void fadeOutLabels() {
-        Label[] labels = {navOffresText, navMatchingsText, navPreferencesText, 
-                         navCandidaturesText, navForumText, navProfilText};
+        Label[] labels = { navOffresText, navMatchingsText, navPreferencesText,
+                navCandidaturesText, navForumText, navProfilText };
         for (Label label : labels) {
             Timeline fade = new Timeline(
                     new KeyFrame(Duration.millis(200),
                             new KeyValue(label.opacityProperty(), 0.0),
-                            new KeyValue(label.maxWidthProperty(), 0)
-                    )
-            );
+                            new KeyValue(label.maxWidthProperty(), 0)));
             fade.play();
         }
     }
@@ -233,23 +256,26 @@ public class MainViewController implements Initializable {
     public int getIdUtilisateurCourant() {
         return idUtilisateurCourant;
     }
+
     @FXML
     private void logout() {
         try {
             UserSession.getInstance().clearSession();
-            
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
             javafx.scene.Parent root = loader.load();
-            
+
             javafx.stage.Stage stage = (javafx.stage.Stage) contentArea.getScene().getWindow();
             javafx.scene.Scene newScene = new javafx.scene.Scene(root, 1440, 1024);
             stage.setScene(newScene);
-            stage.setResizable(false);
+            stage.setResizable(true);
+            stage.setMaximized(false);
             stage.setTitle("Connexion - VOS");
             stage.centerOnScreen();
         } catch (Exception e) {
             e.printStackTrace();
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.ERROR);
             alert.setTitle("Erreur");
             alert.setHeaderText("Erreur de déconnexion");
             alert.setContentText("Impossible de se déconnecter: " + e.getMessage());

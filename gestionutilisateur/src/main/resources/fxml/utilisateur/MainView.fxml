@@ -56,6 +56,11 @@
                     <Label styleClass="sidebar-nav-icon" text="💬" />
                     <Label fx:id="navForumText" styleClass="sidebar-nav-label" text="Forum" />
                 </HBox>
+
+                <HBox fx:id="navChatBot" styleClass="sidebar-nav-item" onMouseClicked="#navToChatBot">
+                    <Label styleClass="sidebar-nav-icon" text="🤖" />
+                    <Label fx:id="navChatBotText" styleClass="sidebar-nav-label" text="Chat Assistant IA" />
+                </HBox>
             </VBox>
 
 

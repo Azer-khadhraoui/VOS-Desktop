@@ -6,78 +6,54 @@
 <?import javafx.scene.image.*?>
 
 <BorderPane prefHeight="800.0" prefWidth="1400.0"
-            stylesheets="@../styles/modern.css"
+            stylesheets="@/AdministrationView.css"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.controllers.DashboardController">
+            fx:controller="controllers.DashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="90.0"
-              style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-width: 0 1 0 0;">
+        <VBox styleClass="sidebar" prefWidth="80.0">
             <!-- Logo -->
-            <VBox alignment="CENTER" styleClass="logo-container" style="-fx-padding: 30 0 30 0;">
-                <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
+            <VBox alignment="CENTER" styleClass="sidebar-logo">
+                <ImageView fitWidth="55" fitHeight="55" preserveRatio="true">
                     <image>
-                        <Image url="@/org/example/images/VOS 1.png"/>
+                        <Image url="@/img/VOSwhiteslogan.png"/>
                     </image>
                 </ImageView>
-                <Label fx:id="sidebarSubtitle" text="Bâtir l'avenir avec vous!" 
-                       style="-fx-text-fill: #6b7280; -fx-font-size: 10px; -fx-padding: 8 0 0 0; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
             </VBox>
 
             <!-- Navigation Icons -->
-            <VBox fx:id="navContainer" alignment="TOP_LEFT" spacing="8.0" VBox.vgrow="ALWAYS" style="-fx-padding: 20 15 20 15;">
+            <VBox spacing="5" VBox.vgrow="ALWAYS">
+                <HBox fx:id="navStatistiques" styleClass="sidebar-nav-item" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="📊" styleClass="sidebar-nav-icon"/>
+                    <Label text="Statistiques" styleClass="sidebar-nav-label"/>
+                </HBox>
 
-                <HBox fx:id="navStatistiques" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="📊" style="-fx-text-fill: #1f2937; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelStatistiques" text="Statistiques" 
-                           style="-fx-text-fill: #1f2937; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+                <HBox fx:id="navOpportunites" styleClass="sidebar-nav-item sidebar-nav-item-active" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="💼" styleClass="sidebar-nav-icon"/>
+                    <Label text="Opportunités" styleClass="sidebar-nav-label"/>
                 </HBox>
-                
-                <HBox fx:id="navOpportunites" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="💼" style="-fx-text-fill: #1f2937; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelOpportunites" text="Opportunités" 
-                           style="-fx-text-fill: #1f2937; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+
+                <HBox fx:id="navServices" styleClass="sidebar-nav-item" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="🛠️" styleClass="sidebar-nav-icon"/>
+                    <Label text="Services" styleClass="sidebar-nav-label"/>
                 </HBox>
-                
-                <HBox fx:id="navApropos" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="ℹ️" style="-fx-text-fill: #1f2937; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelApropos" text="À propos" 
-                           style="-fx-text-fill: #1f2937; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+
+                <HBox fx:id="navAdministration" styleClass="sidebar-nav-item" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="👤" styleClass="sidebar-nav-icon"/>
+                    <Label text="Administration" styleClass="sidebar-nav-label"/>
                 </HBox>
-                
-                <HBox fx:id="navAdministration" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="👤" style="-fx-text-fill: #1f2937; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelAdministration" text="Administration" 
-                           style="-fx-text-fill: #1f2937; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
-                </HBox>
-                
+
                 <Region VBox.vgrow="ALWAYS"/>
-                
-                <HBox fx:id="navParametres" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="⚙️" style="-fx-text-fill: #6b7280; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelParametres" text="Paramètres" 
-                           style="-fx-text-fill: #6b7280; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
-                </HBox>
-                
-                <HBox fx:id="navDeconnexion" alignment="CENTER_LEFT" spacing="15" 
-                      style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-cursor: hand; -fx-background-radius: 12;">
-                    <Label text="⎋" style="-fx-text-fill: #ef4444; -fx-font-size: 22px; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"/>
-                    <Label fx:id="labelDeconnexion" text="Déconnexion" 
-                           style="-fx-text-fill: #ef4444; -fx-font-size: 14px; -fx-font-weight: 500; -fx-opacity: 0; -fx-max-width: 0;"/>
+
+                <HBox fx:id="navDeconnexion" styleClass="sidebar-nav-logout" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="⎋" styleClass="sidebar-nav-icon"/>
+                    <Label text="Déconnexion" styleClass="sidebar-nav-label"/>
                 </HBox>
             </VBox>
-            
-            <!-- Support Section -->
-            <VBox fx:id="supportSection" alignment="CENTER" spacing="10" 
-                  style="-fx-padding: 15; -fx-opacity: 0; -fx-max-height: 0; -fx-background-color: #f9fafb; -fx-background-radius: 12;">
-                <Label text="Besoin d'aide ?" 
+        </VBox>
+    </left>
                        style="-fx-text-fill: #1f2937; -fx-font-size: 13px; -fx-font-weight: 600;"/>
                 <Label text="N'hésitez pas" 
                        style="-fx-text-fill: #6b7280; -fx-font-size: 11px; -fx-text-alignment: center;"/>

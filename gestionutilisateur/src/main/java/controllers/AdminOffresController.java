@@ -4,6 +4,10 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Locale;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import javafx.collections.transformation.FilteredList;
 
 import entities.CritereOffre;
 import entities.OffreEmploi;
@@ -135,7 +139,7 @@ public class AdminOffresController {
     private BarChart<String, Number> locationBarChart;
 
     @FXML
-    private void rafraichirCriteres() {
+    private void rafraichirCriteresList() {
         loadCriteresForSelectedOffre();
     }
 
@@ -153,13 +157,14 @@ public class AdminOffresController {
      * offers.
      *
      * @return A List of Integer containing all distinct user IDs, or an empty
-     * list if none found
+     *         list if none found
      */
     private List<Integer> getAllUserIds() {
         List<Integer> userIds = new java.util.ArrayList<>();
         String sql = "SELECT id_utilisateur FROM utilisateur ORDER BY id_utilisateur";
 
-        try (java.sql.PreparedStatement ps = utilis.MyConnection.getInstance().getCnx().prepareStatement(sql); java.sql.ResultSet rs = ps.executeQuery()) {
+        try (java.sql.PreparedStatement ps = utilis.MyConnection.getInstance().getCnx().prepareStatement(sql);
+                java.sql.ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 userIds.add(rs.getInt("id_utilisateur"));
@@ -201,13 +206,14 @@ public class AdminOffresController {
                         currentOffre = newSelection;
                         loadCriteres();
                     }
-                }
-        );
+                });
         // Make description column wrap nicer (optional)
-        colActions.setCellFactory(param -> new TableCell<>() {
+        colActions.setCellFactory(param -> new TableCell<OffreEmploi, Void>() {
 
-            private final ImageView editIcon = new ImageView(new Image(getClass().getResourceAsStream("/org/example/images/edit.png")));
-            private final ImageView deleteIcon = new ImageView(new Image(getClass().getResourceAsStream("/org/example/images/delete.png")));
+            private final ImageView editIcon = new ImageView(
+                    new Image(getClass().getResourceAsStream("/org/example/images/edit.png")));
+            private final ImageView deleteIcon = new ImageView(
+                    new Image(getClass().getResourceAsStream("/org/example/images/delete.png")));
             private final Button btnEdit = new Button();
             private final Button btnDelete = new Button();
             private final HBox pane = new HBox(8, btnEdit, btnDelete);
@@ -224,18 +230,24 @@ public class AdminOffresController {
                 btnDelete.setGraphic(deleteIcon);
 
                 // Edit button styling
-                btnEdit.setStyle("-fx-background-color: #e0e7ff; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;");
+                btnEdit.setStyle(
+                        "-fx-background-color: #e0e7ff; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;");
 
                 // Edit button hover effect
-                btnEdit.setOnMouseEntered(e -> btnEdit.setStyle("-fx-background-color: #c7d2fe; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
-                btnEdit.setOnMouseExited(e -> btnEdit.setStyle("-fx-background-color: #e0e7ff; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
+                btnEdit.setOnMouseEntered(e -> btnEdit.setStyle(
+                        "-fx-background-color: #c7d2fe; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
+                btnEdit.setOnMouseExited(e -> btnEdit.setStyle(
+                        "-fx-background-color: #e0e7ff; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
 
                 // Delete button styling
-                btnDelete.setStyle("-fx-background-color: #fee2e2; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;");
+                btnDelete.setStyle(
+                        "-fx-background-color: #fee2e2; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;");
 
                 // Delete button hover effect
-                btnDelete.setOnMouseEntered(e -> btnDelete.setStyle("-fx-background-color: #fecaca; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
-                btnDelete.setOnMouseExited(e -> btnDelete.setStyle("-fx-background-color: #fee2e2; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
+                btnDelete.setOnMouseEntered(e -> btnDelete.setStyle(
+                        "-fx-background-color: #fecaca; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
+                btnDelete.setOnMouseExited(e -> btnDelete.setStyle(
+                        "-fx-background-color: #fee2e2; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
 
                 btnEdit.setOnAction(event -> {
                     OffreEmploi offre = getTableView().getItems().get(getIndex());
@@ -258,10 +270,12 @@ public class AdminOffresController {
                 }
             }
         });
-        colCritereActions.setCellFactory(param -> new TableCell<>() {
+        colCritereActions.setCellFactory(param -> new TableCell<CritereOffre, Void>() {
 
-            private final ImageView editIcon = new ImageView(new Image(getClass().getResourceAsStream("/org/example/images/edit.png")));
-            private final ImageView deleteIcon = new ImageView(new Image(getClass().getResourceAsStream("/org/example/images/delete.png")));
+            private final ImageView editIcon = new ImageView(
+                    new Image(getClass().getResourceAsStream("/org/example/images/edit.png")));
+            private final ImageView deleteIcon = new ImageView(
+                    new Image(getClass().getResourceAsStream("/org/example/images/delete.png")));
             private final Button editBtn = new Button();
             private final Button deleteBtn = new Button();
             private final HBox pane = new HBox(8, editBtn, deleteBtn);
@@ -278,18 +292,24 @@ public class AdminOffresController {
                 deleteBtn.setGraphic(deleteIcon);
 
                 // Edit button styling
-                editBtn.setStyle("-fx-background-color: #e0e7ff; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;");
+                editBtn.setStyle(
+                        "-fx-background-color: #e0e7ff; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;");
 
                 // Edit button hover effect
-                editBtn.setOnMouseEntered(e -> editBtn.setStyle("-fx-background-color: #c7d2fe; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
-                editBtn.setOnMouseExited(e -> editBtn.setStyle("-fx-background-color: #e0e7ff; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
+                editBtn.setOnMouseEntered(e -> editBtn.setStyle(
+                        "-fx-background-color: #c7d2fe; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
+                editBtn.setOnMouseExited(e -> editBtn.setStyle(
+                        "-fx-background-color: #e0e7ff; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
 
                 // Delete button styling
-                deleteBtn.setStyle("-fx-background-color: #fee2e2; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;");
+                deleteBtn.setStyle(
+                        "-fx-background-color: #fee2e2; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;");
 
                 // Delete button hover effect
-                deleteBtn.setOnMouseEntered(e -> deleteBtn.setStyle("-fx-background-color: #fecaca; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
-                deleteBtn.setOnMouseExited(e -> deleteBtn.setStyle("-fx-background-color: #fee2e2; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
+                deleteBtn.setOnMouseEntered(e -> deleteBtn.setStyle(
+                        "-fx-background-color: #fecaca; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
+                deleteBtn.setOnMouseExited(e -> deleteBtn.setStyle(
+                        "-fx-background-color: #fee2e2; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 8 10; -fx-min-width: 36; -fx-min-height: 36; -fx-border-width: 0;"));
 
                 editBtn.setOnAction(e -> {
                     CritereOffre critere = getTableView().getItems().get(getIndex());
@@ -310,8 +330,7 @@ public class AdminOffresController {
         });
 
         offreTable.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldSelection, newSelection) -> loadCriteresForSelectedOffre()
-        );
+                (obs, oldSelection, newSelection) -> loadCriteresForSelectedOffre());
 
         rafraichirOffres();
 
@@ -335,94 +354,94 @@ public class AdminOffresController {
     }
 
     // private void setupSidebarHoverEffect() {
-    //     // Set initial state
-    //     sidebar.setPrefWidth(90.0);
-    //     // Variable to track if mouse is inside sidebar
-    //     final boolean[] isMouseInside = {false};
-    //     // Expand on mouse enter to sidebar
-    //     sidebar.setOnMouseEntered(event -> {
-    //         isMouseInside[0] = true;
-    //         expandSidebar();
-    //     });
-    //     // Collapse only when mouse truly leaves
-    //     sidebar.setOnMouseExited(event -> {
-    //         isMouseInside[0] = false;
-    //         // Delay check to see if mouse re-entered
-    //         Timeline delayCheck = new Timeline(new KeyFrame(Duration.millis(100), e -> {
-    //             if (!isMouseInside[0]) {
-    //                 collapseSidebar();
-    //             }
-    //         }));
-    //         delayCheck.play();
-    //     });
-    //     // Keep expanded when hovering/clicking on nav items
-    //     navStatistiques.setOnMouseEntered(e -> { isMouseInside[0] = true; });
-    //     navStatistiques.setOnMousePressed(e -> { isMouseInside[0] = true; });
-    //     navOpportunites.setOnMouseEntered(e -> { isMouseInside[0] = true; });
-    //     navOpportunites.setOnMousePressed(e -> { isMouseInside[0] = true; });
-    //     navApropos.setOnMouseEntered(e -> { isMouseInside[0] = true; });
-    //     navApropos.setOnMousePressed(e -> { isMouseInside[0] = true; });
-    //     navAdministration.setOnMouseEntered(e -> { isMouseInside[0] = true; });
-    //     navAdministration.setOnMousePressed(e -> { isMouseInside[0] = true; });
-    //     navParametres.setOnMouseEntered(e -> { isMouseInside[0] = true; });
-    //     navParametres.setOnMousePressed(e -> { isMouseInside[0] = true; });
-    //     navDeconnexion.setOnMouseEntered(e -> { isMouseInside[0] = true; });
-    //     navDeconnexion.setOnMousePressed(e -> { isMouseInside[0] = true; });
-    //     // Add hover effects on nav items
-    //     addNavItemHoverEffect(navStatistiques);
-    //     addNavItemHoverEffect(navOpportunites);
-    //     addNavItemHoverEffect(navApropos);
-    //     addNavItemHoverEffect(navAdministration);
-    //     addNavItemHoverEffect(navParametres);
-    //     addNavItemHoverEffect(navDeconnexion);
+    // // Set initial state
+    // sidebar.setPrefWidth(90.0);
+    // // Variable to track if mouse is inside sidebar
+    // final boolean[] isMouseInside = {false};
+    // // Expand on mouse enter to sidebar
+    // sidebar.setOnMouseEntered(event -> {
+    // isMouseInside[0] = true;
+    // expandSidebar();
+    // });
+    // // Collapse only when mouse truly leaves
+    // sidebar.setOnMouseExited(event -> {
+    // isMouseInside[0] = false;
+    // // Delay check to see if mouse re-entered
+    // Timeline delayCheck = new Timeline(new KeyFrame(Duration.millis(100), e -> {
+    // if (!isMouseInside[0]) {
+    // collapseSidebar();
+    // }
+    // }));
+    // delayCheck.play();
+    // });
+    // // Keep expanded when hovering/clicking on nav items
+    // navStatistiques.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+    // navStatistiques.setOnMousePressed(e -> { isMouseInside[0] = true; });
+    // navOpportunites.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+    // navOpportunites.setOnMousePressed(e -> { isMouseInside[0] = true; });
+    // navApropos.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+    // navApropos.setOnMousePressed(e -> { isMouseInside[0] = true; });
+    // navAdministration.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+    // navAdministration.setOnMousePressed(e -> { isMouseInside[0] = true; });
+    // navParametres.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+    // navParametres.setOnMousePressed(e -> { isMouseInside[0] = true; });
+    // navDeconnexion.setOnMouseEntered(e -> { isMouseInside[0] = true; });
+    // navDeconnexion.setOnMousePressed(e -> { isMouseInside[0] = true; });
+    // // Add hover effects on nav items
+    // addNavItemHoverEffect(navStatistiques);
+    // addNavItemHoverEffect(navOpportunites);
+    // addNavItemHoverEffect(navApropos);
+    // addNavItemHoverEffect(navAdministration);
+    // addNavItemHoverEffect(navParametres);
+    // addNavItemHoverEffect(navDeconnexion);
     // }
     // private void expandSidebar() {
-    //     Timeline expandTimeline = new Timeline(
-    //         new KeyFrame(Duration.millis(250),
-    //             new KeyValue(sidebar.prefWidthProperty(), 240),
-    //             new KeyValue(sidebarSubtitle.opacityProperty(), 1),
-    //             new KeyValue(sidebarSubtitle.maxWidthProperty(), 200),
-    //             new KeyValue(labelStatistiques.opacityProperty(), 1),
-    //             new KeyValue(labelStatistiques.maxWidthProperty(), 150),
-    //             new KeyValue(labelOpportunites.opacityProperty(), 1),
-    //             new KeyValue(labelOpportunites.maxWidthProperty(), 150),
-    //             new KeyValue(labelApropos.opacityProperty(), 1),
-    //             new KeyValue(labelApropos.maxWidthProperty(), 150),
-    //             new KeyValue(labelAdministration.opacityProperty(), 1),
-    //             new KeyValue(labelAdministration.maxWidthProperty(), 150),
-    //             new KeyValue(labelParametres.opacityProperty(), 1),
-    //             new KeyValue(labelParametres.maxWidthProperty(), 150),
-    //             new KeyValue(labelDeconnexion.opacityProperty(), 1),
-    //             new KeyValue(labelDeconnexion.maxWidthProperty(), 150),
-    //             new KeyValue(supportSection.opacityProperty(), 1),
-    //             new KeyValue(supportSection.maxHeightProperty(), 200)
-    //         )
-    //     );
-    //     expandTimeline.play();
+    // Timeline expandTimeline = new Timeline(
+    // new KeyFrame(Duration.millis(250),
+    // new KeyValue(sidebar.prefWidthProperty(), 240),
+    // new KeyValue(sidebarSubtitle.opacityProperty(), 1),
+    // new KeyValue(sidebarSubtitle.maxWidthProperty(), 200),
+    // new KeyValue(labelStatistiques.opacityProperty(), 1),
+    // new KeyValue(labelStatistiques.maxWidthProperty(), 150),
+    // new KeyValue(labelOpportunites.opacityProperty(), 1),
+    // new KeyValue(labelOpportunites.maxWidthProperty(), 150),
+    // new KeyValue(labelApropos.opacityProperty(), 1),
+    // new KeyValue(labelApropos.maxWidthProperty(), 150),
+    // new KeyValue(labelAdministration.opacityProperty(), 1),
+    // new KeyValue(labelAdministration.maxWidthProperty(), 150),
+    // new KeyValue(labelParametres.opacityProperty(), 1),
+    // new KeyValue(labelParametres.maxWidthProperty(), 150),
+    // new KeyValue(labelDeconnexion.opacityProperty(), 1),
+    // new KeyValue(labelDeconnexion.maxWidthProperty(), 150),
+    // new KeyValue(supportSection.opacityProperty(), 1),
+    // new KeyValue(supportSection.maxHeightProperty(), 200)
+    // )
+    // );
+    // expandTimeline.play();
     // }
     // private void collapseSidebar() {
-    //     Timeline collapseTimeline = new Timeline(
-    //         new KeyFrame(Duration.millis(250),
-    //             new KeyValue(sidebar.prefWidthProperty(), 90),
-    //             new KeyValue(sidebarSubtitle.opacityProperty(), 0),
-    //             new KeyValue(sidebarSubtitle.maxWidthProperty(), 0),
-    //             new KeyValue(labelStatistiques.opacityProperty(), 0),
-    //             new KeyValue(labelStatistiques.maxWidthProperty(), 0),
-    //             new KeyValue(labelOpportunites.opacityProperty(), 0),
-    //             new KeyValue(labelOpportunites.maxWidthProperty(), 0),
-    //             new KeyValue(labelApropos.opacityProperty(), 0),
-    //             new KeyValue(labelApropos.maxWidthProperty(), 0),
-    //             new KeyValue(labelAdministration.opacityProperty(), 0),
-    //             new KeyValue(labelAdministration.maxWidthProperty(), 0),
-    //             new KeyValue(labelParametres.opacityProperty(), 0),
-    //             new KeyValue(labelParametres.maxWidthProperty(), 0),
-    //             new KeyValue(labelDeconnexion.opacityProperty(), 0),
-    //             new KeyValue(labelDeconnexion.maxWidthProperty(), 0),
-    //             new KeyValue(supportSection.opacityProperty(), 0),
-    //             new KeyValue(supportSection.maxHeightProperty(), 0)
-    //         )
-    //     );
-    //     collapseTimeline.play();
+    // Timeline collapseTimeline = new Timeline(
+    // new KeyFrame(Duration.millis(250),
+    // new KeyValue(sidebar.prefWidthProperty(), 90),
+    // new KeyValue(sidebarSubtitle.opacityProperty(), 0),
+    // new KeyValue(sidebarSubtitle.maxWidthProperty(), 0),
+    // new KeyValue(labelStatistiques.opacityProperty(), 0),
+    // new KeyValue(labelStatistiques.maxWidthProperty(), 0),
+    // new KeyValue(labelOpportunites.opacityProperty(), 0),
+    // new KeyValue(labelOpportunites.maxWidthProperty(), 0),
+    // new KeyValue(labelApropos.opacityProperty(), 0),
+    // new KeyValue(labelApropos.maxWidthProperty(), 0),
+    // new KeyValue(labelAdministration.opacityProperty(), 0),
+    // new KeyValue(labelAdministration.maxWidthProperty(), 0),
+    // new KeyValue(labelParametres.opacityProperty(), 0),
+    // new KeyValue(labelParametres.maxWidthProperty(), 0),
+    // new KeyValue(labelDeconnexion.opacityProperty(), 0),
+    // new KeyValue(labelDeconnexion.maxWidthProperty(), 0),
+    // new KeyValue(supportSection.opacityProperty(), 0),
+    // new KeyValue(supportSection.maxHeightProperty(), 0)
+    // )
+    // );
+    // collapseTimeline.play();
     // }
     private void addNavItemHoverEffect(HBox navItem) {
         navItem.setOnMouseEntered(e -> {
@@ -430,7 +449,8 @@ public class AdminOffresController {
         });
 
         navItem.setOnMouseExited(e -> {
-            navItem.setStyle(navItem.getStyle().replace("-fx-background-color: #f3f4f6;", "-fx-background-color: transparent;"));
+            navItem.setStyle(
+                    navItem.getStyle().replace("-fx-background-color: #f3f4f6;", "-fx-background-color: transparent;"));
         });
     }
 
@@ -457,8 +477,7 @@ public class AdminOffresController {
         if (updated != null) {
             critereService.updateCritere(
                     critere.getIdCritere(),
-                    updated
-            );
+                    updated);
 
             loadCriteres();
         }
@@ -471,8 +490,7 @@ public class AdminOffresController {
         }
 
         critereTable.getItems().setAll(
-                critereService.getByOffreId(currentOffreId)
-        );
+                critereService.getByOffreId(currentOffreId));
     }
 
     @FXML
@@ -500,12 +518,11 @@ public class AdminOffresController {
             return;
         }
         String q = query.toLowerCase().trim();
-        ObservableList<OffreEmploi> filtered = data.filtered(o
-                -> (o.getTitre() != null && o.getTitre().toLowerCase().contains(q))
-                || (o.getDescription() != null && o.getDescription().toLowerCase().contains(q))
-                || (o.getTypeContrat() != null && o.getTypeContrat().toLowerCase().contains(q))
-                || (o.getStatutOffre() != null && o.getStatutOffre().toLowerCase().contains(q))
-        );
+        ObservableList<OffreEmploi> filtered = data
+                .filtered(o -> (o.getTitre() != null && o.getTitre().toLowerCase().contains(q))
+                        || (o.getDescription() != null && o.getDescription().toLowerCase().contains(q))
+                        || (o.getTypeContrat() != null && o.getTypeContrat().toLowerCase().contains(q))
+                        || (o.getStatutOffre() != null && o.getStatutOffre().toLowerCase().contains(q)));
         offreTable.setItems(filtered);
     }
 
@@ -585,7 +602,8 @@ public class AdminOffresController {
         dialog.setTitle(existing == null ? "Ajouter Offre" : "Modifier Offre");
         dialog.setHeaderText(null);
 
-        ButtonType saveButton = new ButtonType(existing == null ? "Ajouter" : "Mettre a jour", ButtonBar.ButtonData.OK_DONE);
+        ButtonType saveButton = new ButtonType(existing == null ? "Ajouter" : "Mettre a jour",
+                ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButton, cancelButton);
 
@@ -616,28 +634,36 @@ public class AdminOffresController {
         titreField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 titreError.setText("Le titre est obligatoire.");
-                titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                titreError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                titreField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 5) {
                 titreError.setText("Le titre doit contenir au moins 5 caractères (" + newVal.trim().length() + "/5)");
-                titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                titreError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                titreField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
                 titreError.setText("Le titre ne peut pas dépasser 100 caractères (" + newVal.trim().length() + "/100)");
-                titreError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                titreError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                titreField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
                 titreError.setText("Valide");
-                titreError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                titreError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                titreField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             }
         });
 
@@ -655,15 +681,14 @@ public class AdminOffresController {
         Button enhanceBtn = new Button("✨");
         enhanceBtn.setStyle(
                 "-fx-background-color: linear-gradient(to right, #8b5cf6, #ec4899); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 6 10; "
-                + "-fx-background-radius: 6; "
-                + "-fx-cursor: hand; "
-                + "-fx-opacity: 0.9; "
-                + "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 6, 0, 0, 2);"
-        );
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 6 10; "
+                        + "-fx-background-radius: 6; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-opacity: 0.9; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 6, 0, 0, 2);");
         enhanceBtn.setTooltip(new javafx.scene.control.Tooltip("Améliorer avec l'IA"));
 
         // Stack the button on top of TextArea
@@ -689,27 +714,25 @@ public class AdminOffresController {
         // Hover effect for small enhance button
         enhanceBtn.setOnMouseEntered(e -> enhanceBtn.setStyle(
                 "-fx-background-color: linear-gradient(to right, #7c3aed, #db2777); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 6 10; "
-                + "-fx-background-radius: 6; "
-                + "-fx-cursor: hand; "
-                + "-fx-opacity: 1.0; "
-                + "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 8, 0, 0, 3);"
-        ));
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 6 10; "
+                        + "-fx-background-radius: 6; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-opacity: 1.0; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 8, 0, 0, 3);"));
 
         enhanceBtn.setOnMouseExited(e -> enhanceBtn.setStyle(
                 "-fx-background-color: linear-gradient(to right, #8b5cf6, #ec4899); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 6 10; "
-                + "-fx-background-radius: 6; "
-                + "-fx-cursor: hand; "
-                + "-fx-opacity: 0.9; "
-                + "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 6, 0, 0, 2);"
-        ));
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 6 10; "
+                        + "-fx-background-radius: 6; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-opacity: 0.9; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 6, 0, 0, 2);"));
 
         // AI Enhancement Handler
         enhanceBtn.setOnAction(evt -> {
@@ -769,8 +792,7 @@ public class AdminOffresController {
                                 e -> {
                                     enhanceStatus.setVisible(false);
                                     enhanceProgress.setVisible(false);
-                                }
-                        ));
+                                }));
                         timeline.play();
 
                         enhanceBtn.setDisable(false);
@@ -812,25 +834,31 @@ public class AdminOffresController {
         descriptionArea.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 descError.setText("La description est obligatoire.");
-                descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                descError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 20) {
-                descError.setText("La description doit contenir au moins 20 caractères (" + newVal.trim().length() + "/20)");
-                descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                descError.setText(
+                        "La description doit contenir au moins 20 caractères (" + newVal.trim().length() + "/20)");
+                descError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 500) {
-                descError.setText("La description ne peut pas dépasser 500 caractères (" + newVal.trim().length() + "/500)");
-                descError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                descError.setText(
+                        "La description ne peut pas dépasser 500 caractères (" + newVal.trim().length() + "/500)");
+                descError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
                 descError.setText("Valide (" + newVal.trim().length() + "/500 caractères)");
-                descError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                descError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
@@ -891,7 +919,7 @@ public class AdminOffresController {
             };
             return cell;
         });
-        statutCombo.setButtonCell(new javafx.scene.control.ListCell<>() {
+        statutCombo.setButtonCell(new javafx.scene.control.ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -920,7 +948,7 @@ public class AdminOffresController {
             };
             return cell;
         });
-        workPrefCombo.setButtonCell(new javafx.scene.control.ListCell<>() {
+        workPrefCombo.setButtonCell(new javafx.scene.control.ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -929,15 +957,67 @@ public class AdminOffresController {
             }
         });
 
-        // Lieu (Location)
+        // Lieu (Location) - Country Selection Dropdown
         Label lieuLbl = new Label("LIEU");
         lieuLbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 600;");
-        TextField lieuField = new TextField();
-        lieuField.setPromptText("Ex: Paris, Lyon, Remote...");
-        lieuField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; "
-                + "-fx-border-radius: 8; -fx-font-size: 14px;");
-        lieuField.setPrefWidth(400);
+        ComboBox<String> lieuCombo = new ComboBox<>();
+
+        // Populate with countries using java.util.Locale
+        ObservableList<String> allCountries = FXCollections.observableArrayList();
+        TreeSet<String> countriesSet = new TreeSet<>();
+        for (String countryCode : Locale.getISOCountries()) {
+            Locale locale = new Locale("", countryCode);
+            countriesSet.add(locale.getDisplayCountry(Locale.FRENCH));
+        }
+        allCountries.addAll(countriesSet);
+
+        lieuCombo.setItems(allCountries);
+        lieuCombo.setPromptText("Sélectionnez un pays...");
+        lieuCombo.setEditable(false); // User wants selection only by typing first letter, hidden
+
+        // Add navigation by first letter (scrolling to matching section)
+        lieuCombo.setOnKeyTyped(event -> {
+            String character = event.getCharacter();
+            if (character != null && !character.isEmpty()) {
+                String target = character.toLowerCase();
+                for (String country : allCountries) {
+                    if (country.toLowerCase().startsWith(target)) {
+                        lieuCombo.show();
+                        // Use Platform.runLater to ensure the dropdown is laid out before selecting
+                        Platform.runLater(() -> {
+                            lieuCombo.getSelectionModel().select(country);
+                            // Some versions of JavaFX need a second call or a specific focus to scroll
+                        });
+                        break;
+                    }
+                }
+                event.consume();
+            }
+        });
+
+        lieuCombo.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-background-radius: 8; "
+                + "-fx-border-color: #3d3d5c; -fx-border-radius: 8; -fx-font-size: 14px;");
+        lieuCombo.setPrefWidth(400);
+
+        lieuCombo.setCellFactory(lv -> {
+            javafx.scene.control.ListCell<String> cell = new javafx.scene.control.ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? "" : item);
+                    setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-padding: 8;");
+                }
+            };
+            return cell;
+        });
+        lieuCombo.setButtonCell(new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item);
+                setStyle("-fx-text-fill: white;");
+            }
+        });
 
         // User ID
         Label userLbl = new Label("ID UTILISATEUR");
@@ -994,7 +1074,7 @@ public class AdminOffresController {
             };
             return cell;
         });
-        userIdCombo.setButtonCell(new javafx.scene.control.ListCell<>() {
+        userIdCombo.setButtonCell(new javafx.scene.control.ListCell<Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
@@ -1013,24 +1093,29 @@ public class AdminOffresController {
 
             if (value == null && (editorText == null || editorText.trim().isEmpty())) {
                 userError.setText("L'ID utilisateur est obligatoire.");
-                userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                userError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
             } else if (value == null && editorText != null && !editorText.trim().isEmpty()) {
                 try {
                     int id = Integer.parseInt(editorText.trim());
                     if (id <= 0) {
                         userError.setText("L'ID doit etre un nombre positif.");
-                        userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                        userError.setStyle(
+                                "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                     } else {
                         userError.setText("Valide");
-                        userError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                        userError.setStyle(
+                                "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                     }
                 } catch (NumberFormatException e) {
                     userError.setText("L'ID doit etre un nombre valide.");
-                    userError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                    userError.setStyle(
+                            "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 }
             } else {
                 userError.setText("Valide");
-                userError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                userError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
             }
         };
 
@@ -1047,7 +1132,7 @@ public class AdminOffresController {
                 workPrefCombo.setValue(existing.getWorkPreference());
             }
             if (existing.getLieu() != null) {
-                lieuField.setText(existing.getLieu());
+                lieuCombo.setValue(existing.getLieu());
             }
         }
 
@@ -1057,10 +1142,9 @@ public class AdminOffresController {
                 descLbl, descriptionStack, enhanceBox, descError,
                 typeLbl, typeCombo,
                 workPrefLbl, workPrefCombo,
-                lieuLbl, lieuField,
+                lieuLbl, lieuCombo,
                 statutLbl, statutCombo,
-                userLbl, userIdCombo, userError
-        );
+                userLbl, userIdCombo, userError);
 
         ScrollPane scrollPane = new ScrollPane(container);
         scrollPane.setFitToWidth(true);
@@ -1075,70 +1159,64 @@ public class AdminOffresController {
 
         saveButtonNode.setStyle(
                 "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
-        );
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);");
 
         cancelButtonNode.setStyle(
                 "-fx-background-color: #2d2d48; "
-                + "-fx-text-fill: #94a3b8; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        );
+                        + "-fx-text-fill: #94a3b8; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;");
 
         // Add hover effects
         saveButtonNode.setOnMouseEntered(e -> saveButtonNode.setStyle(
                 "-fx-background-color: linear-gradient(to right, #9333ea, #db2777); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"
-        ));
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"));
 
         saveButtonNode.setOnMouseExited(e -> saveButtonNode.setStyle(
                 "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
-        ));
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"));
 
         cancelButtonNode.setOnMouseEntered(e -> cancelButtonNode.setStyle(
                 "-fx-background-color: #3d3d5c; "
-                + "-fx-text-fill: #a8b3cf; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        ));
+                        + "-fx-text-fill: #a8b3cf; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;"));
 
         cancelButtonNode.setOnMouseExited(e -> cancelButtonNode.setStyle(
                 "-fx-background-color: #2d2d48; "
-                + "-fx-text-fill: #94a3b8; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        ));
+                        + "-fx-text-fill: #94a3b8; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;"));
 
         // Add event filter to prevent dialog closing on validation failure
         saveButtonNode.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
@@ -1154,6 +1232,8 @@ public class AdminOffresController {
             titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                     + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #3d3d5c; "
                     + "-fx-border-radius: 8; -fx-font-size: 14px;");
+            lieuCombo.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-background-radius: 8; "
+                    + "-fx-border-color: #3d3d5c; -fx-border-radius: 8; -fx-font-size: 14px;");
             descriptionArea.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                     + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                     + "-fx-background-radius: 8; -fx-border-color: #3d3d5c; -fx-border-radius: 8;");
@@ -1166,25 +1246,28 @@ public class AdminOffresController {
                 titreError.setText("Le titre est obligatoire.");
                 titreError.setVisible(true);
                 titreError.setManaged(true);
-                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                titreField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (titre.trim().length() < 5) {
                 titreError.setText("Le titre doit contenir au moins 5 caractères.");
                 titreError.setVisible(true);
                 titreError.setManaged(true);
-                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                titreField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (titre.trim().length() > 100) {
                 titreError.setText("Le titre ne peut pas dépasser 100 caractères.");
                 titreError.setVisible(true);
                 titreError.setManaged(true);
-                titreField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                titreField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             }
 
@@ -1275,7 +1358,7 @@ public class AdminOffresController {
 
                     o.setDatePublication(new java.sql.Date(System.currentTimeMillis()));
                     o.setWorkPreference(workPrefCombo.getValue());
-                    o.setLieu(lieuField.getText().trim());
+                    o.setLieu(lieuCombo.getValue());
 
                     Integer userId = userIdCombo.getValue();
                     if (userId == null) {
@@ -1333,8 +1416,7 @@ public class AdminOffresController {
         }
 
         critereTable.getItems().setAll(
-                critereService.getByOffreId(selected.getIdOffre())
-        );
+                critereService.getByOffreId(selected.getIdOffre()));
     }
 
     private CritereOffre showCritereDialog(int offreId, String jobTitle) {
@@ -1372,25 +1454,29 @@ public class AdminOffresController {
         expField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 expError.setText("Le niveau d'expérience est obligatoire.");
-                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                         + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
                         + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 3) {
                 expError.setText("Minimum 3 caractères (" + newVal.trim().length() + "/3)");
-                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                         + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
                         + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
                 expError.setText("Maximum 100 caractères  (" + newVal.trim().length() + "/100)");
-                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                         + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
                         + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
                 expError.setText("Valide");
-                expError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                         + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; "
                         + "-fx-border-radius: 8; -fx-font-size: 14px;");
@@ -1413,28 +1499,36 @@ public class AdminOffresController {
         etudeField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 etudeError.setText("Le niveau d'étude est obligatoire.");
-                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 3) {
                 etudeError.setText("Minimum 3 caractères (" + newVal.trim().length() + "/3)");
-                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
                 etudeError.setText("Maximum 100 caractères (" + newVal.trim().length() + "/100)");
-                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
                 etudeError.setText("Valide");
-                etudeError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             }
         });
 
@@ -1455,25 +1549,29 @@ public class AdminOffresController {
         compField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 compError.setText("Les compétences requises sont obligatoires.");
-                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 5) {
                 compError.setText("Minimum 5 caractères (" + newVal.trim().length() + "/5)");
-                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 300) {
                 compError.setText("Maximum 300 caractères (" + newVal.trim().length() + "/300)");
-                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding:  2 0 0 0; -fx-min-height: 16;");
+                compError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding:  2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
                 compError.setText("Valide (" + newVal.trim().length() + "/300 caractères)");
-                compError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
@@ -1517,25 +1615,29 @@ public class AdminOffresController {
         respField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 respError.setText("Les responsabilités sont obligatoires.");
-                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 10) {
                 respError.setText("Minimum 10 caractères (" + newVal.trim().length() + "/10)");
-                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 500) {
                 respError.setText("Maximum 500 caractères (" + newVal.trim().length() + "/500)");
-                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
                 respError.setText("Valide (" + newVal.trim().length() + "/500 caractères)");
-                respError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
@@ -1590,8 +1692,7 @@ public class AdminOffresController {
                         String[] result = aiService.generateJobCriteria(
                                 jobTitle,
                                 expField.getText().trim(),
-                                etudeField.getText().trim()
-                        );
+                                etudeField.getText().trim());
 
                         // Update UI on JavaFX thread
                         javafx.application.Platform.runLater(() -> {
@@ -1633,13 +1734,13 @@ public class AdminOffresController {
                 etudeLbl, etudeField, etudeError,
                 aiButtonContainer,
                 respLbl, respField, respError,
-                compLbl, compField, compError
-        );
+                compLbl, compField, compError);
 
         ScrollPane scrollPaneCritere = new ScrollPane(container);
         scrollPaneCritere.setFitToWidth(true);
         scrollPaneCritere.setPrefHeight(580);
-        scrollPaneCritere.setStyle("-fx-background-color: #1a1a2e; -fx-background: #1a1a2e; -fx-border-color: transparent;");
+        scrollPaneCritere
+                .setStyle("-fx-background-color: #1a1a2e; -fx-background: #1a1a2e; -fx-border-color: transparent;");
         dialog.getDialogPane().setContent(scrollPaneCritere);
         dialog.getDialogPane().setStyle("-fx-background-color: #1a202c; -fx-padding: 0;");
 
@@ -1649,70 +1750,64 @@ public class AdminOffresController {
 
         saveBtn.setStyle(
                 "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
-        );
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);");
 
         cancelBtn.setStyle(
                 "-fx-background-color: #2d2d48; "
-                + "-fx-text-fill: #94a3b8; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        );
+                        + "-fx-text-fill: #94a3b8; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;");
 
         // Add hover effects
         saveBtn.setOnMouseEntered(e -> saveBtn.setStyle(
                 "-fx-background-color: linear-gradient(to right, #9333ea, #db2777); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"
-        ));
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"));
 
         saveBtn.setOnMouseExited(e -> saveBtn.setStyle(
                 "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
-        ));
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"));
 
         cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(
                 "-fx-background-color: #3d3d5c; "
-                + "-fx-text-fill: #a8b3cf; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        ));
+                        + "-fx-text-fill: #a8b3cf; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;"));
 
         cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(
                 "-fx-background-color: #2d2d48; "
-                + "-fx-text-fill: #94a3b8; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        ));
+                        + "-fx-text-fill: #94a3b8; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;"));
 
         // Add event filter to prevent dialog closing on validation failure
         saveBtn.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
@@ -1780,25 +1875,28 @@ public class AdminOffresController {
                 etudeError.setText("Le niveau d'étude est obligatoire.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauEtude.trim().length() < 3) {
                 etudeError.setText("Le niveau d'étude doit contenir au moins 3 caractères.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauEtude.trim().length() > 100) {
                 etudeError.setText("Le niveau d'étude ne peut pas dépasser 100 caractères.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             }
 
@@ -1911,25 +2009,29 @@ public class AdminOffresController {
         expField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 expError.setText("Le niveau d'expérience est obligatoire.");
-                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                         + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
                         + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 3) {
                 expError.setText("Minimum 3 caractères (" + newVal.trim().length() + "/3)");
-                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                         + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
                         + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
                 expError.setText("Maximum 100 caractères (" + newVal.trim().length() + "/100)");
-                expError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                         + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
                         + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
                 expError.setText("Valide");
-                expError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                expError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 expField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
                         + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; "
                         + "-fx-border-radius: 8; -fx-font-size: 14px;");
@@ -1951,28 +2053,36 @@ public class AdminOffresController {
         etudeField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 etudeError.setText("Le niveau d'étude est obligatoire.");
-                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() < 3) {
                 etudeError.setText("Minimum 3 caractères (" + newVal.trim().length() + "/3)");
-                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else if (newVal.trim().length() > 100) {
                 etudeError.setText("Maximum 100 caractères (" + newVal.trim().length() + "/100)");
-                etudeError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             } else {
                 etudeError.setText("Valide");
-                etudeError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
             }
         });
 
@@ -1992,25 +2102,29 @@ public class AdminOffresController {
         compField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 compError.setText("Les compétences requises sont obligatoires.");
-                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 5) {
                 compError.setText("Minimum 5 caractères (" + newVal.trim().length() + "/5)");
-                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 300) {
                 compError.setText("Maximum 300 caractères (" + newVal.trim().length() + "/300)");
-                compError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
                 compError.setText("Valide (" + newVal.trim().length() + "/300 caractères)");
-                compError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                compError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 compField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
@@ -2045,25 +2159,29 @@ public class AdminOffresController {
         respField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 respError.setText("Les responsabilités sont obligatoires.");
-                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() < 10) {
                 respError.setText("Minimum 10 caractères (" + newVal.trim().length() + "/10)");
-                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else if (newVal.trim().length() > 500) {
                 respError.setText("Maximum 500 caractères (" + newVal.trim().length() + "/500)");
-                respError.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respError.setStyle(
+                        "-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8;");
             } else {
                 respError.setText("Valide (" + newVal.trim().length() + "/500 caractères)");
-                respError.setStyle("-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
+                respError.setStyle(
+                        "-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-padding: 2 0 0 0; -fx-min-height: 16;");
                 respField.setStyle("-fx-control-inner-background: #2d2d48; -fx-text-fill: white; "
                         + "-fx-prompt-text-fill: #6b7280; -fx-background-color: #2d2d48; "
                         + "-fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 2; -fx-border-radius: 8;");
@@ -2087,13 +2205,13 @@ public class AdminOffresController {
                 expLbl, expField, expError,
                 etudeLbl, etudeField, etudeError,
                 respLbl, respField, respError,
-                compLbl, compField, compError
-        );
+                compLbl, compField, compError);
 
         ScrollPane scrollPaneUpdate = new ScrollPane(container);
         scrollPaneUpdate.setFitToWidth(true);
         scrollPaneUpdate.setPrefHeight(580);
-        scrollPaneUpdate.setStyle("-fx-background-color: #1a1a2e; -fx-background: #1a1a2e; -fx-border-color: transparent;");
+        scrollPaneUpdate
+                .setStyle("-fx-background-color: #1a1a2e; -fx-background: #1a1a2e; -fx-border-color: transparent;");
         dialog.getDialogPane().setContent(scrollPaneUpdate);
         dialog.getDialogPane().setStyle("-fx-background-color: #1a1a2e; -fx-padding: 0;");
 
@@ -2103,70 +2221,64 @@ public class AdminOffresController {
 
         saveBtnNode.setStyle(
                 "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
-        );
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);");
 
         cancelBtnNode.setStyle(
                 "-fx-background-color: #2d2d48; "
-                + "-fx-text-fill: #94a3b8; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        );
+                        + "-fx-text-fill: #94a3b8; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;");
 
         // Add hover effects
         saveBtnNode.setOnMouseEntered(e -> saveBtnNode.setStyle(
                 "-fx-background-color: linear-gradient(to right, #9333ea, #db2777); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"
-        ));
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.6), 15, 0, 0, 5);"));
 
         saveBtnNode.setOnMouseExited(e -> saveBtnNode.setStyle(
                 "-fx-background-color: linear-gradient(to right, #a855f7, #ec4899); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"
-        ));
+                        + "-fx-text-fill: white; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(168, 85, 247, 0.4), 12, 0, 0, 4);"));
 
         cancelBtnNode.setOnMouseEntered(e -> cancelBtnNode.setStyle(
                 "-fx-background-color: #3d3d5c; "
-                + "-fx-text-fill: #a8b3cf; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        ));
+                        + "-fx-text-fill: #a8b3cf; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;"));
 
         cancelBtnNode.setOnMouseExited(e -> cancelBtnNode.setStyle(
                 "-fx-background-color: #2d2d48; "
-                + "-fx-text-fill: #94a3b8; "
-                + "-fx-font-weight: 600; "
-                + "-fx-font-size: 14px; "
-                + "-fx-padding: 14 35; "
-                + "-fx-background-radius: 12; "
-                + "-fx-cursor: hand; "
-                + "-fx-border-color: transparent;"
-        ));
+                        + "-fx-text-fill: #94a3b8; "
+                        + "-fx-font-weight: 600; "
+                        + "-fx-font-size: 14px; "
+                        + "-fx-padding: 14 35; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-cursor: hand; "
+                        + "-fx-border-color: transparent;"));
 
         // Add event filter to prevent dialog closing on validation failure
         saveBtnNode.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
@@ -2234,25 +2346,28 @@ public class AdminOffresController {
                 etudeError.setText("Le niveau d'étude est obligatoire.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauEtude.trim().length() < 3) {
                 etudeError.setText("Le niveau d'étude doit contenir au moins 3 caractères.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             } else if (niveauEtude.trim().length() > 100) {
                 etudeError.setText("Le niveau d'étude ne peut pas dépasser 100 caractères.");
                 etudeError.setVisible(true);
                 etudeError.setManaged(true);
-                etudeField.setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
-                        + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
-                        + "-fx-border-radius: 8; -fx-font-size: 14px;");
+                etudeField
+                        .setStyle("-fx-background-color: #2d2d48; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280; "
+                                + "-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #ef4444; -fx-border-width: 2; "
+                                + "-fx-border-radius: 8; -fx-font-size: 14px;");
                 hasError = true;
             }
 
@@ -2343,8 +2458,7 @@ public class AdminOffresController {
 
         if (selected != null) {
             critereTable.getItems().setAll(
-                    critereService.getByOffreId(selected.getIdOffre())
-            );
+                    critereService.getByOffreId(selected.getIdOffre()));
         } else {
             critereTable.getItems().clear();
         }
@@ -2357,8 +2471,7 @@ public class AdminOffresController {
     private void loadCriteresForSelectedOffre(int offreId) {
 
         critereTable.getItems().setAll(
-                critereService.getByOffreId(offreId)
-        );
+                critereService.getByOffreId(offreId));
     }
 
     /**
@@ -2398,26 +2511,22 @@ public class AdminOffresController {
         // Card 1: Total Offers
         statsCardsContainer.getChildren().add(createStatCard(
                 "📋", "Total des Offres", String.valueOf(totalOffers),
-                "#3b82f6", "Toutes les offres"
-        ));
+                "#3b82f6", "Toutes les offres"));
 
-// Card 2: Active Offers
+        // Card 2: Active Offers
         statsCardsContainer.getChildren().add(createStatCard(
                 "✅", "Offres Actives", String.valueOf(activeOffers),
-                "#10b981", "Actuellement ouvertes"
-        ));
+                "#10b981", "Actuellement ouvertes"));
 
-// Card 3: Average Active Time
+        // Card 3: Average Active Time
         statsCardsContainer.getChildren().add(createStatCard(
                 "⏱", "Durée Moyenne", String.format("%.1f jours", avgActiveTime),
-                "#f59e0b", "Temps actif moyen"
-        ));
+                "#f59e0b", "Temps actif moyen"));
 
-// Card 4: Recent Offers
+        // Card 4: Recent Offers
         statsCardsContainer.getChildren().add(createStatCard(
                 "📅", "Derniers 7 Jours", String.valueOf(offersLast7Days),
-                "#8b5cf6", "Nouvelles offres"
-        ));
+                "#8b5cf6", "Nouvelles offres"));
     }
 
     /**
@@ -2428,10 +2537,9 @@ public class AdminOffresController {
         card.setAlignment(Pos.TOP_LEFT);
         card.setStyle(
                 "-fx-background-color: white; "
-                + "-fx-padding: 25; "
-                + "-fx-background-radius: 12; "
-                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-        );
+                        + "-fx-padding: 25; "
+                        + "-fx-background-radius: 12; "
+                        + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
         card.setPrefWidth(250);
         card.setMaxWidth(Region.USE_PREF_SIZE);
 
@@ -2442,10 +2550,9 @@ public class AdminOffresController {
         Label iconLabel = new Label(icon);
         iconLabel.setStyle(
                 "-fx-font-size: 32px; "
-                + "-fx-padding: 10; "
-                + "-fx-background-color: " + color + "22; "
-                + "-fx-background-radius: 10;"
-        );
+                        + "-fx-padding: 10; "
+                        + "-fx-background-color: " + color + "22; "
+                        + "-fx-background-radius: 10;");
 
         VBox textContainer = new VBox(4);
         Label titleLabel = new Label(title);
@@ -2454,9 +2561,8 @@ public class AdminOffresController {
         Label valueLabel = new Label(value);
         valueLabel.setStyle(
                 "-fx-font-size: 28px; "
-                + "-fx-font-weight: 700; "
-                + "-fx-text-fill: #1e293b;"
-        );
+                        + "-fx-font-weight: 700; "
+                        + "-fx-text-fill: #1e293b;");
 
         textContainer.getChildren().addAll(titleLabel, valueLabel);
 
@@ -2482,8 +2588,7 @@ public class AdminOffresController {
         for (Map.Entry<String, Integer> entry : statusData.entrySet()) {
             PieChart.Data slice = new PieChart.Data(
                     entry.getKey() + " (" + entry.getValue() + ")",
-                    entry.getValue()
-            );
+                    entry.getValue());
             statusPieChart.getData().add(slice);
         }
 
@@ -2505,8 +2610,7 @@ public class AdminOffresController {
         for (Map.Entry<String, Integer> entry : contractData.entrySet()) {
             PieChart.Data slice = new PieChart.Data(
                     entry.getKey() + " (" + entry.getValue() + ")",
-                    entry.getValue()
-            );
+                    entry.getValue());
             contractTypePieChart.getData().add(slice);
         }
 
@@ -2533,8 +2637,7 @@ public class AdminOffresController {
             for (Map.Entry<String, Integer> entry : workPrefData.entrySet()) {
                 PieChart.Data slice = new PieChart.Data(
                         entry.getKey() + " (" + entry.getValue() + ")",
-                        entry.getValue()
-                );
+                        entry.getValue());
                 workPrefPieChart.getData().add(slice);
             }
         }
@@ -2574,7 +2677,8 @@ public class AdminOffresController {
     @FXML
     private void goBackToAdmin() {
         try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/AdministrationView.fxml"));
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/AdministrationView.fxml"));
             javafx.scene.Parent root = loader.load();
 
             javafx.stage.Stage stage = (javafx.stage.Stage) offreTable.getScene().getWindow();
@@ -2693,92 +2797,97 @@ public class AdminOffresController {
      * Setup sidebar navigation handlers
      */
     // private void setupSidebarNavigation() {
-    //     // Statistiques - switch to statistics tab
-    //     navStatistiques.setOnMouseClicked(event -> {
-    //         System.out.println(" Navigation: St atistiques");
-    //         try {
-    //             javafx.scene.control.TabPane tabPane = (javafx.scene.control.TabPane) offreTable.getParent().getParent();
-    //             if (tabPane != null && tabPane.getTabs().size() > 2) {
-    //                 tabPane.getSelectionModel().select(2);
-    //             }
-    //         } catch (Exception e) {
-    //             System.err.println("Erreur navigation statistiques: " + e.getMessage());
-    //         }
-    //     });
-    //     //Opportunités - switch to offres tab
-    //     navOpportunites.setOnMouseClicked(event -> {
-    //         System.out.println(" Navigation: Opportunités");
-    //         try {
-    //             javafx.scene.control.TabPane tabPane = (javafx.scene.control.TabPane) offreTable.getParent().getParent();
-    //             if (tabPane != null && tabPane.getTabs().size() > 0) {
-    //                 tabPane.getSelectionModel().select(0);
-    //             }
-    //         } catch (Exception e) {
-    //             System.err.println("Erreur navigation opportunités: " + e.getMessage());
-    //         }
-    //     });
-    //     // À propos - show about dialog
-    //     navApropos.setOnMouseClicked(event -> {
-    //         System.out.println("ℹ Navigation: À propos");
-    //         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
-    //         aboutAlert.setTitle("À propos - VOS");
-    //         aboutAlert.setHeaderText("VOS - Volunteering Online System");
-    //         aboutAlert.setContentText(
-    //             "Version: 1.0.0\n" +
-    //             "\n" +
-    //             "Système de gestion des offres d'emploi\n" +
-    //             "avec intégration IA pour amélioration automatique.\n" +
-    //             "\n" +
-    //             " 2026 VOS - Tous droits réservés"
-    //         );
-    //         aboutAlert.showAndWait();
-    //     });
-    //     // Paramètres - show settings dialog
-    //     navParametres.setOnMouseClicked(event -> {
-    //         System.out.println(" Navigation: Paramètres");
-    //         Alert settingsAlert = new Alert(Alert.AlertType.INFORMATION);
-    //         settingsAlert.setTitle("Paramètres");
-    //         settingsAlert.setHeaderText("Configuration");
-    //         settingsAlert.setContentText(
-    //             "Les paramètres sont disponibles dans:\n" +
-    //             "src/main/resources/config.properties\n" +
-    //             "\n" +
-    //             "Vous pouvez configurer:\n" +
-    //             "- Fournisseur IA (Gemini, Groq, Claude, Demo)\n" +
-    //             "- Clés API\n" +
-    //             "- Paramètres email\n" +
-    //             "\n" +
-    //             "Redémarrez l'application après modification."
-    //         );
-    //         settingsAlert.showAndWait();
-    //     });
-    //     // Déconnexion - logout and return to signin
-    //     navDeconnexion.setOnMouseClicked(event -> {
-    //         System.out.println(" Déconnexion demandée");
-    //         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-    //         confirmAlert.setTitle("Déconnexion");
-    //         confirmAlert.setHeaderText("Confirmer la déconnexion");
-    //         confirmAlert.setContentText("êtes-vous sûr de vouloir vous déconnecter ?");
-    //         Optional<ButtonType> result = confirmAlert.showAndWait();
-    //         if (result.isPresent() && result.get() == ButtonType.OK) {
-    //             try {
-    //                 utilis.UserSession.getInstance().clearSession();
-    //                 javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/SigninView.fxml"));
-    //                 javafx.scene.Parent root = loader.load();
-    //                 javafx.stage.Stage stage = (javafx.stage.Stage) offreTable.getScene().getWindow();
-    //                 javafx.scene.Scene newScene = new javafx.scene.Scene(root);
-    //                 stage.setScene(newScene);
-    //                 stage.setTitle("Connexion - VOS");
-    //                 stage.centerOnScreen();
-    //                 System.out.println(" Déconnexion réussie");
-    //             } catch (Exception e) {
-    //                 e.printStackTrace();
-    //                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-    //                 errorAlert.setTitle("Erreur");
-    //                 errorAlert.setContentText("Erreur lors de la déconnexion: " + e.getMessage());
-    //                 errorAlert.showAndWait();
-    //             }
-    //         }
-    //     });
+    // // Statistiques - switch to statistics tab
+    // navStatistiques.setOnMouseClicked(event -> {
+    // System.out.println(" Navigation: St atistiques");
+    // try {
+    // javafx.scene.control.TabPane tabPane = (javafx.scene.control.TabPane)
+    // offreTable.getParent().getParent();
+    // if (tabPane != null && tabPane.getTabs().size() > 2) {
+    // tabPane.getSelectionModel().select(2);
+    // }
+    // } catch (Exception e) {
+    // System.err.println("Erreur navigation statistiques: " + e.getMessage());
+    // }
+    // });
+    // //Opportunités - switch to offres tab
+    // navOpportunites.setOnMouseClicked(event -> {
+    // System.out.println(" Navigation: Opportunités");
+    // try {
+    // javafx.scene.control.TabPane tabPane = (javafx.scene.control.TabPane)
+    // offreTable.getParent().getParent();
+    // if (tabPane != null && tabPane.getTabs().size() > 0) {
+    // tabPane.getSelectionModel().select(0);
+    // }
+    // } catch (Exception e) {
+    // System.err.println("Erreur navigation opportunités: " + e.getMessage());
+    // }
+    // });
+    // // À propos - show about dialog
+    // navApropos.setOnMouseClicked(event -> {
+    // System.out.println("ℹ Navigation: À propos");
+    // Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
+    // aboutAlert.setTitle("À propos - VOS");
+    // aboutAlert.setHeaderText("VOS - Volunteering Online System");
+    // aboutAlert.setContentText(
+    // "Version: 1.0.0\n" +
+    // "\n" +
+    // "Système de gestion des offres d'emploi\n" +
+    // "avec intégration IA pour amélioration automatique.\n" +
+    // "\n" +
+    // " 2026 VOS - Tous droits réservés"
+    // );
+    // aboutAlert.showAndWait();
+    // });
+    // // Paramètres - show settings dialog
+    // navParametres.setOnMouseClicked(event -> {
+    // System.out.println(" Navigation: Paramètres");
+    // Alert settingsAlert = new Alert(Alert.AlertType.INFORMATION);
+    // settingsAlert.setTitle("Paramètres");
+    // settingsAlert.setHeaderText("Configuration");
+    // settingsAlert.setContentText(
+    // "Les paramètres sont disponibles dans:\n" +
+    // "src/main/resources/config.properties\n" +
+    // "\n" +
+    // "Vous pouvez configurer:\n" +
+    // "- Fournisseur IA (Gemini, Groq, Claude, Demo)\n" +
+    // "- Clés API\n" +
+    // "- Paramètres email\n" +
+    // "\n" +
+    // "Redémarrez l'application après modification."
+    // );
+    // settingsAlert.showAndWait();
+    // });
+    // // Déconnexion - logout and return to signin
+    // navDeconnexion.setOnMouseClicked(event -> {
+    // System.out.println(" Déconnexion demandée");
+    // Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+    // confirmAlert.setTitle("Déconnexion");
+    // confirmAlert.setHeaderText("Confirmer la déconnexion");
+    // confirmAlert.setContentText("êtes-vous sûr de vouloir vous déconnecter ?");
+    // Optional<ButtonType> result = confirmAlert.showAndWait();
+    // if (result.isPresent() && result.get() == ButtonType.OK) {
+    // try {
+    // utilis.UserSession.getInstance().clearSession();
+    // javafx.fxml.FXMLLoader loader = new
+    // javafx.fxml.FXMLLoader(getClass().getResource("/SigninView.fxml"));
+    // javafx.scene.Parent root = loader.load();
+    // javafx.stage.Stage stage = (javafx.stage.Stage)
+    // offreTable.getScene().getWindow();
+    // javafx.scene.Scene newScene = new javafx.scene.Scene(root);
+    // stage.setScene(newScene);
+    // stage.setTitle("Connexion - VOS");
+    // stage.centerOnScreen();
+    // System.out.println(" Déconnexion réussie");
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+    // errorAlert.setTitle("Erreur");
+    // errorAlert.setContentText("Erreur lors de la déconnexion: " +
+    // e.getMessage());
+    // errorAlert.showAndWait();
+    // }
+    // }
+    // });
     // }
 }

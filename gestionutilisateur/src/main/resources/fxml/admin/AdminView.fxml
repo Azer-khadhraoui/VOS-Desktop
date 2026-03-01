@@ -11,10 +11,13 @@
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="controllers.AdminViewController"
         prefHeight="1024.0" prefWidth="1440.0">
+    
 
-    <!-- ✅ LEFT SIDEBAR SEULEMENT -->
+
+    <!-- ✅ LEFT SIDEBAR — Collapsible (hover to expand) -->
     <left>
         <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="60.0" minWidth="60.0" maxWidth="240.0"
+              style="-fx-background-color: #1a1f3d;"
               onMouseEntered="#onSidebarEntered" onMouseExited="#onSidebarExited">
 
             <!-- Logo -->
@@ -22,72 +25,93 @@
                 <padding>
                     <Insets top="15.0" bottom="15.0"/>
                 </padding>
-                <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
+                <ImageView fx:id="sidebarLogo" fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                     <image>
                         <Image url="@../../images/VOSwhite.png"/>
                     </image>
                 </ImageView>
             </VBox>
 
-            <!-- Navigation Items -->
-            <VBox alignment="TOP_CENTER" spacing="12.0" VBox.vgrow="ALWAYS">
+            <!-- Navigation Items Container -->
+            <VBox alignment="TOP_LEFT" spacing="4.0" VBox.vgrow="ALWAYS">
                 <padding>
-                    <Insets top="10.0" left="6.0" right="6.0" />
+                    <Insets top="15.0" left="8.0" right="8.0"/>
                 </padding>
-                
-                <HBox fx:id="btnStatistiques" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="📊" />
-                    <Label fx:id="navStatistiquesText" styleClass="sidebar-nav-label" text="Statistiques" />
-                </HBox>
-                
-                <HBox fx:id="btnUtilisateurs" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="👥" />
-                    <Label fx:id="navUtilisateursText" styleClass="sidebar-nav-label" text="Utilisateurs" />
-                </HBox>
-                
-                <HBox fx:id="btnOffres" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="💼" />
-                    <Label fx:id="navOffresText" styleClass="sidebar-nav-label" text="Offres" />
-                </HBox>
-                
-                <HBox fx:id="btnServices" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="🛠️"/>
-                    <Label fx:id="navServicesText" styleClass="sidebar-nav-label" text="Services"/>
+
+                <!-- Dashboard Section (non-clickable header) -->
+                <HBox fx:id="navDashboard" styleClass="sidebar-nav-item, sidebar-nav-item-active">
+                    <Label styleClass="sidebar-nav-icon" text="📊"/>
+                    <Label fx:id="lblDashboardSection" styleClass="sidebar-nav-label-large" text="DASHBOARD"/>
                 </HBox>
 
-                <HBox fx:id="btnEntretiens" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="📋"/>
-                    <Label fx:id="navEntretiensText" styleClass="sidebar-nav-label" text="Entretiens"/>
-                </HBox>
+                <!-- Spacer -->
+                <VBox style="-fx-min-height: 12.0;"/>
 
-                <HBox fx:id="btnInformations" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="ℹ️"/>
-                    <Label fx:id="navInformationsText" styleClass="sidebar-nav-label" text="Informations"/>
-                </HBox>
+                <!-- GESTIONS Section -->
+                <Label fx:id="lblGestionsSection" text="GESTIONS" styleClass="sidebar-section-title"/>
+                <TitledPane fx:id="gestionsPane" styleClass="sidebar-titled-pane" animated="true" collapsible="true">
+                    <graphic>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <Label styleClass="sidebar-nav-icon" text="🛠️"/>
+                            <Label fx:id="lblGestionsText" styleClass="sidebar-nav-label" text="Gestions"/>
+                        </HBox>
+                    </graphic>
+                    <VBox spacing="4.0" style="-fx-padding: 8 0 0 0;">
+                        <HBox fx:id="menuOffres" styleClass="sidebar-submenu-item">
+                            <Label styleClass="sidebar-nav-label" text="Offres d'Emploi"/>
+                        </HBox>
+                        <HBox fx:id="menuEntretiens" styleClass="sidebar-submenu-item">
+                            <Label styleClass="sidebar-nav-label" text="Entretiens"/>
+                        </HBox>
+                        <HBox fx:id="menuRecrutement" styleClass="sidebar-submenu-item">
+                            <Label styleClass="sidebar-nav-label" text="Recrutement &amp; Contrats"/>
+                        </HBox>
+                        <HBox fx:id="menuCandidatures" styleClass="sidebar-submenu-item">
+                            <Label styleClass="sidebar-nav-label" text="Gestion Candidatures"/>
+                        </HBox>
+                        <HBox fx:id="menuAdministration" styleClass="sidebar-submenu-item">
+                            <Label styleClass="sidebar-nav-label" text="Utilisateurs"/>
+                        </HBox>
+                        <HBox fx:id="menuServices" styleClass="sidebar-submenu-item">
+                            <Label styleClass="sidebar-nav-label" text="Services"/>
+                        </HBox>
+                    </VBox>
+                </TitledPane>
 
-                <HBox fx:id="navCandidatures" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="🗂️" />
-                    <Label fx:id="navCandidaturesText" styleClass="sidebar-nav-label" text="Candidatures" />
-                </HBox>
+                <!-- Spacer -->
+                <VBox style="-fx-min-height: 12.0;"/>
 
-                <HBox fx:id="navParametres" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="⚙️" />
-                    <Label fx:id="navParametresText" styleClass="sidebar-nav-label" text="Paramètres" />
-                </HBox>
-
-                <HBox fx:id="navProfil" styleClass="sidebar-nav-item">
-                    <Label styleClass="sidebar-nav-icon" text="👤"/>
-                    <Label fx:id="navProfilText" styleClass="sidebar-nav-label" text="Mon Profil"/>
-                </HBox>
-                <HBox fx:id="logoutBtn" styleClass="sidebar-nav-item,sidebar-nav-logout" alignment="CENTER_LEFT" spacing="15.0">
-                <Label text="➡️" styleClass="sidebar-nav-icon"/>
-                <Label text="Déconnexion" styleClass="sidebar-nav-label"/>
-            </HBox>
+                <!-- STATISTIQUES & Section -->
+                <Label fx:id="lblStatistiquesSection" text="STATISTIQUES" styleClass="sidebar-section-title"/>
+                <TitledPane fx:id="statsPane" styleClass="sidebar-titled-pane" animated="true" collapsible="true">
+                    <graphic>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <Label styleClass="sidebar-nav-icon" text="📈"/>
+                            <Label fx:id="lblStatsText" styleClass="sidebar-nav-label" text="Statistiques"/>
+                        </HBox>
+                    </graphic>
+                    <VBox spacing="4.0" style="-fx-padding: 8 0 0 0;">
+                        <HBox fx:id="menuStatistiques" styleClass="sidebar-submenu-item">
+                            <Label styleClass="sidebar-nav-label" text="Statistiques"/>
+                        </HBox>
+                    </VBox>
+                </TitledPane>
             </VBox>
+
+            <!-- Spacer -->
+            <VBox VBox.vgrow="ALWAYS"/>
+
+            <!-- Logout at bottom -->
+            <HBox fx:id="navLogout" styleClass="sidebar-nav-item, sidebar-nav-logout">
+                <Label styleClass="sidebar-nav-icon" text="🚪"/>
+                <Label fx:id="navLogoutText" styleClass="sidebar-nav-label" text="Déconnexion"/>
+            </HBox>
+
+            <VBox style="-fx-min-height: 8.0;"/>
         </VBox>
     </left>
 
-    <!-- ✅ CENTER: CONTENU DYNAMIQUE SEULEMENT (pas de header) -->
+    <!-- ✅ CENTER: CONTENU DYNAMIQUE (chargé par le contrôleur) -->
     <center>
         <StackPane fx:id="contentArea" style="-fx-background-color: #F9FAFB;">
             <!-- Les pages seront chargées dynamiquement ici -->

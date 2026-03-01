@@ -11,7 +11,7 @@ public class AIService {
     // ============================================================
     // GROQ API — 100% GRATUIT, ultra rapide
     // ============================================================
-    private static final String API_KEY = "";
+    private static final String API_KEY = System.getenv("GROQ_API_KEY");
     private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
     private static final String MODEL   = "llama-3.3-70b-versatile";
 

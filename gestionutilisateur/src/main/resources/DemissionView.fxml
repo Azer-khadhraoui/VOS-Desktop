@@ -6,14 +6,10 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 
-<StackPane prefHeight="1024.0" prefWidth="1440.0"
-           minHeight="1024.0" minWidth="1440.0"
-           maxHeight="1024.0" maxWidth="1440.0" 
-           xmlns="http://javafx.com/javafx/17" 
-           xmlns:fx="http://javafx.com/fxml/1" 
-           fx:controller="controllers.DemissionController">
-
-<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@AdministrationView.css">
+<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@AdministrationView.css"
+            xmlns="http://javafx.com/javafx/17" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controllers.DemissionController">
 
     <!-- LEFT SIDEBAR -->
     <left>
@@ -31,20 +27,33 @@
                     <Insets top="30.0"/>
                 </padding>
 
-                <HBox fx:id="btnStatistiques" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                <HBox fx:id="navStatistiques" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
                     <Label text="📊" styleClass="sidebar-nav-icon"/>
                     <Label text="Statistiques" styleClass="sidebar-nav-label"/>
                 </HBox>
-                <HBox fx:id="btnServices" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                
+                <HBox fx:id="navOpportunites" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="💼" styleClass="sidebar-nav-icon"/>
+                    <Label text="Opportunités" styleClass="sidebar-nav-label"/>
+                </HBox>
+                
+                <HBox fx:id="navServices" styleClass="sidebar-nav-item,sidebar-nav-item-active" alignment="CENTER_LEFT" spacing="15.0">
                     <Label text="🛠️" styleClass="sidebar-nav-icon"/>
                     <Label text="Services" styleClass="sidebar-nav-label"/>
                 </HBox>
+                
+                <HBox fx:id="navAdministration" styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="👤" styleClass="sidebar-nav-icon"/>
+                    <Label text="Administration" styleClass="sidebar-nav-label"/>
+                </HBox>
+                
                 <HBox styleClass="sidebar-nav-item" alignment="CENTER_LEFT" spacing="15.0">
                     <Label text="⚙️" styleClass="sidebar-nav-icon"/>
                     <Label text="Paramètres" styleClass="sidebar-nav-label"/>
                 </HBox>
-                <HBox fx:id="logoutBtn" styleClass="sidebar-nav-item,sidebar-nav-logout" alignment="CENTER_LEFT" spacing="15.0">
-                    <Label text="➡️" styleClass="sidebar-nav-icon"/>
+                
+                <HBox fx:id="navDeconnexion" styleClass="sidebar-nav-item,sidebar-nav-logout" alignment="CENTER_LEFT" spacing="15.0">
+                    <Label text="⎋" styleClass="sidebar-nav-icon"/>
                     <Label text="Déconnexion" styleClass="sidebar-nav-label"/>
                 </HBox>
             </VBox>
@@ -175,5 +184,3 @@
     </center>
 
 </BorderPane>
-
-</StackPane>

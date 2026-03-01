@@ -193,8 +193,6 @@ public class CandidatureService implements IService<Candidature> {
         return candidatures;
     }
 
-
-/*
     public List<Candidature> getCandidaturesByUtilisateur(int idUtilisateur) {
         String requete = "SELECT * FROM candidature WHERE id_utilisateur = ?";
         List<Candidature> candidatures = new ArrayList<>();
@@ -228,14 +226,12 @@ public class CandidatureService implements IService<Candidature> {
 
         return candidatures;
     }
-*/
 
     /**
      * Méthode supplémentaire : Récupérer les candidatures par offre
      * @param idOffre ID de l'offre
      * @return Liste des candidatures pour une offre
      */
-/*
     public List<Candidature> getCandidaturesByOffre(int idOffre) {
         String requete = "SELECT * FROM candidature WHERE id_offre = ?";
         List<Candidature> candidatures = new ArrayList<>();
@@ -269,6 +265,4 @@ public class CandidatureService implements IService<Candidature> {
 
         return candidatures;
     }
-*/
-
 }

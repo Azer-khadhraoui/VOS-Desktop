@@ -91,22 +91,21 @@
                             <VBox spacing="0" style="-fx-padding: 0; -fx-background-color: #f8fafc;">
 
                                 <!-- Page Header -->
-                                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 30 40; -fx-background-color: #f8fafc;">
-                                    <HBox alignment="CENTER_LEFT" spacing="15" HBox.hgrow="ALWAYS">
-                                        <Label text="🎯" style="-fx-font-size: 32px;"/>
-                                        <VBox spacing="2">
-                                            <Label text="Gestion des Critères" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
-                                            <Label text="Gérez vos critères de sélection" style="-fx-font-size: 13px; -fx-text-fill: #64748b;"/>
-                                        </VBox>
+                                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 25 35; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="Gestion des Critères" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                        <Label text="Définissez les critères de sélection pour l'offre sélectionnée" style="-fx-font-size: 14px; -fx-text-fill: #64748b;"/>
+                                    </VBox>
+                                    <HBox spacing="12">
+                                        <Button text="➕ Nouveau Critère" onAction="#ajouterCritere" styleClass="action-btn-add"/>
+                                        <Button text="Actualiser" onAction="#rafraichirCriteresList" styleClass="action-btn-refresh"/>
                                     </HBox>
-                                    <Button text="+ Nouveau Critère" onAction="#ajouterCritere"
-                                            style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-padding: 12 28; -fx-background-radius: 8; -fx-cursor: hand;"/>
                                 </HBox>
 
                                 <!-- Table Card -->
                                 <VBox style="-fx-background-color: white; -fx-padding: 30 40; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
                                     <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 20 0;">
-                                        <Button text="🔄 Actualiser" onAction="#rafraichirCriteres"
+                                        <Button text="🔄 Actualiser" onAction="#rafraichirCriteresList"
                                                 style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 13px; -fx-font-weight: 600; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
                                     </HBox>
                                     <TableView fx:id="critereTable" styleClass="modern-table" VBox.vgrow="ALWAYS"

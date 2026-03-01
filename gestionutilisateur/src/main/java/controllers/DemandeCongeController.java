@@ -31,24 +31,42 @@ import services.AITextGeneratorService;
 
 public class DemandeCongeController {
 
-    @FXML private VBox sidebar;
-    @FXML private VBox navContainer;
-    @FXML private Label lblUserName, lblUserRole;
-    @FXML private StackPane userAvatarContainer;
-    @FXML private Label lblUserAvatar;
-    @FXML private Button btnBack;
-    @FXML private HBox btnStatistiques;
-    @FXML private HBox btnServices;
-    @FXML private HBox logoutBtn;
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private VBox navContainer;
+    @FXML
+    private Label lblUserName, lblUserRole;
+    @FXML
+    private StackPane userAvatarContainer;
+    @FXML
+    private Label lblUserAvatar;
+    @FXML
+    private Button btnBack;
     
-    @FXML private Label lblFullName, lblEmail, lblRole;
-    @FXML private DatePicker dpDateDebut, dpDateFin;
-    @FXML private ComboBox<String> cbTypeCongé;
-    @FXML private Spinner<Integer> spNombreJours;
-    @FXML private TextArea taComments;
-    @FXML private CheckBox cbConfirm;
-    @FXML private Label lblMessage, lblWarning;
-    @FXML private Button btnDownloadPDF, btnCancel, btnGenerateAI, btnCheckQuality;
+    // Navigation items
+    @FXML private HBox navStatistiques;
+    @FXML private HBox navOpportunites;
+    @FXML private HBox navServices;
+    @FXML private HBox navAdministration;
+    @FXML private HBox navDeconnexion;
+
+    @FXML
+    private Label lblFullName, lblEmail, lblRole;
+    @FXML
+    private DatePicker dpDateDebut, dpDateFin;
+    @FXML
+    private ComboBox<String> cbTypeCongé;
+    @FXML
+    private Spinner<Integer> spNombreJours;
+    @FXML
+    private TextArea taComments;
+    @FXML
+    private CheckBox cbConfirm;
+    @FXML
+    private Label lblMessage, lblWarning;
+    @FXML
+    private Button btnDownloadPDF, btnCancel, btnGenerateAI, btnCheckQuality;
 
     private Utilisateur currentUser;
 
@@ -68,10 +86,10 @@ public class DemandeCongeController {
             lblFullName.setText(currentUser.getNom() + " " + currentUser.getPrenom());
             lblEmail.setText(currentUser.getEmail());
             lblRole.setText(currentUser.getRole());
-            
+
             lblUserName.setText(currentUser.getNom() + " " + currentUser.getPrenom());
             lblUserRole.setText(currentUser.getRole());
-            
+
             loadUserAvatar(currentUser.getImage_profil());
         }
     }
@@ -82,7 +100,7 @@ public class DemandeCongeController {
                 lblUserAvatar.setText("👤");
                 return;
             }
-            
+
             if (imagePath.contains("/") || imagePath.contains("\\")) {
                 File file = new File(imagePath);
                 if (file.exists()) {
@@ -96,7 +114,7 @@ public class DemandeCongeController {
                     return;
                 }
             }
-            
+
             lblUserAvatar.setText("👤");
         } catch (Exception e) {
             lblUserAvatar.setText("👤");
@@ -105,9 +123,21 @@ public class DemandeCongeController {
 
     private void setupNavigation() {
         btnBack.setOnAction(event -> goBack());
-        btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
-        btnServices.setOnMouseClicked(event -> goToServices());
-        logoutBtn.setOnMouseClicked(event -> logout());
+        if (navStatistiques != null) {
+            navStatistiques.setOnMouseClicked(event -> goToStatistiques());
+        }
+        if (navOpportunites != null) {
+            navOpportunites.setOnMouseClicked(event -> goToOpportunites());
+        }
+        if (navServices != null) {
+            navServices.setOnMouseClicked(event -> goToServices());
+        }
+        if (navAdministration != null) {
+            navAdministration.setOnMouseClicked(event -> goToAdministration());
+        }
+        if (navDeconnexion != null) {
+            navDeconnexion.setOnMouseClicked(event -> logout());
+        }
     }
 
     private void setupButtons() {
@@ -126,13 +156,12 @@ public class DemandeCongeController {
 
     private void setupComboBox() {
         cbTypeCongé.setItems(javafx.collections.FXCollections.observableArrayList(
-            "Congé payé",
-            "Congé sans solde",
-            "Congé parental",
-            "Congé maladie",
-            "Congé sabbatique",
-            "Autres"
-        ));
+                "Congé payé",
+                "Congé sans solde",
+                "Congé parental",
+                "Congé maladie",
+                "Congé sabbatique",
+                "Autres"));
         cbTypeCongé.setValue("Congé payé");
     }
 
@@ -144,7 +173,7 @@ public class DemandeCongeController {
     private void updateNombreJours() {
         LocalDate debut = dpDateDebut.getValue();
         LocalDate fin = dpDateFin.getValue();
-        
+
         if (debut != null && fin != null) {
             if (fin.isBefore(debut)) {
                 spNombreJours.getValueFactory().setValue(0);
@@ -162,12 +191,12 @@ public class DemandeCongeController {
             showError("Veuillez d'abord sélectionner un type de congé");
             return;
         }
-        
+
         if (dpDateDebut.getValue() == null || dpDateFin.getValue() == null) {
             showError("Veuillez d'abord sélectionner les dates");
             return;
         }
-        
+
         Integer nombreJours = spNombreJours.getValue();
         if (nombreJours == null || nombreJours <= 0) {
             showError("Veuillez spécifier un nombre de jours valide");
@@ -183,12 +212,11 @@ public class DemandeCongeController {
         new Thread(() -> {
             try {
                 String generatedText = AITextGeneratorService.generateCongeText(
-                    cbTypeCongé.getValue(),
-                    dpDateDebut.getValue(),
-                    dpDateFin.getValue(),
-                    nombreJours
-                );
-                
+                        cbTypeCongé.getValue(),
+                        dpDateDebut.getValue(),
+                        dpDateFin.getValue(),
+                        nombreJours);
+
                 // Mise à jour de l'interface sur le thread JavaFX
                 javafx.application.Platform.runLater(() -> {
                     taComments.setText(generatedText);
@@ -209,7 +237,7 @@ public class DemandeCongeController {
 
     private void checkQuality() {
         String currentText = taComments.getText();
-        
+
         if (currentText == null || currentText.trim().isEmpty()) {
             showError("Générez d'abord un texte avant de vérifier.");
             return;
@@ -218,18 +246,18 @@ public class DemandeCongeController {
         // Message de chargement
         taComments.setDisable(true);
         btnCheckQuality.setDisable(true);
-        
+
         // Appel de LanguageTool dans un thread séparé
         new Thread(() -> {
             try {
-                AITextGeneratorService.GrammarCheckResult result = 
-                    AITextGeneratorService.checkTextQualityDetailed(currentText);
-                
+                AITextGeneratorService.GrammarCheckResult result = AITextGeneratorService
+                        .checkTextQualityDetailed(currentText);
+
                 // Mise à jour de l'interface
                 javafx.application.Platform.runLater(() -> {
                     taComments.setDisable(false);
                     btnCheckQuality.setDisable(false);
-                    
+
                     // Affichage du dialogue avec rapport détaillé
                     showQualityDialog(result);
                 });
@@ -242,33 +270,29 @@ public class DemandeCongeController {
             }
         }).start();
     }
-    
+
     private void showQualityDialog(AITextGeneratorService.GrammarCheckResult result) {
-        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-        alert.setTitle("📋 Vérification Grammaticale");
-        alert.setHeaderText(null);
-        
-        // Création du contenu avec le rapport détaillé
-        javafx.scene.control.TextArea content = new javafx.scene.control.TextArea();
-        content.setText(result.getDetailedReport());
-        content.setWrapText(true);
-        content.setEditable(false);
-        content.setPrefRowCount(15);
-        content.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 11px;");
-        
-        alert.getDialogPane().setContent(content);
-        
-        // Boutons
-        javafx.scene.control.ButtonType btnKeep = new javafx.scene.control.ButtonType("✅ Garder ce texte", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
-        javafx.scene.control.ButtonType btnRegenerate = new javafx.scene.control.ButtonType("🔄 Régénérer", javafx.scene.control.ButtonBar.ButtonData.NO);
-        
-        alert.getButtonTypes().setAll(btnKeep, btnRegenerate);
-        
-        java.util.Optional<javafx.scene.control.ButtonType> result_dialog = alert.showAndWait();
-        
-        if (result_dialog.isPresent() && result_dialog.get() == btnRegenerate) {
-            // Régénération du texte
-            generateAIText();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/QualityReportView.fxml"));
+            Parent root = loader.load();
+
+            QualityReportController controller = loader.getController();
+            controller.setData(result);
+
+            Stage stage = new Stage();
+            stage.setTitle("Analyse de Qualité");
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+
+            // Set light background for the stage if needed, but the FXML has its own style
+            stage.showAndWait();
+
+            if (controller.isRegenerateRequested()) {
+                generateAIText();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Erreur lors de l'affichage du rapport: " + e.getMessage());
         }
     }
 
@@ -280,22 +304,22 @@ public class DemandeCongeController {
                 showError("Veuillez confirmer votre demande de congé");
                 return;
             }
-            
+
             if (dpDateDebut.getValue() == null || dpDateFin.getValue() == null) {
                 showError("Veuillez sélectionner les dates");
                 return;
             }
-            
+
             if (dpDateDebut.getValue().isBefore(LocalDate.now())) {
                 showError("La date de début ne peut pas être dans le passé");
                 return;
             }
-            
+
             if (dpDateFin.getValue().isBefore(dpDateDebut.getValue())) {
                 showError("La date de fin doit être après la date de début");
                 return;
             }
-            
+
             if (cbTypeCongé.getValue() == null || cbTypeCongé.getValue().isEmpty()) {
                 showError("Veuillez sélectionner un type de congé");
                 return;
@@ -317,7 +341,7 @@ public class DemandeCongeController {
             createCongePDF(filePath);
 
             showSuccess("PDF généré avec succès: " + fileName);
-            
+
             // Optional: Open file explorer to the location
             try {
                 if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -346,7 +370,8 @@ public class DemandeCongeController {
         document.add(title);
 
         // Date of submission
-        Paragraph submissionDate = new Paragraph("Date de soumission: " + LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+        Paragraph submissionDate = new Paragraph("Date de soumission: "
+                + LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .setFontSize(10)
                 .setTextAlignment(TextAlignment.RIGHT);
         document.add(submissionDate);
@@ -397,7 +422,7 @@ public class DemandeCongeController {
                     .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
                     .setFontSize(12);
             document.add(commentsTitle);
-            
+
             Paragraph comments = new Paragraph(taComments.getText())
                     .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE))
                     .setFontSize(10);
@@ -407,8 +432,8 @@ public class DemandeCongeController {
         document.add(new Paragraph("\n\n"));
 
         // Declaration
-        Paragraph declaration = new Paragraph("Par cette présente, je demande un congé du " + 
-                dpDateDebut.getValue().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + 
+        Paragraph declaration = new Paragraph("Par cette présente, je demande un congé du " +
+                dpDateDebut.getValue().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
                 " au " + dpDateFin.getValue().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
                 " (soit " + nombreJours + " jour(s)) en tant que congé " + cbTypeCongé.getValue() + ".")
                 .setFontSize(10);
@@ -424,7 +449,8 @@ public class DemandeCongeController {
 
         // Footer
         document.add(new Paragraph("\n"));
-        Paragraph footer = new Paragraph("Document généré par le système de gestion VOS - " + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+        Paragraph footer = new Paragraph("Document généré par le système de gestion VOS - " + java.time.LocalDateTime
+                .now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
                 .setFontSize(8)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE));
@@ -458,9 +484,22 @@ public class DemandeCongeController {
 
     private void goToStatistiques() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdministrationView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) btnStatistiques.getScene().getWindow();
+            Stage stage = (Stage) navStatistiques.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void goToOpportunites() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/views/MainView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) navOpportunites.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
@@ -473,7 +512,20 @@ public class DemandeCongeController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ServicesView.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) btnServices.getScene().getWindow();
+            Stage stage = (Stage) navServices.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void goToAdministration() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdministrationView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) navAdministration.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
@@ -486,7 +538,7 @@ public class DemandeCongeController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) logoutBtn.getScene().getWindow();
+            Stage stage = (Stage) navDeconnexion.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();

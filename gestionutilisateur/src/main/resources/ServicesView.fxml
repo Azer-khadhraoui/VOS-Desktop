@@ -6,13 +6,54 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 
-<VBox prefHeight="800.0"  prefWidth="1400.0"
-           xmlns="http://javafx.com/javafx/17" 
-           xmlns:fx="http://javafx.com/fxml/1" 
-           fx:controller="controllers.ServicesController">
+<BorderPane prefHeight="1024.0" prefWidth="1440.0" stylesheets="@AdministrationView.css"
+            xmlns="http://javafx.com/javafx/17" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controllers.ServicesController">
 
-<BorderPane prefHeight="800.0" prefWidth="1400.0" stylesheets="@AdministrationView.css">
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="80.0">
+            <!-- Logo -->
+            <VBox alignment="CENTER" styleClass="sidebar-logo">
+                <ImageView fitWidth="55" fitHeight="55" preserveRatio="true">
+                    <image>
+                        <Image url="@img/VOSwhiteslogan.png"/>
+                    </image>
+                </ImageView>
+            </VBox>
 
+            <!-- Navigation Icons -->
+            <VBox spacing="5" VBox.vgrow="ALWAYS">
+                <HBox fx:id="navStatistiques" styleClass="sidebar-nav-item" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="📊" styleClass="sidebar-nav-icon"/>
+                    <Label text="Statistiques" styleClass="sidebar-nav-label"/>
+                </HBox>
+
+                <HBox fx:id="navOpportunites" styleClass="sidebar-nav-item" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="💼" styleClass="sidebar-nav-icon"/>
+                    <Label text="Opportunités" styleClass="sidebar-nav-label"/>
+                </HBox>
+
+                <HBox fx:id="navServices" styleClass="sidebar-nav-item sidebar-nav-item-active" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="🛠️" styleClass="sidebar-nav-icon"/>
+                    <Label text="Services" styleClass="sidebar-nav-label"/>
+                </HBox>
+
+                <HBox fx:id="navAdministration" styleClass="sidebar-nav-item" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="👤" styleClass="sidebar-nav-icon"/>
+                    <Label text="Administration" styleClass="sidebar-nav-label"/>
+                </HBox>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <HBox fx:id="navDeconnexion" styleClass="sidebar-nav-logout" alignment="CENTER" maxWidth="Infinity">
+                    <Label text="⎋" styleClass="sidebar-nav-icon"/>
+                    <Label text="Déconnexion" styleClass="sidebar-nav-label"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </left>
 
     <!-- MAIN CONTENT -->
     <center>
@@ -91,5 +132,3 @@
     </center>
 
 </BorderPane>
-
-</VBox>

@@ -1,0 +1,158 @@
+/* ========== QUALITY REPORT - MODERN & SLEEK DESIGN ========== */
+
+.quality-dialog {
+    -fx-background-color: linear-gradient(to bottom, #1e293b 0%, #0f172a 100%);
+    -fx-border-color: rgba(56, 189, 248, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+/* ===== HEADER ===== */
+.dialog-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.1) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.header-icon {
+    -fx-font-size: 32px;
+}
+
+.dialog-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.dialog-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+}
+
+/* ===== QUALITY BADGE ===== */
+.quality-badge {
+    -fx-background-color: rgba(139, 92, 246, 0.2);
+    -fx-text-fill: #C4B5FD;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 8 16;
+    -fx-background-radius: 20;
+    -fx-border-color: #8B5CF6;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+}
+
+.quality-perfect {
+    -fx-background-color: rgba(16, 185, 129, 0.2);
+    -fx-text-fill: #6EE7B7;
+    -fx-border-color: #10B981;
+}
+
+.quality-good {
+    -fx-background-color: rgba(56, 189, 248, 0.2);
+    -fx-text-fill: #7DD3FC;
+    -fx-border-color: #0EA5E9;
+}
+
+.quality-average {
+    -fx-background-color: rgba(245, 158, 11, 0.2);
+    -fx-text-fill: #FCD34D;
+    -fx-border-color: #F59E0B;
+}
+
+.quality-poor {
+    -fx-background-color: rgba(239, 68, 68, 0.2);
+    -fx-text-fill: #FCA5A5;
+    -fx-border-color: #EF4444;
+}
+
+/* ===== SCROLL PANE ===== */
+.quality-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.quality-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.quality-container {
+    -fx-background-color: transparent;
+}
+
+/* ===== ERROR CARD ===== */
+.error-card {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(239, 68, 68, 0.2);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 15;
+    -fx-margin: 0 0 15 0;
+}
+
+.error-message {
+    -fx-text-fill: #FCA5A5;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-wrap-text: true;
+}
+
+.suggestion-box {
+    -fx-background-color: rgba(16, 185, 129, 0.1);
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-margin: 10 0 0 0;
+}
+
+.suggestion-label {
+    -fx-text-fill: #6EE7B7;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.suggestion-text {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-style: italic;
+}
+
+/* ===== FOOTER ===== */
+.dialog-footer {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.1) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.btn-keep {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 10 25;
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+    -fx-cursor: hand;
+}
+
+.btn-keep:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-regenerate {
+    -fx-background-color: linear-gradient(to right, #8B5CF6, #EC4899);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 10 25;
+    -fx-background-radius: 25;
+    -fx-cursor: hand;
+}
+
+.btn-regenerate:hover {
+    -fx-background-color: linear-gradient(to right, #7C3AED, #DB2777);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}

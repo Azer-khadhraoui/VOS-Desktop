@@ -49,82 +49,141 @@ public class GestionEntretienController {
     private final EvaluationEntretienService evaluationService = new EvaluationEntretienService();
 
     // Navigation et Sidebar
-    @FXML private BorderPane rootBorder;
-    @FXML private StackPane contentArea;
-    @FXML private VBox pageEntretiens;
-    @FXML private VBox pageDashboard;
-    @FXML private VBox pageStats;
-    @FXML private VBox sidebar;
-    @FXML private VBox navContainer;
-    @FXML private HBox btnStatistiques;
-    @FXML private HBox btnUtilisateurs;
-    @FXML private HBox btnOffres;
-    @FXML private HBox btnServices;
-    @FXML private HBox btnEntretiens;
-    @FXML private HBox logoutBtn;
+    @FXML
+    private BorderPane rootBorder;
+    @FXML
+    private StackPane contentArea;
+    @FXML
+    private VBox pageEntretiens;
+    @FXML
+    private VBox pageDashboard;
+    @FXML
+    private VBox pageStats;
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private VBox navContainer;
+    @FXML
+    private HBox btnStatistiques;
+    @FXML
+    private HBox btnUtilisateurs;
+    @FXML
+    private HBox btnOffres;
+    @FXML
+    private HBox btnServices;
+    @FXML
+    private HBox btnEntretiens;
+    @FXML
+    private HBox logoutBtn;
 
-    @FXML private Button btnNavEntretiens;
-    @FXML private Button btnNavDashboard;
-    @FXML private Button btnNavStats;
+    @FXML
+    private Button btnNavEntretiens;
+    @FXML
+    private Button btnNavDashboard;
+    @FXML
+    private Button btnNavStats;
 
     // User Profile
-    @FXML private Label lblUserName;
-    @FXML private Label lblUserRole;
-    @FXML private StackPane userAvatarContainer;
-    @FXML private Label lblUserAvatar;
+    @FXML
+    private Label lblUserName;
+    @FXML
+    private Label lblUserRole;
+    @FXML
+    private StackPane userAvatarContainer;
+    @FXML
+    private Label lblUserAvatar;
 
     // Search
-    @FXML private TextField searchField;
+    @FXML
+    private TextField searchField;
 
     // Entretien Table
-    @FXML private TableView<Entretien> tableEntretiens;
-    @FXML private TableColumn<Entretien, Integer> colIdEntretien;
-    @FXML private TableColumn<Entretien, Date> colDateEntretien;
-    @FXML private TableColumn<Entretien, Time> colHeureEntretien;
-    @FXML private TableColumn<Entretien, String> colTypeEntretien;
-    @FXML private TableColumn<Entretien, String> colStatutEntretien;
-    @FXML private TableColumn<Entretien, String> colLieuEntretien;
-    @FXML private TableColumn<Entretien, String> colTypeTest;
-    @FXML private TableColumn<Entretien, Void> colActions;
+    @FXML
+    private TableView<Entretien> tableEntretiens;
+    @FXML
+    private TableColumn<Entretien, Integer> colIdEntretien;
+    @FXML
+    private TableColumn<Entretien, Date> colDateEntretien;
+    @FXML
+    private TableColumn<Entretien, Time> colHeureEntretien;
+    @FXML
+    private TableColumn<Entretien, String> colTypeEntretien;
+    @FXML
+    private TableColumn<Entretien, String> colStatutEntretien;
+    @FXML
+    private TableColumn<Entretien, String> colLieuEntretien;
+    @FXML
+    private TableColumn<Entretien, String> colTypeTest;
+    @FXML
+    private TableColumn<Entretien, Void> colActions;
 
     // Evaluation Table
-    @FXML private TableView<EvaluationEntretien> tableEvaluations;
-    @FXML private TableColumn<EvaluationEntretien, Integer> colIdEvaluation;
-    @FXML private TableColumn<EvaluationEntretien, Double> colScoreTest;
-    @FXML private TableColumn<EvaluationEntretien, Integer> colNoteEntretien;
-    @FXML private TableColumn<EvaluationEntretien, String> colCommentaire;
-    @FXML private TableColumn<EvaluationEntretien, String> colDecision;
-    @FXML private TableColumn<EvaluationEntretien, Integer> colIdEntretienEval;
-    @FXML private TableColumn<EvaluationEntretien, Void> colActionsEval;
+    @FXML
+    private TableView<EvaluationEntretien> tableEvaluations;
+    @FXML
+    private TableColumn<EvaluationEntretien, Integer> colIdEvaluation;
+    @FXML
+    private TableColumn<EvaluationEntretien, Double> colScoreTest;
+    @FXML
+    private TableColumn<EvaluationEntretien, Integer> colNoteEntretien;
+    @FXML
+    private TableColumn<EvaluationEntretien, String> colCommentaire;
+    @FXML
+    private TableColumn<EvaluationEntretien, String> colDecision;
+    @FXML
+    private TableColumn<EvaluationEntretien, Integer> colIdEntretienEval;
+    @FXML
+    private TableColumn<EvaluationEntretien, Void> colActionsEval;
 
     // Stats labels
-    @FXML private Label lblStatTotalEntretiens;
-    @FXML private Label lblStatTermines;
-    @FXML private Label lblStatPlanifies;
-    @FXML private Label lblStatAutres;
-    @FXML private Label lblStatTerminesRow;
-    @FXML private Label lblStatPlanifiesRow;
-    @FXML private Label lblStatAutresRow;
-    @FXML private Label lblStatTotalEvaluations;
-    @FXML private Label lblStatAvgScore;
-    @FXML private Label lblStatAvgNote;
-    @FXML private PieChart chartStatut;
-    @FXML private PieChart chartType;
-    @FXML private Button btnRefreshStats;
-    @FXML private ProgressBar barTermines;
-    @FXML private ProgressBar barPlanifies;
-    @FXML private ProgressBar barAutres;
-    @FXML private ProgressBar barAvgScore;
-    @FXML private ProgressBar barAvgNote;
-    @FXML private VBox statsRoot;
+    @FXML
+    private Label lblStatTotalEntretiens;
+    @FXML
+    private Label lblStatTermines;
+    @FXML
+    private Label lblStatPlanifies;
+    @FXML
+    private Label lblStatAutres;
+    @FXML
+    private Label lblStatTerminesRow;
+    @FXML
+    private Label lblStatPlanifiesRow;
+    @FXML
+    private Label lblStatAutresRow;
+    @FXML
+    private Label lblStatTotalEvaluations;
+    @FXML
+    private Label lblStatAvgScore;
+    @FXML
+    private Label lblStatAvgNote;
+    @FXML
+    private PieChart chartStatut;
+    @FXML
+    private PieChart chartType;
+    @FXML
+    private Button btnRefreshStats;
+    @FXML
+    private TabPane mainTabPane;
+    @FXML
+    private Tab tabEntretiens;
+    @FXML
+    private Tab tabEvaluations;
+    @FXML
+    private Tab tabStats;
+    @FXML
+    private ProgressBar barTermines;
+    @FXML
+    private ProgressBar barPlanifies;
+    @FXML
+    private ProgressBar barAutres;
+    @FXML
+    private ProgressBar barAvgScore;
+    @FXML
+    private ProgressBar barAvgNote;
+    @FXML
+    private VBox statsRoot;
 
     private boolean embeddedMode = false;
-
-
-
-
-
-
 
     @FXML
     public void initialize() {
@@ -155,6 +214,23 @@ public class GestionEntretienController {
             slide.setToY(0);
 
             new ParallelTransition(fade, slide).play();
+        }
+    }
+
+    public void setStatsOnlyMode(boolean onlyStats) {
+        if (onlyStats && mainTabPane != null) {
+            // Select stats tab
+            mainTabPane.getSelectionModel().select(tabStats);
+
+            // Hide other tabs by disabling them (as per previous state)
+            tabEntretiens.setDisable(true);
+            tabEvaluations.setDisable(true);
+
+            // Optionally hide the search bar
+            if (searchField != null) {
+                searchField.setVisible(false);
+                searchField.setManaged(false);
+            }
         }
     }
 
@@ -190,16 +266,16 @@ public class GestionEntretienController {
                 imageView.setFitWidth(50);
                 imageView.setFitHeight(50);
                 imageView.setPreserveRatio(false);
-                
+
                 javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(25, 25, 25);
                 imageView.setClip(clip);
-                
+
                 Image img = new Image(new FileInputStream(imgFile));
                 imageView.setImage(img);
-                
+
                 userAvatarContainer.getChildren().clear();
                 userAvatarContainer.getChildren().add(imageView);
-                
+
                 System.out.println("✓ Avatar chargé dans GestionEntretienView: " + imgFile.getAbsolutePath());
             } else {
                 System.err.println("⚠ Fichier avatar introuvable: " + imagePath);
@@ -218,9 +294,9 @@ public class GestionEntretienController {
 
         String fileName = direct.getName();
         Path[] candidates = new Path[] {
-            Paths.get(System.getProperty("user.dir"), "images", fileName),
-            Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "images", fileName),
-            Paths.get(System.getProperty("user.dir"), "target", "classes", "images", fileName)
+                Paths.get(System.getProperty("user.dir"), "images", fileName),
+                Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "images", fileName),
+                Paths.get(System.getProperty("user.dir"), "target", "classes", "images", fileName)
         };
 
         for (Path candidate : candidates) {
@@ -269,15 +345,12 @@ public class GestionEntretienController {
 
         ObservableList<Entretien> entretiensFiltrés = FXCollections.observableArrayList(
                 entretienService.getAllEntretiens().stream()
-                        .filter(e ->
-                                e.getTypeEntretien().toLowerCase().contains(recherche.toLowerCase()) ||
-                                        e.getStatutEntretien().toLowerCase().contains(recherche.toLowerCase()) ||
-                                        e.getLieu().toLowerCase().contains(recherche.toLowerCase()) ||
-                                        e.getTypeTest().toLowerCase().contains(recherche.toLowerCase()) ||
-                                        String.valueOf(e.getIdEntretien()).contains(recherche)
-                        )
-                        .collect(Collectors.toList())
-        );
+                        .filter(e -> e.getTypeEntretien().toLowerCase().contains(recherche.toLowerCase()) ||
+                                e.getStatutEntretien().toLowerCase().contains(recherche.toLowerCase()) ||
+                                e.getLieu().toLowerCase().contains(recherche.toLowerCase()) ||
+                                e.getTypeTest().toLowerCase().contains(recherche.toLowerCase()) ||
+                                String.valueOf(e.getIdEntretien()).contains(recherche))
+                        .collect(Collectors.toList()));
 
         tableEntretiens.setItems(entretiensFiltrés);
     }
@@ -293,7 +366,7 @@ public class GestionEntretienController {
                 evaluationService.getAllEvaluations().stream()
                         .filter(e -> {
                             String commentaire = e.getCommentaire() != null ? e.getCommentaire().toLowerCase() : "";
-                            String decision    = e.getDecision()    != null ? e.getDecision().toLowerCase()    : "";
+                            String decision = e.getDecision() != null ? e.getDecision().toLowerCase() : "";
                             return commentaire.contains(r) ||
                                     decision.contains(r) ||
                                     String.valueOf(e.getIdEvaluation()).contains(r) ||
@@ -301,8 +374,7 @@ public class GestionEntretienController {
                                     String.valueOf(e.getScoreTest()).contains(r) ||
                                     String.valueOf(e.getNoteEntretien()).contains(r);
                         })
-                        .collect(Collectors.toList())
-        );
+                        .collect(Collectors.toList()));
 
         tableEvaluations.setItems(evaluationsFiltrées);
     }
@@ -315,28 +387,25 @@ public class GestionEntretienController {
 
         ObservableList<Entretien> entretiensFiltrés = FXCollections.observableArrayList(
                 entretienService.getAllEntretiens().stream()
-                        .filter(e ->
-                                e.getTypeEntretien().toLowerCase().contains(recherche.toLowerCase()) ||
-                                        e.getStatutEntretien().toLowerCase().contains(recherche.toLowerCase()) ||
-                                        e.getLieu().toLowerCase().contains(recherche.toLowerCase()) ||
-                                        e.getTypeTest().toLowerCase().contains(recherche.toLowerCase()) ||
-                                        String.valueOf(e.getIdEntretien()).contains(recherche)
-                        )
-                        .collect(Collectors.toList())
-        );
+                        .filter(e -> e.getTypeEntretien().toLowerCase().contains(recherche.toLowerCase()) ||
+                                e.getStatutEntretien().toLowerCase().contains(recherche.toLowerCase()) ||
+                                e.getLieu().toLowerCase().contains(recherche.toLowerCase()) ||
+                                e.getTypeTest().toLowerCase().contains(recherche.toLowerCase()) ||
+                                String.valueOf(e.getIdEntretien()).contains(recherche))
+                        .collect(Collectors.toList()));
 
         tableEntretiens.setItems(entretiensFiltrés);
     }
 
     private void setupEntretienTable() {
-        colIdEntretien.setCellValueFactory(cellData ->
-                new SimpleIntegerProperty(cellData.getValue().getIdEntretien()).asObject());
-        colDateEntretien.setCellValueFactory(cellData ->
-                new SimpleObjectProperty<>(cellData.getValue().getDateEntretien()));
-        colHeureEntretien.setCellValueFactory(cellData ->
-                new SimpleObjectProperty<>(cellData.getValue().getHeureEntretien()));
-        colTypeEntretien.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getTypeEntretien()));
+        colIdEntretien.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getIdEntretien()).asObject());
+        colDateEntretien
+                .setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getDateEntretien()));
+        colHeureEntretien
+                .setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getHeureEntretien()));
+        colTypeEntretien
+                .setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTypeEntretien()));
 
         // STATUT avec badge coloré
         colStatutEntretien.setCellFactory(column -> new TableCell<Entretien, String>() {
@@ -372,13 +441,11 @@ public class GestionEntretienController {
                 }
             }
         });
-        colStatutEntretien.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getStatutEntretien()));
+        colStatutEntretien
+                .setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatutEntretien()));
 
-        colLieuEntretien.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getLieu()));
-        colTypeTest.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getTypeTest()));
+        colLieuEntretien.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getLieu()));
+        colTypeTest.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTypeTest()));
 
         // Actions - 3 ou 4 boutons selon le statut
         colActions.setCellFactory(new Callback<TableColumn<Entretien, Void>, TableCell<Entretien, Void>>() {
@@ -443,14 +510,13 @@ public class GestionEntretienController {
     }
 
     private void setupEvaluationTable() {
-        colIdEvaluation.setCellValueFactory(cellData ->
-                new SimpleIntegerProperty(cellData.getValue().getIdEvaluation()).asObject());
-        colScoreTest.setCellValueFactory(cellData ->
-                new SimpleDoubleProperty(cellData.getValue().getScoreTest()).asObject());
-        colNoteEntretien.setCellValueFactory(cellData ->
-                new SimpleIntegerProperty(cellData.getValue().getNoteEntretien()).asObject());
-        colCommentaire.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getCommentaire()));
+        colIdEvaluation.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getIdEvaluation()).asObject());
+        colScoreTest.setCellValueFactory(
+                cellData -> new SimpleDoubleProperty(cellData.getValue().getScoreTest()).asObject());
+        colNoteEntretien.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getNoteEntretien()).asObject());
+        colCommentaire.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCommentaire()));
 
         // DÉCISION avec badge coloré (comme Statut)
         colDecision.setCellFactory(column -> new TableCell<EvaluationEntretien, String>() {
@@ -483,64 +549,65 @@ public class GestionEntretienController {
                 }
             }
         });
-        colDecision.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getDecision()));
+        colDecision.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDecision()));
 
-        colIdEntretienEval.setCellValueFactory(cellData ->
-                new SimpleIntegerProperty(cellData.getValue().getIdEntretien()).asObject());
+        colIdEntretienEval.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getIdEntretien()).asObject());
 
         // Actions avec boutons rectangulaires
-        colActionsEval.setCellFactory(new Callback<TableColumn<EvaluationEntretien, Void>, TableCell<EvaluationEntretien, Void>>() {
-            @Override
-            public TableCell<EvaluationEntretien, Void> call(TableColumn<EvaluationEntretien, Void> param) {
-                return new TableCell<EvaluationEntretien, Void>() {
-
-                    private final Button btnView   = new Button("👁");
-                    private final Button btnEdit   = new Button("✎");
-                    private final Button btnAI     = new Button("🤖");
-                    private final Button btnDelete = new Button("╳");
-                    private final HBox pane = new HBox(8);
-
-                    {
-                        btnView.getStyleClass().addAll("action-btn", "action-btn-view");
-                        btnEdit.getStyleClass().addAll("action-btn", "action-btn-edit");
-                        btnAI.getStyleClass().addAll("action-btn", "action-btn-star");
-                        btnDelete.getStyleClass().addAll("action-btn", "action-btn-delete");
-                        btnAI.setTooltip(new javafx.scene.control.Tooltip("Analyser avec IA"));
-
-                        pane.setAlignment(Pos.CENTER);
-                        pane.getChildren().addAll(btnView, btnEdit, btnAI, btnDelete);
-
-                        btnView.setOnAction(event -> {
-                            EvaluationEntretien evaluation = getTableView().getItems().get(getIndex());
-                            voirEvaluation(evaluation);
-                        });
-
-                        btnEdit.setOnAction(event -> {
-                            EvaluationEntretien evaluation = getTableView().getItems().get(getIndex());
-                            modifierEvaluationFromRow(evaluation);
-                        });
-
-                        btnAI.setOnAction(event -> {
-                            EvaluationEntretien evaluation = getTableView().getItems().get(getIndex());
-                            analyserEvaluationIA(evaluation);
-                        });
-
-                        btnDelete.setOnAction(event -> {
-                            EvaluationEntretien evaluation = getTableView().getItems().get(getIndex());
-                            supprimerEvaluationFromRow(evaluation);
-                        });
-                    }
-
+        colActionsEval.setCellFactory(
+                new Callback<TableColumn<EvaluationEntretien, Void>, TableCell<EvaluationEntretien, Void>>() {
                     @Override
-                    protected void updateItem(Void item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setGraphic(empty ? null : pane);
+                    public TableCell<EvaluationEntretien, Void> call(TableColumn<EvaluationEntretien, Void> param) {
+                        return new TableCell<EvaluationEntretien, Void>() {
+
+                            private final Button btnView = new Button("👁");
+                            private final Button btnEdit = new Button("✎");
+                            private final Button btnAI = new Button("🤖");
+                            private final Button btnDelete = new Button("╳");
+                            private final HBox pane = new HBox(8);
+
+                            {
+                                btnView.getStyleClass().addAll("action-btn", "action-btn-view");
+                                btnEdit.getStyleClass().addAll("action-btn", "action-btn-edit");
+                                btnAI.getStyleClass().addAll("action-btn", "action-btn-star");
+                                btnDelete.getStyleClass().addAll("action-btn", "action-btn-delete");
+                                btnAI.setTooltip(new javafx.scene.control.Tooltip("Analyser avec IA"));
+
+                                pane.setAlignment(Pos.CENTER);
+                                pane.getChildren().addAll(btnView, btnEdit, btnAI, btnDelete);
+
+                                btnView.setOnAction(event -> {
+                                    EvaluationEntretien evaluation = getTableView().getItems().get(getIndex());
+                                    voirEvaluation(evaluation);
+                                });
+
+                                btnEdit.setOnAction(event -> {
+                                    EvaluationEntretien evaluation = getTableView().getItems().get(getIndex());
+                                    modifierEvaluationFromRow(evaluation);
+                                });
+
+                                btnAI.setOnAction(event -> {
+                                    EvaluationEntretien evaluation = getTableView().getItems().get(getIndex());
+                                    analyserEvaluationIA(evaluation);
+                                });
+
+                                btnDelete.setOnAction(event -> {
+                                    EvaluationEntretien evaluation = getTableView().getItems().get(getIndex());
+                                    supprimerEvaluationFromRow(evaluation);
+                                });
+                            }
+
+                            @Override
+                            protected void updateItem(Void item, boolean empty) {
+                                super.updateItem(item, empty);
+                                setGraphic(empty ? null : pane);
+                            }
+                        };
                     }
-                };
-            }
-        });
+                });
     }
+
     // ============================================================
     // ANALYSE IA D'UNE ÉVALUATION
     // ============================================================
@@ -573,8 +640,7 @@ public class GestionEntretienController {
                 error -> javafx.application.Platform.runLater(() -> {
                     loadingStage.close();
                     showAlert("Erreur IA", "Erreur", error);
-                })
-        );
+                }));
     }
 
     private void afficherRapportIA(EvaluationEntretien evaluation, String rapport) {
@@ -666,6 +732,7 @@ public class GestionEntretienController {
             e.printStackTrace();
         }
     }
+
     private void evaluerEntretienFromRow(Entretien entretien) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/EntretienFXML/EvaluationGrilleForm.fxml"));
@@ -681,7 +748,8 @@ public class GestionEntretienController {
 
             if (controller.isSaved()) {
                 rafraichirEvaluations();
-                showAlert("Info", "Succès", "Évaluation créée avec succès pour l'entretien #" + entretien.getIdEntretien());
+                showAlert("Info", "Succès",
+                        "Évaluation créée avec succès pour l'entretien #" + entretien.getIdEntretien());
             }
         } catch (Exception e) {
             showAlert("Erreur", "Erreur", "Impossible d'ouvrir le formulaire: " + e.getMessage());
@@ -704,8 +772,7 @@ public class GestionEntretienController {
                 evaluation.getNoteEntretien(),
                 evaluation.getDecision(),
                 evaluation.getIdEntretien(),
-                evaluation.getCommentaire()
-        );
+                evaluation.getCommentaire());
 
         alert.setContentText(details);
         alert.setResizable(true);
@@ -723,7 +790,8 @@ public class GestionEntretienController {
 
     @FXML
     private void rafraichirEvaluations() {
-        ObservableList<EvaluationEntretien> evaluations = FXCollections.observableArrayList(evaluationService.getAllEvaluations());
+        ObservableList<EvaluationEntretien> evaluations = FXCollections
+                .observableArrayList(evaluationService.getAllEvaluations());
         tableEvaluations.setItems(evaluations);
         rafraichirStats();
     }
@@ -753,11 +821,11 @@ public class GestionEntretienController {
         long autres = Math.max(0, total - termines - planifies);
 
         long annules = entretiens.stream()
-            .filter(e -> {
-                String statut = e.getStatutEntretien() != null ? e.getStatutEntretien().toLowerCase() : "";
-                return statut.contains("annule") || statut.contains("annul e9") || statut.contains("annulation");
-            })
-            .count();
+                .filter(e -> {
+                    String statut = e.getStatutEntretien() != null ? e.getStatutEntretien().toLowerCase() : "";
+                    return statut.contains("annule") || statut.contains("annul e9") || statut.contains("annulation");
+                })
+                .count();
 
         double avgScore = evaluations.stream()
                 .mapToDouble(EvaluationEntretien::getScoreTest)
@@ -811,8 +879,7 @@ public class GestionEntretienController {
                                 String type = e.getTypeEntretien();
                                 return type == null || type.trim().isEmpty() ? "Inconnu" : type.trim();
                             },
-                            java.util.stream.Collectors.counting()
-                    ));
+                            java.util.stream.Collectors.counting()));
 
             ObservableList<PieChart.Data> typeData = FXCollections.observableArrayList();
             for (java.util.Map.Entry<String, Long> entry : typeCounts.entrySet()) {
@@ -1098,10 +1165,10 @@ public class GestionEntretienController {
     public void logout() {
         try {
             UserSession.getInstance().clearSession();
-            
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) tableEntretiens.getScene().getWindow();
             Scene newScene = new Scene(root, 1440, 1024);
             stage.setScene(newScene);

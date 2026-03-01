@@ -32,24 +32,42 @@ import java.time.format.DateTimeFormatter;
 
 public class DemissionController {
 
-    @FXML private VBox sidebar;
-    @FXML private VBox navContainer;
-    @FXML private Label lblUserName, lblUserRole;
-    @FXML private StackPane userAvatarContainer;
-    @FXML private Label lblUserAvatar;
-    @FXML private Button btnBack;
-    @FXML private HBox btnStatistiques;
-    @FXML private HBox btnServices;
-    @FXML private HBox logoutBtn;
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private VBox navContainer;
+    @FXML
+    private Label lblUserName, lblUserRole;
+    @FXML
+    private StackPane userAvatarContainer;
+    @FXML
+    private Label lblUserAvatar;
+    @FXML
+    private Button btnBack;
     
-    @FXML private Label lblFullName, lblEmail, lblRole;
-    @FXML private DatePicker dpDemissionDate;
-    @FXML private ComboBox<String> cbRaison;
-    @FXML private Spinner<Integer> spPreavis;
-    @FXML private TextArea taComments;
-    @FXML private CheckBox cbConfirm;
-    @FXML private Label lblMessage, lblWarning;
-    @FXML private Button btnGeneratePDF, btnCancel, btnGenerateAI, btnCheckQuality;
+    // Navigation items
+    @FXML private HBox navStatistiques;
+    @FXML private HBox navOpportunites;
+    @FXML private HBox navServices;
+    @FXML private HBox navAdministration;
+    @FXML private HBox navDeconnexion;
+
+    @FXML
+    private Label lblFullName, lblEmail, lblRole;
+    @FXML
+    private DatePicker dpDemissionDate;
+    @FXML
+    private ComboBox<String> cbRaison;
+    @FXML
+    private Spinner<Integer> spPreavis;
+    @FXML
+    private TextArea taComments;
+    @FXML
+    private CheckBox cbConfirm;
+    @FXML
+    private Label lblMessage, lblWarning;
+    @FXML
+    private Button btnGeneratePDF, btnCancel, btnGenerateAI, btnCheckQuality;
 
     private Utilisateur currentUser;
 
@@ -60,7 +78,7 @@ public class DemissionController {
         setupButtons();
         setupDefaults();
         setupComboBox();
-        
+
         // Set today's date as default
         dpDemissionDate.setValue(LocalDate.now());
         cbRaison.setValue("Raison personnelle");
@@ -69,15 +87,14 @@ public class DemissionController {
 
     private void setupComboBox() {
         cbRaison.setItems(javafx.collections.FXCollections.observableArrayList(
-            "Raison personnelle",
-            "Changement d'emploi",
-            "Salaire insuffisant",
-            "Conditions de travail",
-            "Opportunité professionnelle",
-            "Études/Formation",
-            "Raisons familiales",
-            "Autre"
-        ));
+                "Raison personnelle",
+                "Changement d'emploi",
+                "Salaire insuffisant",
+                "Conditions de travail",
+                "Opportunité professionnelle",
+                "Études/Formation",
+                "Raisons familiales",
+                "Autre"));
     }
 
     private void loadCurrentUser() {
@@ -86,10 +103,10 @@ public class DemissionController {
             lblFullName.setText(currentUser.getNom() + " " + currentUser.getPrenom());
             lblEmail.setText(currentUser.getEmail());
             lblRole.setText(currentUser.getRole());
-            
+
             lblUserName.setText(currentUser.getNom() + " " + currentUser.getPrenom());
             lblUserRole.setText(currentUser.getRole());
-            
+
             loadUserAvatar(currentUser.getImage_profil());
         }
     }
@@ -100,7 +117,7 @@ public class DemissionController {
                 lblUserAvatar.setText("👤");
                 return;
             }
-            
+
             // Check if it's an absolute path or relative
             if (imagePath.contains("/") || imagePath.contains("\\")) {
                 // Absolute path - use directly
@@ -128,7 +145,7 @@ public class DemissionController {
                     return;
                 }
             }
-            
+
             lblUserAvatar.setText("👤");
         } catch (Exception e) {
             lblUserAvatar.setText("👤");
@@ -137,9 +154,21 @@ public class DemissionController {
 
     private void setupNavigation() {
         btnBack.setOnAction(event -> goBack());
-        btnStatistiques.setOnMouseClicked(event -> goToStatistiques());
-        btnServices.setOnMouseClicked(event -> goToServices());
-        logoutBtn.setOnMouseClicked(event -> logout());
+        if (navStatistiques != null) {
+            navStatistiques.setOnMouseClicked(event -> goToStatistiques());
+        }
+        if (navOpportunites != null) {
+            navOpportunites.setOnMouseClicked(event -> goToOpportunites());
+        }
+        if (navServices != null) {
+            navServices.setOnMouseClicked(event -> goToServices());
+        }
+        if (navAdministration != null) {
+            navAdministration.setOnMouseClicked(event -> goToAdministration());
+        }
+        if (navDeconnexion != null) {
+            navDeconnexion.setOnMouseClicked(event -> logout());
+        }
     }
 
     private void setupButtons() {
@@ -161,7 +190,7 @@ public class DemissionController {
             showError("Veuillez d'abord sélectionner une raison de démission");
             return;
         }
-        
+
         Integer preavis = spPreavis.getValue();
         if (preavis == null || preavis < 0) {
             showError("Veuillez spécifier un préavis valide");
@@ -176,11 +205,13 @@ public class DemissionController {
         // Appel de l'IA dans un thread séparé pour ne pas bloquer l'interface
         new Thread(() -> {
             try {
-                String generatedText = AITextGeneratorService.generateDemissionText(
-                    cbRaison.getValue(),
-                    preavis
-                );
+                // Convertir le préavis en format texte
+                String preavisTexte = formatPreavis(preavis);
                 
+                String generatedText = AITextGeneratorService.generateDemissionText(
+                        cbRaison.getValue(),
+                        preavisTexte);
+
                 // Mise à jour de l'interface sur le thread JavaFX
                 javafx.application.Platform.runLater(() -> {
                     taComments.setText(generatedText);
@@ -201,7 +232,7 @@ public class DemissionController {
 
     private void checkQuality() {
         String currentText = taComments.getText();
-        
+
         if (currentText == null || currentText.trim().isEmpty()) {
             showError("Générez d'abord un texte avant de vérifier.");
             return;
@@ -210,18 +241,18 @@ public class DemissionController {
         // Message de chargement
         taComments.setDisable(true);
         btnCheckQuality.setDisable(true);
-        
+
         // Appel de LanguageTool dans un thread séparé
         new Thread(() -> {
             try {
-                AITextGeneratorService.GrammarCheckResult result = 
-                    AITextGeneratorService.checkTextQualityDetailed(currentText);
-                
+                AITextGeneratorService.GrammarCheckResult result = AITextGeneratorService
+                        .checkTextQualityDetailed(currentText);
+
                 // Mise à jour de l'interface
                 javafx.application.Platform.runLater(() -> {
                     taComments.setDisable(false);
                     btnCheckQuality.setDisable(false);
-                    
+
                     // Affichage du dialogue avec rapport détaillé
                     showQualityDialog(result);
                 });
@@ -234,33 +265,28 @@ public class DemissionController {
             }
         }).start();
     }
-    
+
     private void showQualityDialog(AITextGeneratorService.GrammarCheckResult result) {
-        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-        alert.setTitle("📋 Vérification Grammaticale");
-        alert.setHeaderText(null);
-        
-        // Création du contenu avec le rapport détaillé
-        javafx.scene.control.TextArea content = new javafx.scene.control.TextArea();
-        content.setText(result.getDetailedReport());
-        content.setWrapText(true);
-        content.setEditable(false);
-        content.setPrefRowCount(15);
-        content.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 11px;");
-        
-        alert.getDialogPane().setContent(content);
-        
-        // Boutons
-        javafx.scene.control.ButtonType btnKeep = new javafx.scene.control.ButtonType("✅ Garder ce texte", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
-        javafx.scene.control.ButtonType btnRegenerate = new javafx.scene.control.ButtonType("🔄 Régénérer", javafx.scene.control.ButtonBar.ButtonData.NO);
-        
-        alert.getButtonTypes().setAll(btnKeep, btnRegenerate);
-        
-        java.util.Optional<javafx.scene.control.ButtonType> result_dialog = alert.showAndWait();
-        
-        if (result_dialog.isPresent() && result_dialog.get() == btnRegenerate) {
-            // Régénération du texte
-            generateAIText();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/QualityReportView.fxml"));
+            Parent root = loader.load();
+
+            QualityReportController controller = loader.getController();
+            controller.setData(result);
+
+            Stage stage = new Stage();
+            stage.setTitle("Analyse de Qualité");
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+
+            stage.showAndWait();
+
+            if (controller.isRegenerateRequested()) {
+                generateAIText();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Erreur lors de l'affichage du rapport: " + e.getMessage());
         }
     }
 
@@ -272,15 +298,15 @@ public class DemissionController {
                 showError("Veuillez confirmer votre demande de démission");
                 return;
             }
-            
+
             if (dpDemissionDate.getValue() == null) {
                 showError("Veuillez sélectionner une date de démission");
                 return;
-            }            
+            }
             if (dpDemissionDate.getValue().isBefore(LocalDate.now())) {
                 showError("La date de démission ne peut pas être dans le passé");
                 return;
-            }            
+            }
             if (cbRaison.getValue() == null || cbRaison.getValue().isEmpty()) {
                 showError("Veuillez sélectionner une raison");
                 return;
@@ -302,7 +328,7 @@ public class DemissionController {
             createDemissionPDF(filePath);
 
             showSuccess("PDF généré avec succès: " + fileName);
-            
+
             // Optional: Open file explorer to the location
             try {
                 if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -331,7 +357,8 @@ public class DemissionController {
         document.add(title);
 
         // Date of submission
-        Paragraph submissionDate = new Paragraph("Date de soumission: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+        Paragraph submissionDate = new Paragraph(
+                "Date de soumission: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .setFontSize(10)
                 .setTextAlignment(TextAlignment.RIGHT);
         document.add(submissionDate);
@@ -379,7 +406,7 @@ public class DemissionController {
                     .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
                     .setFontSize(12);
             document.add(commentsTitle);
-            
+
             Paragraph comments = new Paragraph(taComments.getText())
                     .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE))
                     .setFontSize(10);
@@ -389,10 +416,13 @@ public class DemissionController {
         document.add(new Paragraph("\n\n"));
 
         // Declaration
-        Paragraph declaration = new Paragraph("Par cette présente, je déclare officieusement démissionner de mon poste, " +
-                "effective à partir du " + dpDemissionDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-                " ou après un délai de préavis de " + spPreavis.getValue() + " jours à compter de cette demande, " +
-                "selon les dispositions légales en vigueur.")
+        Paragraph declaration = new Paragraph(
+                "Par cette présente, je déclare officieusement démissionner de mon poste, " +
+                        "effective à partir du "
+                        + dpDemissionDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
+                        " ou après un délai de préavis de " + spPreavis.getValue()
+                        + " jours à compter de cette demande, " +
+                        "selon les dispositions légales en vigueur.")
                 .setFontSize(10);
         document.add(declaration);
 
@@ -406,7 +436,8 @@ public class DemissionController {
 
         // Footer
         document.add(new Paragraph("\n"));
-        Paragraph footer = new Paragraph("Document généré par le système de gestion VOS - " + java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+        Paragraph footer = new Paragraph("Document généré par le système de gestion VOS - "
+                + java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
                 .setFontSize(8)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE));
@@ -440,9 +471,22 @@ public class DemissionController {
 
     private void goToStatistiques() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdministrationView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) btnStatistiques.getScene().getWindow();
+            Stage stage = (Stage) navStatistiques.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void goToOpportunites() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/views/MainView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) navOpportunites.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
@@ -455,7 +499,20 @@ public class DemissionController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ServicesView.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) btnServices.getScene().getWindow();
+            Stage stage = (Stage) navServices.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void goToAdministration() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdministrationView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) navAdministration.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
@@ -468,7 +525,7 @@ public class DemissionController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/SigninView.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) logoutBtn.getScene().getWindow();
+            Stage stage = (Stage) navDeconnexion.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
@@ -476,4 +533,27 @@ public class DemissionController {
             e.printStackTrace();
         }
     }
-}
+    
+    /**
+     * Convertit un nombre de jours de préavis en format texte lisible
+     * @param jours Nombre de jours de préavis
+     * @return Format texte (ex: "1 mois", "2 semaines", "30 jours")
+     */
+    private String formatPreavis(int jours) {
+        if (jours == 0) {
+            return "sans préavis";
+        } else if (jours == 30) {
+            return "1 mois";
+        } else if (jours == 60) {
+            return "2 mois";
+        } else if (jours == 90) {
+            return "3 mois";
+        } else if (jours % 30 == 0) {
+            return (jours / 30) + " mois";
+        } else if (jours % 7 == 0) {
+            int semaines = jours / 7;
+            return semaines + (semaines > 1 ? " semaines" : " semaine");
+        } else {
+            return jours + (jours > 1 ? " jours" : " jour");
+        }
+    }}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.Insets?>
+
+<StackPane fx:id="root" prefHeight="1024.0" prefWidth="1440.0" style="-fx-background-color: #0f1318;" 
+           xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="controllers.SplashScreenController">
+    
+    <!-- Glow Background Circle -->
+    <Circle fx:id="glowCircle" radius="80" fill="transparent" StackPane.alignment="CENTER"/>
+    
+    <!-- Logo Container -->
+    <VBox alignment="CENTER" spacing="20.0">
+        <ImageView fx:id="logoImageView" fitHeight="300.0" fitWidth="300.0" preserveRatio="true">
+            <image>
+                <Image url="@img/VOSwhiteslogan.png"/>
+            </image>
+        </ImageView>
+        
+        <Label fx:id="welcomeLabel" text="BIENVENUE" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white; -fx-letter-spacing: 5px;" alignment="CENTER"/>
+    </VBox>
+    
+</StackPane>
