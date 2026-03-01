@@ -476,11 +476,6 @@ in the Software without restriction...
 
 ## 📧 Contact & Support
 
-**Auteur Principal**
-- 👤 Nom : **Azer Khadhraoui**
-- 📧 Email : mohamedazer.khadhraoui@gmail.com
-- 🐙 GitHub : [@Azer-khadhraoui](https://github.com/Azer-khadhraoui)
-- 💼 LinkedIn : [À ajouter]
 
 **Ressources**
 - 🔗 Repository : https://github.com/Azer-khadhraoui/VOS-Desktop
@@ -507,7 +502,7 @@ in the Software without restriction...
 
 ---
 
-<sub>Fait avec ❤️ par Azer Khadhraoui</sub>
+<sub>Fait avec ❤️ par VOS Team</sub>
 
 <sub>Dernière mise à jour : Mars 2026</sub>
 
